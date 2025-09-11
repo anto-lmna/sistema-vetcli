@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import CustomUser, PerfilVeterinario, PerfilCliente
-from apps.clinicas.models import Clinica
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -21,7 +20,7 @@ class CustomUserCreationForm(UserCreationForm):
             "last_name",
             "telefono",
             "dni",
-            "role",
+            "rol",
             "password1",
             "password2",
         )
@@ -29,14 +28,14 @@ class CustomUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Personalizar el widget del rol
-        self.fields["role"].widget = forms.Select(choices=CustomUser.ROLE_CHOICES)
+        self.fields["rol"].widget = forms.Select(choices=CustomUser.OPCIONES_ROL)
 
         # Personalizar labels y help texts
         self.fields["username"].label = "Nombre de usuario"
         self.fields["email"].label = "Correo electrónico"
         self.fields["password1"].label = "Contraseña"
         self.fields["password2"].label = "Confirmar contraseña"
-        self.fields["role"].label = "Tipo de usuario"
+        self.fields["rol"].label = "Tipo de usuario"
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -51,8 +50,9 @@ class CustomUserCreationForm(UserCreationForm):
         return dni
 
 
-class ClienteRegistroForm(CustomUserCreationForm):
-    ocupacion = forms.CharField(max_length=100, required=False, label="Ocupación")
+class ClientePreRegistroForm(CustomUserCreationForm):
+    """Formulario para pre-registro de clientes (queda pendiente de aprobación)"""
+
     contacto_emergencia = forms.CharField(
         max_length=100, required=False, label="Contacto de emergencia"
     )
@@ -62,40 +62,49 @@ class ClienteRegistroForm(CustomUserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Solo permitir role cliente
-        self.fields["role"].initial = "cliente"
-        self.fields["role"].widget = forms.HiddenInput()
+        # Solo permitir rol cliente
+        self.fields["rol"].initial = "cliente"
+        self.fields["rol"].widget = forms.HiddenInput()
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.role = "cliente"
+        user.rol = "cliente"
+        user.is_active = False  # Inactivo hasta que admin apruebe
+        user.pendiente_aprobacion = True
         if commit:
             user.save()
             # Crear perfil cliente
             PerfilCliente.objects.create(
                 user=user,
-                ocupacion=self.cleaned_data.get("ocupacion", ""),
                 contacto_emergencia=self.cleaned_data.get("contacto_emergencia", ""),
                 telefono_emergencia=self.cleaned_data.get("telefono_emergencia", ""),
             )
         return user
 
 
-class VeterinarioRegistroForm(CustomUserCreationForm):
+class AdminVeterinarioForm(forms.ModelForm):
+    """Formulario para que el admin cree veterinarios"""
+
+    password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label="Confirmar contraseña", widget=forms.PasswordInput
+    )
     matricula = forms.CharField(max_length=20, required=True, label="Matrícula")
     especialidad = forms.CharField(max_length=100, required=False, label="Especialidad")
     experiencia_anos = forms.IntegerField(
         min_value=0, required=False, initial=0, label="Años de experiencia"
     )
-    clinica = forms.ModelChoiceField(
-        queryset=Clinica.objects.filter(is_active=True), required=False, label="Clínica"
-    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Solo permitir role veterinario
-        self.fields["role"].initial = "veterinario"
-        self.fields["role"].widget = forms.HiddenInput()
+    class Meta:
+        model = CustomUser
+        fields = ("username", "email", "first_name", "last_name", "telefono", "dni")
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Las contraseñas no coinciden.")
+        return password2
 
     def clean_matricula(self):
         matricula = self.cleaned_data.get("matricula")
@@ -103,9 +112,11 @@ class VeterinarioRegistroForm(CustomUserCreationForm):
             raise forms.ValidationError("Ya existe un veterinario con esta matrícula.")
         return matricula
 
-    def save(self, commit=True):
+    def save(self, admin_user, clinica, commit=True):
         user = super().save(commit=False)
-        user.role = "veterinario"
+        user.rol = "veterinario"
+        user.is_active = True
+        user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
             # Crear perfil veterinario
@@ -114,7 +125,7 @@ class VeterinarioRegistroForm(CustomUserCreationForm):
                 matricula=self.cleaned_data.get("matricula"),
                 especialidad=self.cleaned_data.get("especialidad", ""),
                 experiencia_anos=self.cleaned_data.get("experiencia_anos", 0),
-                clinica=self.cleaned_data.get("clinica"),
+                clinica=clinica,
             )
         return user
 

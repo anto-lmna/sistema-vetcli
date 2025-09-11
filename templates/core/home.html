@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center">
+        <h1 class="display-4 mb-4">🐾 Bienvenido a VetCli</h1>
+        <p class="lead">Sistema de gestión integral para veterinarias</p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">👨‍⚕️ Administradores</h5>
+                        <p class="card-text">Gestiona tu veterinaria, veterinarios y clientes</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🩺 Veterinarios</h5>
+                        <p class="card-text">Accede a historiales, turnos y pacientes</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-success">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🐕 Clientes</h5>
+                        <p class="card-text">Gestiona turnos y el cuidado de tus mascotas</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'accounts:login' %}" class="btn btn-info">Acceder</a>
+                            <a href="{% url 'accounts:registro_opciones' %}" class="btn btn-outline-info">Registrarse</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
