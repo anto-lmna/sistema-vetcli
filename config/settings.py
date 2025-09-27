@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Apps de terceros
     "crispy_forms",
+    "crispy_bootstrap5",
     # Apps Local
     "apps.accounts",
     "apps.clinicas",
@@ -47,6 +48,9 @@ INSTALLED_APPS = [
     "apps.turnos",
     "apps.core",
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

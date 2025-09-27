@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Pre-registro Cliente - Veterinaria SaaS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h3>🐕 Pre-registro de Cliente</h3>
+                    {% if clinica %}
+                        <p class="text-muted">Registrándote en: <strong>{{ clinica.nombre }}</strong></p>
+                        <small class="text-info">📍 {{ clinica.direccion }}</small>
+                    {% endif %}
+                </div>
+
+                {% if clinica %}
+                    <div class="alert alert-warning">
+                        <strong>Importante:</strong> Tu cuenta quedará pendiente de activación hasta que 
+                        <strong>{{ clinica.nombre }}</strong> apruebe tu registro.
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.first_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_name|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.dni|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.telefono|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    {{ form.email|as_crispy_field }}
+                    {{ form.username|as_crispy_field }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.password1|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.password2|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <!-- Campos específicos de cliente -->
+                    <hr>
+                    <h6>Información de Contacto de Emergencia (Opcional)</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.contacto_emergencia|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.telefono_emergencia|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    {{ form.rol }}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Enviar Pre-registro
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-2">¿Ya tienes cuenta?</p>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">
+                        Iniciar Sesión
+                    </a>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'accounts:registro_opciones' %}" class="text-muted">
+                        ← Volver a opciones de registro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

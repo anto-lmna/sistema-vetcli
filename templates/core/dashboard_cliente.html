@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Cliente{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>🐕 Dashboard Cliente</h2>
+            {% if clinica %}
+                <span class="badge bg-success fs-6">{{ clinica.nombre }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">--</h4>
+                        <p class="card-text">Mis Mascotas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fs-1">🐾</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">--</h4>
+                        <p class="card-text">Citas Pendientes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fs-1">📅</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">--</h4>
+                        <p class="card-text">Historiales</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fs-1">📋</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información del cliente -->
+{% if perfil %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">👤 Mi Información</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre:</strong> {{ user.get_full_name }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>DNI:</strong> {{ user.dni }}</p>
+                        <p><strong>Contacto Emergencia:</strong> {{ perfil.contacto_emergencia|default:"No especificado" }}</p>
+                        <p><strong>Tel. Emergencia:</strong> {{ perfil.telefono_emergencia|default:"No especificado" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Acciones rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-primary w-100" onclick="alert('Próximamente')">
+                            🐾 Agregar Mascota
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-success w-100" onclick="alert('Próximamente')">
+                            📅 Pedir Cita
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-info w-100" onclick="alert('Próximamente')">
+                            📋 Ver Historiales
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-warning w-100" onclick="alert('Próximamente')">
+                            📄 Descargar Recetas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mis mascotas (placeholder) -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🐾 Mis Mascotas</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6>🐕 ¡Agrega tu primera mascota!</h6>
+                    <p class="mb-0">Aquí verás todas tus mascotas y podrás gestionar sus citas e historiales médicos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

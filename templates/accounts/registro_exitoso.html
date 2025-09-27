@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Exitoso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow text-center">
+                    <div class="card-body py-5">
+                        <div class="mb-4">
+                            <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="text-white" style="font-size: 2rem;">✓</i>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-success mb-3">¡Pre-registro exitoso!</h2>
+                        
+                        <div class="alert alert-light border mb-4">
+                            <h6 class="text-primary mb-3">¿Qué sigue ahora?</h6>
+                            <div class="text-start">
+                                <p class="mb-2">
+                                    <span class="badge bg-primary me-2">1</span>
+                                    El administrador de la veterinaria revisará tu solicitud
+                                </p>
+                                <p class="mb-2">
+                                    <span class="badge bg-primary me-2">2</span>
+                                    Te contactaremos por email para activar tu cuenta
+                                </p>
+                                <p class="mb-0">
+                                    <span class="badge bg-primary me-2">3</span>
+                                    Una vez activada, podrás iniciar sesión y gestionar tus mascotas
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                                Ir al Login
+                            </a>
+                            
+                            {% if clinicas_disponibles > 1 %}
+                            <a href="{% url 'accounts:registro_opciones' %}" class="btn btn-outline-secondary">
+                                Registrarse en otra veterinaria
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'core:home' %}" class="btn btn-light">
+                                Volver al inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

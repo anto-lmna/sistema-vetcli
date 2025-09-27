@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro - Veterinaria SaaS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="text-center mb-5">
+            <h2>🐾 Opciones de Registro</h2>
+            <p class="lead">Elige cómo quieres registrarte en nuestro sistema</p>
+        </div>
+
+        <div class="row">
+            <!-- Registro como Cliente -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span class="display-1">🐕</span>
+                        </div>
+                        <h4 class="card-title">Soy Dueño de Mascotas</h4>
+                        <p class="card-text">
+                            Quiero registrarme en una veterinaria para gestionar las citas 
+                            y el historial médico de mis mascotas.
+                        </p>
+                        
+                        {% if clinicas_disponibles %}
+                            <h6>Veterinarias Disponibles ({{ total_clinicas }})</h6>
+                            <div class="list-group list-group-flush">
+                                {% for clinica in clinicas_disponibles %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div class="text-start">
+                                            <strong>{{ clinica.nombre }}</strong><br>
+                                            <small class="text-muted">{{ clinica.direccion|truncatewords:5 }}</small>
+                                        </div>
+                                        <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
+                                           class="btn btn-primary btn-sm">
+                                            Registrarme
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <small>No hay veterinarias disponibles en este momento</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registro como Admin/Veterinario -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span class="display-1">👨‍⚕️</span>
+                        </div>
+                        <h4 class="card-title">Soy Profesional Veterinario</h4>
+                        
+                        <div class="mt-4">
+                            <h6>¿Tienes una clínica veterinaria?</h6>
+                            <p class="card-text">
+                                Si eres dueño de una veterinaria, puedes registrarte como 
+                                administrador y gestionar todo tu equipo.
+                            </p>
+                            <a href="#" class="btn btn-success mb-3" onclick="alert('Próximamente - Contacta al soporte')">
+                                Registrar mi Veterinaria
+                            </a>
+                        </div>
+
+                        <hr>
+
+                        <div class="mt-4">
+                            <h6>¿Trabajas en una veterinaria registrada?</h6>
+                            <p class="card-text">
+                                Si ya trabajas en una veterinaria que usa nuestro sistema, 
+                                tu administrador debe darte de alta directamente.
+                            </p>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary">
+                                Iniciar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <h6><strong>Información importante:</strong></h6>
+                    <ul class="mb-0">
+                        <li><strong>Clientes:</strong> Tu registro quedará pendiente hasta que la veterinaria te active</li>
+                        <li><strong>Veterinarios:</strong> Solo el administrador de la clínica puede crear tu cuenta</li>
+                        <li><strong>Administradores:</strong> Contacta al soporte para registrar tu veterinaria</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <p>¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión aquí</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

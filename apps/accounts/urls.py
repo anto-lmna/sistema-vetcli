@@ -1,19 +1,22 @@
 from django.urls import path
-from django.contrib.auth.views import LogoutView
-
-from . import views
+from .views import (
+    registro_view,
+    logout_view,
+    RegistroExitosoView,
+    CustomLoginView,
+    ClientePreRegistroView,
+)
 
 app_name = "accounts"
 
 urlpatterns = [
-    # Autenticación
-    path("login/", views.CustomLoginView.as_view(), name="login"),
-    path("logout/", LogoutView.as_view(), name="logout"),
-    # Registro
-    path("registro/", views.registro_view, name="registro_opciones"),
+    path("login/", CustomLoginView.as_view(), name="login"),
+    path("logout/", logout_view, name="logout"),
+    path("registro/", registro_view, name="registro_opciones"),
+    path("registro-exitoso/", RegistroExitosoView.as_view(), name="registro_exitoso"),
     path(
-        "registro/cliente/",
-        views.ClientePreRegistroView.as_view(),
-        name="registro_cliente",
+        "pre-registro/<slug:clinica_slug>/",
+        ClientePreRegistroView.as_view(),
+        name="pre_registro_cliente",
     ),
 ]

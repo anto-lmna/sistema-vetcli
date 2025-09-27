@@ -1,72 +1,40 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Iniciar Sesión - {{ block.super }}{% endblock %}
+{% block title %}Iniciar Sesión - Veterinaria SaaS{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h4 class="mb-0">🐾 Iniciar Sesión</h4>
-            </div>
+        <div class="card">
             <div class="card-body">
+                <div class="text-center mb-4">
+                    <h3>🐾 Iniciar Sesión</h3>
+                    <p class="text-muted">Accede a tu cuenta</p>
+                </div>
+
                 <form method="post">
                     {% csrf_token %}
+                    {{ form|crispy }}
                     
-                    <!-- Campo Usuario/Email -->
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">
-                            {{ form.username.label }}
-                        </label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                            <div class="text-danger small">
-                                {{ form.username.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Campo Contraseña -->
-                    <div class="mb-3">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">
-                            {{ form.password.label }}
-                        </label>
-                        {{ form.password }}
-                        {% if form.password.errors %}
-                            <div class="text-danger small">
-                                {{ form.password.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Errores generales del formulario -->
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Botón Login -->
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            Iniciar Sesión
-                        </button>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                     </div>
                 </form>
+
+                <hr class="my-4">
                 
-                <!-- Enlaces adicionales -->
-                <hr>
                 <div class="text-center">
-                    <p class="mb-1">
-                        <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
-                    </p>
-                    <p class="mb-0">
-                        ¿No tienes cuenta? 
-                        <a href="{% url 'accounts:registro_opciones' %}" class="text-decoration-none">
-                            Regístrate aquí
-                        </a>
-                    </p>
+                    <p class="mb-2">¿No tienes cuenta?</p>
+                    <a href="{% url 'accounts:registro_opciones' %}" class="btn btn-outline-success btn-sm">
+                        Ver opciones de registro
+                    </a>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Puedes usar tu email o nombre de usuario para iniciar sesión
+                    </small>
                 </div>
             </div>
         </div>

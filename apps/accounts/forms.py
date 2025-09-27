@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser, PerfilVeterinario, PerfilCliente
 
 
@@ -61,24 +61,50 @@ class ClientePreRegistroForm(CustomUserCreationForm):
     )
 
     def __init__(self, *args, **kwargs):
+        self.clinica = kwargs.pop("clinica", None)
         super().__init__(*args, **kwargs)
         # Solo permitir rol cliente
         self.fields["rol"].initial = "cliente"
         self.fields["rol"].widget = forms.HiddenInput()
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+
+        if self.clinica:
+            # Verificar que no exista otro cliente con este email en la misma clínica
+            # Cambiar para buscar en CustomUser.clinica en lugar de PerfilCliente.clinica
+            existe = CustomUser.objects.filter(
+                email=email, clinica=self.clinica, rol="cliente"
+            ).exists()
+
+            if existe:
+                raise forms.ValidationError(
+                    f"Ya existe un cliente con este email en {self.clinica.nombre}"
+                )
+
+        # Verificación general de email único
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("Ya existe un usuario con este email.")
+
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.rol = "cliente"
         user.is_active = False  # Inactivo hasta que admin apruebe
         user.pendiente_aprobacion = True
+        user.clinica = self.clinica  # Asignar la clínica al usuario
+
         if commit:
             user.save()
-            # Crear perfil cliente
-            PerfilCliente.objects.create(
-                user=user,
-                contacto_emergencia=self.cleaned_data.get("contacto_emergencia", ""),
-                telefono_emergencia=self.cleaned_data.get("telefono_emergencia", ""),
+            # El perfil se crea automáticamente por la señal, solo actualizamos
+            user.perfilcliente.contacto_emergencia = self.cleaned_data.get(
+                "contacto_emergencia", ""
             )
+            user.perfilcliente.telefono_emergencia = self.cleaned_data.get(
+                "telefono_emergencia", ""
+            )
+            user.perfilcliente.save()
         return user
 
 
