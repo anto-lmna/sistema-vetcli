@@ -31,7 +31,7 @@ def home_view(request):
 
 @login_required
 def dashboard_view(request):
-    """Dashboard genérico - redirige según el rol del usuario"""
+    """Dashboard - redirige según el rol del usuario"""
     user = request.user
 
     if user.is_admin_veterinaria:

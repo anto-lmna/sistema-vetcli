@@ -1,7 +1,13 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
-{% block title %}Panel Administrador - {{ clinica.nombre }}{% endblock %}
+
+{# CSS adicional específico para el dashboard #}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block title %}Panel Principal - {{ clinica.nombre }}{% endblock %}
+
 {% block content %}
 <div class="d-flex">
     <!-- Sidebar -->
@@ -13,41 +19,25 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="#" class="nav-link active">
-                    📊
-                    Dashboard
-                </a>
+                <a href="#" class="nav-link active">📊 Dashboard</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
-                    👥
-                    Clientes
-                </a>
+                <a href="#" class="nav-link">👥 Clientes</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
-                    👨‍⚕️
-                    Veterinarios
-                </a>
+                <a href="#" class="nav-link">👨‍⚕️ Veterinarios</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
-                    📅
-                    Agenda
-                </a>
+                <a href="#" class="nav-link">📅 Agenda</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
-                    ⚙️
-                    Configuración
-                </a>
+                <a href="#" class="nav-link">⚙️ Configuración</a>
             </div>
             <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
                 <form method="post" action="{% url 'accounts:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
-                        🚪
-                        Salir
+                        🚪 Salir
                     </button>
                 </form>
             </div>
@@ -60,7 +50,7 @@
         <div class="top-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="mb-1">Panel de Administrador</h5>
+                    <h5 class="mb-1">Panel Principal</h5>
                     <p class="user-info mb-0">Hola, {{ user.get_full_name }} - Administrador</p>
                 </div>
                 <div class="text-end">
@@ -145,18 +135,17 @@
             <div class="content-section">
                 <div class="section-header">
                     <h6 class="section-title">Clientes Pendientes de Aprobación</h6>
-                    <button class="action-btn">
-                        <i>➕</i> Agregar Cliente
-                    </button>
+                    <button class="action-btn"><i>➕</i> Agregar Cliente</button>
                 </div>
                 
                 <table class="table custom-table">
                     <thead>
                         <tr>
-                            <th>Nombre </th>
+                            <th>Nombre</th>
                             <th>Dni</th>
                             <th>Telefono</th>
                             <th>Fecha</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,12 +159,8 @@
                             <td>{{ cliente.telefono }}</td>
                             <td>{% now "d/m/Y" %}</td>
                             <td>
-                                <button class="action-btn success me-2" onclick="alert('Próximamente')">
-                                    ✅ Aprobar
-                                </button>
-                                <button class="action-btn danger" onclick="alert('Próximamente')">
-                                    ❌ Rechazar
-                                </button>
+                                <button class="action-btn success me-2" onclick="alert('Próximamente')">✅ Aprobar</button>
+                                <button class="action-btn danger" onclick="alert('Próximamente')">❌ Rechazar</button>
                             </td>
                         </tr>
                         {% endfor %}

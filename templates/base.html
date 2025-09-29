@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}VetCli{% endblock %}</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    {% load django_bootstrap5 %}
     {% load static %}
-    {% block extra_css %}<link rel="stylesheet" href="{% static 'css/base.css' %}">{% endblock %}
+
+    {# Bootstrap 5  #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    {# CSS personalizado #}
+    {% block extra_css %}
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% endblock %}
 </head>
 <body>
     <!-- Navbar -->
@@ -47,16 +54,9 @@
     </nav>
 
     <!-- Mensajes -->
-    {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div class="container mt-3">
+        {% bootstrap_messages %}
+    </div>
 
     <!-- Contenido principal -->
     <main class="container my-4">
@@ -70,9 +70,6 @@
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

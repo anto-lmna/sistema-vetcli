@@ -1,0 +1,10 @@
+Package             Version
+------------------- -------
+asgiref             3.9.1
+crispy-bootstrap5   2025.6
+Django              5.2.6
+django-bootstrap5   25.2
+django-crispy-forms 2.4
+pip                 25.2
+sqlparse            0.5.3
+tzdata              2025.2
