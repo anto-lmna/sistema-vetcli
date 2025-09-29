@@ -219,6 +219,37 @@ python manage.py crear_datos_prueba
 # Usa otro puerto
 python manage.py runserver 8080
 ```
+## Capturas actuales
+
+### Principal
+
+<img width="1366" height="727" alt="principal" src="https://github.com/user-attachments/assets/d08788eb-1961-465e-b8cf-f01d61d83371" />
+
+### Detalle Veterinaria
+
+<img width="1366" height="731" alt="detalle_veterinaria" src="https://github.com/user-attachments/assets/5c11ddf9-6e9f-492a-b8d6-7cb957cf7a8d" />
+
+### Opciones de Registro
+
+<img width="1366" height="723" alt="opciones_registro" src="https://github.com/user-attachments/assets/71c765c3-87f5-4c57-ad70-0977963825d6" />
+
+### Formulario de Pre Registro
+
+<img width="1366" height="729" alt="pre_registro_cliente" src="https://github.com/user-attachments/assets/cf42eecb-7b54-48a7-b133-6770ffd59fbc" />
+<img width="1366" height="727" alt="pre_registro_cliente_2" src="https://github.com/user-attachments/assets/4a1040b3-d361-4632-bb38-27cc89cb73df" />
+
+### Dashboard Administrador
+
+<img width="1366" height="725" alt="dashboard_admin" src="https://github.com/user-attachments/assets/d5ab34c6-613c-42a6-95cf-43308bd1dc53" />
+
+### Dashboard Veterinario
+
+<img width="1366" height="729" alt="dashboard_veterinario" src="https://github.com/user-attachments/assets/41f61ddd-3dcc-4665-a8e4-1cec6bc9a678" />
+
+### Dashboard Cliente
+
+<img width="1366" height="723" alt="dashboard_cliente" src="https://github.com/user-attachments/assets/be69a06e-1994-4217-b8f2-c182d4005f6c" />
+<img width="1366" height="725" alt="dashborad_cliente" src="https://github.com/user-attachments/assets/0056373d-e3e6-45a4-a0f9-7b4bd8a7477d" />
 
 ## Documentación Adicional
 
