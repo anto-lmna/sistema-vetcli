@@ -1,0 +1,21 @@
+Administrador Veterinaria
+    username="admin_vet",
+    email="admin@veterinaria.com",
+    password="admin123",
+
+
+Veterinario
+    username="dr_lopez",
+    email="lopez@veterinaria.com",
+    password="vet123",
+
+
+Cliente Activo
+    username="cliente_activo",
+    email="cliente@gmail.com",
+    password="cliente123",
+
+Cliente pendiente
+    username="cliente_pendiente",
+    email="pendiente@gmail.com",
+    password="pendiente123",

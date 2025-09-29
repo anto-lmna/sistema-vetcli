@@ -7,14 +7,14 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    
-    {% block extra_css %}{% endblock %}
+    {% load static %}
+    {% block extra_css %}<link rel="stylesheet" href="{% static 'css/base.css' %}">{% endblock %}
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-purple">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">🐾 VetCli</a>
+            <a class="navbar-brand" href="{% url 'core:home' %}">VetCli</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -66,7 +66,7 @@
     <!-- Footer -->
     <footer class="bg-light py-4 mt-5">
         <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Veterinaria SaaS - Gestión veterinaria moderna</p>
+            <p class="mb-0">&copy; 2025 VetCli - Sistema de Gestión Veterinaria</p>
         </div>
     </footer>
 

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Bienvenido - Veterinaria SaaS{% endblock %}
+{% block title %}Bienvenido - VetCli{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="text-center mb-5">
-            <h1 class="display-4">🐾 Bienvenido a VetSaaS</h1>
+            <h1 class="display-4">¡Te damos la Bienvenida! </h1>
             <p class="lead">Encuentra la mejor atención veterinaria para tus mascotas</p>
         </div>
 
@@ -58,7 +58,7 @@
             <div class="col-md-4 text-center">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">👨‍⚕️ Para Veterinarios</h5>
+                        <h6 class="card-title">👨‍⚕️ Para Veterinarios</h6>
                         <p class="card-text">¿Trabajas en una veterinaria? Tu administrador te dará acceso.</p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
             <div class="col-md-4 text-center">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">🏥 Para Administradores</h5>
+                        <h6 class="card-title">🏥 Para Administradores</h6>
                         <p class="card-text">¿Tienes una veterinaria? Regístrate como administrador.</p>
                         <a href="{% url 'accounts:login' %}" class="btn btn-success btn-sm">Iniciar Sesión</a>
                     </div>
@@ -75,7 +75,7 @@
             <div class="col-md-4 text-center">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">🐕 Para Clientes</h5>
+                        <h6 class="card-title">🐕 Para Clientes</h6>
                         <p class="card-text">Regístrate en tu veterinaria preferida para gestionar las citas de tu mascota.</p>
                     </div>
                 </div>

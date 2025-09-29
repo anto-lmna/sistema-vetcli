@@ -1,139 +1,158 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
+{% load static %}
 
-{% block title %}Dashboard Veterinario{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block title %}Panel Veterinario - {{ clinica.nombre }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>👨‍⚕️ Dashboard Veterinario</h2>
-            {% if clinica %}
-                <span class="badge bg-primary fs-6">{{ clinica.nombre }}</span>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h4 class="mb-0">🏥 VetCli</h4>
+            <small class="opacity-75">Panel de Veterinario</small>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">📊 Dashboard</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">📅 Mis Citas</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">🐕 Pacientes</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">📋 Historiales</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">⚙️ Configuración</a>
+            </div>
+            <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
+                        🚪 Salir
+                    </button>
+                </form>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">Panel de Veterinario</h5>
+                    <p class="user-info mb-0">Hola, {{ user.get_full_name }}</p>
+                </div>
+                <div class="text-end">
+                    <div class="date-info">{{ clinica.nombre }}</div>
+                    <small class="user-info">{% now "d F Y" %}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-5">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card info">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">--</h3>
+                                <p class="stats-label">Turnos Hoy</p>
+                            </div>
+                            <div class="stats-icon">📅</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card success">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">--</h3>
+                                <p class="stats-label">Pacientes</p>
+                            </div>
+                            <div class="stats-icon">🐕</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card warning">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">--</h3>
+                                <p class="stats-label">Historiales</p>
+                            </div>
+                            <div class="stats-icon">📋</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del veterinario -->
+            {% if perfil %}
+            <div class="content-section mb-4">
+                <div class="section-header">
+                    <h6 class="section-title">👤 Mi Información</h6>
+                </div>
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong>Nombre:</strong> {{ perfil.matricula }}</p>
+                            <p class="mb-2"><strong>Especialidad:</strong> {{ perfil.especialidad|default:"General" }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong>Experiencia:</strong> {{ perfil.experiencia_anos }} años</p>
+                            <p><strong>Clínica:</strong> {{ clinica.nombre }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endif %}
-        </div>
-    </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">--</h4>
-                        <p class="card-text">Citas de Hoy</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">📅</i>
+            <!-- Acciones rápidas -->
+            <div class="content-section mb-5">
+                <div class="section-header">
+                    <h6 class="section-title">🚀 Acciones Rápidas</h6>
+                </div>
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <button class="action-btn success w-100" onclick="alert('Próximamente')">
+                                📅 Ver Turnos de día
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                                📋 Crear Historial
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                                🐕 Buscar Pacientes
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">--</h4>
-                        <p class="card-text">Pacientes</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">🐕</i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">--</h4>
-                        <p class="card-text">Historiales</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">📋</i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Información del veterinario -->
-{% if perfil %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">👨‍⚕️ Mi Información</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Matrícula:</strong> {{ perfil.matricula }}</p>
-                        <p><strong>Especialidad:</strong> {{ perfil.especialidad|default:"General" }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Experiencia:</strong> {{ perfil.experiencia_anos }} años</p>
-                        <p><strong>Clínica:</strong> {{ clinica.nombre }}</p>
-                    </div>
+            <!-- Próximos Turnos -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title">📅 Próximos Turnos</h6>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Acciones rápidas -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-primary w-100" onclick="alert('Próximamente')">
-                            📅 Ver Citas del Día
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-success w-100" onclick="alert('Próximamente')">
-                            🐕 Buscar Pacientes
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-info w-100" onclick="alert('Próximamente')">
-                            📋 Crear Historial
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-warning w-100" onclick="alert('Próximamente')">
-                            📊 Estadísticas
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Próximas citas (placeholder) -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">📅 Próximas Citas</h5>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <h6>🚀 Próximamente</h6>
+                <div class="empty-state">
+                    <div class="empty-state-icon">🚀</div>
+                    <h6>Próximamente</h6>
                     <p class="mb-0">Aquí verás tus próximas citas programadas.</p>
                 </div>
             </div>

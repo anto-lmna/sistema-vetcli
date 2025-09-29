@@ -7,7 +7,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title">🏥 {{ clinica.nombre }}</h1>
+                <h2 class="card-title">🏥 {{ clinica.nombre }}</h1>
                 
                 {% if clinica.descripcion %}
                     <p class="card-text lead">{{ clinica.descripcion }}</p>
@@ -15,10 +15,10 @@
 
                 <div class="row mt-4">
                     <div class="col-md-6">
-                        <h5>📍 Ubicación</h5>
+                        <h6>📍 Ubicación</h6>
                         <p>{{ clinica.direccion }}</p>
                         
-                        <h5>📞 Contacto</h5>
+                        <h6>📞 Contacto</h6>
                         <p>
                             <strong>Teléfono:</strong> {{ clinica.telefono }}<br>
                             <strong>Email:</strong> {{ clinica.email }}
@@ -26,7 +26,7 @@
                     </div>
                     
                     <div class="col-md-6">
-                        <h5>🕒 Horarios de Atención</h5>
+                        <h6>🕒 Horarios de Atención</h6>
                         <p>
                             <strong>Horario:</strong> {{ clinica.hora_apertura }} - {{ clinica.hora_cierre }}<br>
                             {% if clinica.dias_atencion %}
@@ -37,7 +37,7 @@
                             {% endif %}
                         </p>
 
-                        <h5>👨‍⚕️ Equipo</h5>
+                        <h6>👨‍⚕️ Equipo</h6>
                         <p><strong>Veterinarios activos:</strong> {{ clinica.total_veterinarios }}</p>
                     </div>
                 </div>
@@ -58,11 +58,11 @@
                     
                     <div class="d-grid gap-2">
                         <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
-                           class="btn btn-primary btn-lg">
+                           class="btn btn-primary btn-md">
                             🐕 Registrarme como Cliente
                         </a>
                         
-                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-md">
                             👨‍⚕️ Soy Veterinario/Admin
                         </a>
                     </div>

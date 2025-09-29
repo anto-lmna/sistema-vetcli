@@ -1,151 +1,208 @@
-{% extends 'base.html' %}
-
-{% block title %}Dashboard Admin - {{ clinica.nombre }}{% endblock %}
-
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+{% block title %}Panel Administrador - {{ clinica.nombre }}{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>🏥 Dashboard Administrador</h2>
-            <span class="badge bg-success fs-6">{{ clinica.nombre }}</span>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h4 class="mb-0">🏥 VetCli</h4>
+            <small class="opacity-75">Panel de Administrador</small>
         </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">
+                    📊
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    👥
+                    Clientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    👨‍⚕️
+                    Veterinarios
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    📅
+                    Agenda
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    ⚙️
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
+                        🚪
+                        Salir
+                    </button>
+                </form>
+            </div>
+        </nav>
     </div>
-</div>
 
-<!-- Tarjetas de estadísticas -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">{{ total_clientes_pendientes }}</h4>
-                        <p class="card-text">Clientes Pendientes</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">👥</i>
-                    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">Panel de Administrador</h5>
+                    <p class="user-info mb-0">Hola, {{ user.get_full_name }} - Administrador</p>
+                </div>
+                <div class="text-end">
+                    <div class="date-info">{{ clinica.nombre }}</div>
+                    <small class="user-info">{% now "d F Y" %}</small>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">{{ total_veterinarios }}</h4>
-                        <p class="card-text">Veterinarios Activos</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">👨‍⚕️</i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">--</h4>
-                        <p class="card-text">Próximamente</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fs-1">📊</i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Acciones rápidas -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+        <!-- Content Area -->
+        <div class="p-5">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">{{ total_clientes_pendientes }}</h3>
+                                <p class="stats-label">Clientes Pendientes</p>
+                            </div>
+                            <div class="stats-icon">👥</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">{{ total_veterinarios }}</h3>
+                                <p class="stats-label">Veterinarios Activos</p>
+                            </div>
+                            <div class="stats-icon">👨‍⚕️</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">--</h3>
+                                <p class="stats-label">Turnos Hoy</p>
+                            </div>
+                            <div class="stats-icon">📅</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
+
+            <!-- Filtros -->
+            <div class="filter-section">
+                <h6 class="mb-3">Administrador de turnos</h6>
                 <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-primary w-100" onclick="alert('Próximamente')">
-                            👨‍⚕️ Crear Veterinario
-                        </button>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option>Desde</option>
+                        </select>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-success w-100" onclick="alert('Próximamente')">
-                            ✅ Aprobar Clientes
-                        </button>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option>Hasta</option>
+                        </select>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-info w-100" onclick="alert('Próximamente')">
-                            📅 Gestionar Horarios
-                        </button>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option>Seleccionar médico</option>
+                        </select>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <button class="btn btn-warning w-100" onclick="alert('Próximamente')">
-                            ⚙️ Configuración
-                        </button>
+                    <div class="col-md-3">
+                        <select class="form-select">
+                            <option>Seleccionar cliente</option>
+                        </select>
                     </div>
                 </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button class="action-btn me-2">Reestablecer</button>
+                    <button class="action-btn">Buscar</button>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Clientes pendientes -->
-{% if clientes_pendientes %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">👥 Clientes Pendientes de Aprobación ({{ total_clientes_pendientes }})</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>DNI</th>
-                                <th>Teléfono</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cliente in clientes_pendientes %}
-                                <tr>
-                                    <td>{{ cliente.user.get_full_name }}</td>
-                                    <td>{{ cliente.user.email }}</td>
-                                    <td>{{ cliente.user.dni }}</td>
-                                    <td>{{ cliente.user.telefono }}</td>
-                                    <td>
-                                        <button class="btn btn-success btn-sm" onclick="alert('Próximamente')">
-                                            ✅ Aprobar
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="alert('Próximamente')">
-                                            ❌ Rechazar
-                                        </button>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <!-- Tabla de Clientes Pendientes -->
+            {% if clientes_pendientes %}
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title">Clientes Pendientes de Aprobación</h6>
+                    <button class="action-btn">
+                        <i>➕</i> Agregar Cliente
+                    </button>
+                </div>
+                
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre </th>
+                            <th>Dni</th>
+                            <th>Telefono</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes_pendientes %}
+                        <tr>
+                            <td>
+                                <strong>{{ cliente.get_full_name }}</strong><br>
+                                <small class="text-muted">{{ cliente.email }}</small>
+                            </td>
+                            <td>{{ cliente.dni }}</td>
+                            <td>{{ cliente.telefono }}</td>
+                            <td>{% now "d/m/Y" %}</td>
+                            <td>
+                                <button class="action-btn success me-2" onclick="alert('Próximamente')">
+                                    ✅ Aprobar
+                                </button>
+                                <button class="action-btn danger" onclick="alert('Próximamente')">
+                                    ❌ Rechazar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <!-- Paginacion -->
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <span class="text-muted">1-15 de {{ total_clientes_pendientes }}</span>
+                    <div class="d-flex">
+                        <button class="btn btn-sm btn-outline-secondary me-1">‹</button>
+                        <button class="btn btn-sm btn-outline-secondary me-1">1</button>
+                        <button class="btn btn-sm btn-outline-secondary me-1">2</button>
+                        <button class="btn btn-sm btn-outline-secondary">›</button>
+                    </div>
                 </div>
             </div>
+            {% else %}
+            <div class="content-section">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎉</div>
+                    <h6>¡Excelente!</h6>
+                    <p class="mb-0">No tienes clientes pendientes de aprobación.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% else %}
-    <div class="alert alert-success">
-        <h6>🎉 ¡Excelente!</h6>
-        <p class="mb-0">No tienes clientes pendientes de aprobación.</p>
-    </div>
-{% endif %}
 {% endblock %}
