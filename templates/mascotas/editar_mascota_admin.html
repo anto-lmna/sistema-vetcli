@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Mascota (Admin){% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-gear-fill"></i> Editar Mascota (Administrador)
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Datos del dueño -->
+                        <h5 class="border-bottom pb-2 mb-3">Información del Dueño</h5>
+                        <div class="mb-3">
+                            <label for="{{ form.dueno.id_for_label }}" class="form-label">
+                                {{ form.dueno.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.dueno }}
+                            {% if form.dueno.errors %}
+                                <div class="text-danger">{{ form.dueno.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Información Básica -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Información Básica</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                    {{ form.nombre.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.nombre }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sexo.id_for_label }}" class="form-label">
+                                    {{ form.sexo.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.sexo }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.especie.id_for_label }}" class="form-label">
+                                    {{ form.especie.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.especie }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.raza.id_for_label }}" class="form-label">
+                                    {{ form.raza.label }}
+                                </label>
+                                {{ form.raza }}
+                            </div>
+                        </div>
+
+                        <!-- Características Físicas -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Características Físicas</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">
+                                    {{ form.fecha_nacimiento.label }}
+                                </label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.peso.id_for_label }}" class="form-label">
+                                    {{ form.peso.label }}
+                                </label>
+                                {{ form.peso }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.color.id_for_label }}" class="form-label">
+                                    {{ form.color.label }}
+                                </label>
+                                {{ form.color }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_chip.id_for_label }}" class="form-label">
+                                    {{ form.numero_chip.label }}
+                                </label>
+                                {{ form.numero_chip }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.foto.id_for_label }}" class="form-label">
+                                    {{ form.foto.label }}
+                                </label>
+                                {{ form.foto }}
+                                {% if mascota.foto %}
+                                    <div class="mt-2">
+                                        <img src="{{ mascota.foto.url }}" alt="Foto actual" class="img-thumbnail" width="150">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.esterilizado }}
+                                <label class="form-check-label" for="{{ form.esterilizado.id_for_label }}">
+                                    {{ form.esterilizado.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Información Médica -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Información Médica</h5>
+                        <div class="mb-3">
+                            <label for="{{ form.alergias.id_for_label }}" class="form-label">
+                                {{ form.alergias.label }}
+                            </label>
+                            {{ form.alergias }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                {{ form.observaciones.label }}
+                            </label>
+                            {{ form.observaciones }}
+                        </div>
+
+                        <!-- Estado de la Mascota -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Estado</h5>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="activoSwitch"
+                                   {% if mascota.activo %}checked{% endif %} disabled>
+                            <label class="form-check-label" for="activoSwitch">
+                                {% if mascota.activo %}
+                                    <span class="text-success fw-bold">Activa</span>
+                                {% else %}
+                                    <span class="text-danger fw-bold">Inactiva</span>
+                                {% endif %}
+                            </label>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver a la Lista
+                            </a>
+                            <button type="submit" class="btn btn-dark">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const especieSelect = document.getElementById("id_especie");
+    const razaSelect = document.getElementById("id_raza");
+
+    especieSelect.addEventListener("change", function() {
+        const especieId = this.value;
+
+        if (!especieId) {
+            razaSelect.innerHTML = '<option value="">---------</option>';
+            razaSelect.disabled = true;
+            return;
+        }
+
+        fetch(`/mascotas/ajax/cargar-razas/?especie_id=${especieId}`)
+            .then(response => response.json())
+            .then(data => {
+                razaSelect.innerHTML = '<option value="">---------</option>';
+                data.forEach(raza => {
+                    const option = document.createElement('option');
+                    option.value = raza.id;
+                    option.textContent = raza.nombre;
+                    razaSelect.appendChild(option);
+                });
+                razaSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error("Error al cargar razas:", error);
+                razaSelect.innerHTML = '<option value=\"\">Error al cargar razas</option>';
+            });
+    });
+});
+</script>
+{% endblock %}

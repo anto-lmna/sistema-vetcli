@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("apps.core.urls")),
     path("accounts/", include("apps.accounts.urls")),
     path("clinicas/", include("apps.clinicas.urls")),
+    path("mascotas/", include("apps.mascotas.urls")),
 ]
 
 # Servir archivos media en desarrollo

@@ -1,9 +1,7 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
 
 {% block extra_css %}
-{% bootstrap_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
@@ -20,13 +18,13 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="#" class="nav-link active">📊 Dashboard</a>
+                <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">📊 Dashboard</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">📅 Mis Citas</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">🐕 Pacientes</a>
+                <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="nav-link">🐕 Pacientes</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">📋 Historiales</a>
@@ -52,7 +50,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">Panel Principal</h5>
-                    <p class="user-info mb-0">Hola, {{ user.get_full_name }}</p>
+                    <p class="user-info mb-0">Hola, Dr(a). {{ user.get_full_name }}</p>
                 </div>
                 <div class="text-end">
                     <div class="date-info">{{ clinica.nombre }}</div>
@@ -80,7 +78,7 @@
                     <div class="stats-card success">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h3 class="stats-number">--</h3>
+                                <h3 class="stats-number">{{ total_mascotas }}</h3>
                                 <p class="stats-label">Pacientes</p>
                             </div>
                             <div class="stats-icon">🐕</div>
@@ -115,7 +113,7 @@
                         </div>
                         <div class="col-md-4">
                             <p class="mb-2"><strong>Experiencia:</strong> {{ perfil.experiencia_anos }} años</p>
-                            <p><strong>Clínica:</strong> {{ clinica.nombre }}</p>
+                            <p class="mb-2"><strong>Clínica:</strong> {{ clinica.nombre }}</p>
                         </div>
                     </div>
                 </div>
@@ -131,7 +129,7 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <button class="action-btn success w-100" onclick="alert('Próximamente')">
-                                📅 Ver Turnos de día
+                                📅 Ver Turnos del día
                             </button>
                         </div>
                         <div class="col-md-4 mb-3">
@@ -140,12 +138,60 @@
                             </button>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                            <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn w-100 text-center text-decoration-none d-block">
                                 🐕 Buscar Pacientes
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Mascotas Recientes -->
+            <div class="content-section mb-4">
+                <div class="section-header">
+                    <h6 class="section-title">🐾 Pacientes Recientes</h6>
+                    <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn">Ver Todos</a>
+                </div>
+                
+                {% if mascotas_recientes %}
+                <div class="p-3">
+                    <div class="row">
+                        {% for mascota in mascotas_recientes %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                {% if mascota.foto %}
+                                <img src="{{ mascota.foto.url }}" class="card-img-top" alt="{{ mascota.nombre }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <span style="font-size: 3rem;">🐕</span>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ mascota.nombre }}</h6>
+                                    <p class="card-text mb-1">
+                                        <small><strong>Dueño:</strong> {{ mascota.dueno.get_full_name }}</small>
+                                    </p>
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted">
+                                            {{ mascota.especie }} - {{ mascota.edad_texto }}
+                                        </small>
+                                    </p>
+                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary">
+                                        Ver Detalle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">🐕</div>
+                    <h6>No hay pacientes registrados</h6>
+                    <p class="mb-0">Aquí verás los pacientes de la clínica.</p>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Próximos Turnos -->
@@ -163,8 +209,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-{% bootstrap_javascript %}
-{% endblock %}
-

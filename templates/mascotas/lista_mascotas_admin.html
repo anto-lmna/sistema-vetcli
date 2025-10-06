@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mascotas Registradas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-list-ul"></i> Mascotas Registradas</h2>
+        <a href="{% url 'mascotas:crear_mascota_admin' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Mascota
+        </a>
+    </div>
+
+    <!-- FILTRO -->
+    <form method="get" class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2">
+            <div class="col-md-3">
+                {{ form_filtro.buscar.label_tag }}
+                {{ form_filtro.buscar }}
+            </div>
+            <div class="col-md-3">
+                {{ form_filtro.especie.label_tag }}
+                {{ form_filtro.especie }}
+            </div>
+            <div class="col-md-2">
+                {{ form_filtro.sexo.label_tag }}
+                {{ form_filtro.sexo }}
+            </div>
+            <div class="col-md-2">
+                {{ form_filtro.estado.label_tag }}
+                {{ form_filtro.estado }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- RESUMEN -->
+    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
+        <div>
+            <strong>Total:</strong> {{ total_mascotas }} |
+            <span class="text-success"><strong>Activas:</strong> {{ activas }}</span> |
+            <span class="text-danger"><strong>Inactivas:</strong> {{ inactivas }}</span>
+        </div>
+    </div>
+
+    <!-- LISTA DE MASCOTAS -->
+    <div class="table-responsive shadow-sm">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Especie</th>
+                    <th>Raza</th>
+                    <th>Dueño</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mascota in page_obj %}
+                <tr>
+                    <td>
+                        <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="text-decoration-none fw-bold">
+                            {{ mascota.nombre }}
+                        </a>
+                    </td>
+                    <td>{{ mascota.especie.nombre }}</td>
+                    <td>{{ mascota.raza.nombre|default:"—" }}</td>
+                    <td>{{ mascota.dueno.get_full_name|default:mascota.dueno.username }}</td>
+                    <td>
+                        {% if mascota.activo %}
+                            <span class="badge bg-success">Activa</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactiva</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <a href="{% url 'mascotas:editar_mascota_admin' mascota.pk %}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if mascota.activo %}
+                                <a href="{% url 'mascotas:inactivar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-danger" title="Inactivar">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'mascotas:activar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-success" title="Reactivar">
+                                    <i class="bi bi-check-circle"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-info-circle"></i> No hay mascotas registradas.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agregar Mascota{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-plus-circle"></i> Agregar Nueva Mascota
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Información Básica -->
+                        <h5 class="border-bottom pb-2 mb-3">Información Básica</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                    {{ form.nombre.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-danger">{{ form.nombre.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sexo.id_for_label }}" class="form-label">
+                                    {{ form.sexo.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.sexo }}
+                                {% if form.sexo.errors %}
+                                    <div class="text-danger">{{ form.sexo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.especie.id_for_label }}" class="form-label">
+                                    {{ form.especie.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.especie }}
+                                {% if form.especie.errors %}
+                                    <div class="text-danger">{{ form.especie.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.raza.id_for_label }}" class="form-label">
+                                    {{ form.raza.label }}
+                                </label>
+                                {{ form.raza }}
+                                {% if form.raza.errors %}
+                                    <div class="text-danger">{{ form.raza.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Características Físicas -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Características Físicas</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">
+                                    {{ form.fecha_nacimiento.label }}
+                                </label>
+                                {{ form.fecha_nacimiento }}
+                                {% if form.fecha_nacimiento.errors %}
+                                    <div class="text-danger">{{ form.fecha_nacimiento.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.peso.id_for_label }}" class="form-label">
+                                    {{ form.peso.label }}
+                                </label>
+                                {{ form.peso }}
+                                {% if form.peso.errors %}
+                                    <div class="text-danger">{{ form.peso.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.color.id_for_label }}" class="form-label">
+                                    {{ form.color.label }}
+                                </label>
+                                {{ form.color }}
+                                {% if form.color.errors %}
+                                    <div class="text-danger">{{ form.color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_chip.id_for_label }}" class="form-label">
+                                    {{ form.numero_chip.label }}
+                                </label>
+                                {{ form.numero_chip }}
+                                {% if form.numero_chip.errors %}
+                                    <div class="text-danger">{{ form.numero_chip.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.foto.id_for_label }}" class="form-label">
+                                    {{ form.foto.label }}
+                                </label>
+                                {{ form.foto }}
+                                {% if form.foto.errors %}
+                                    <div class="text-danger">{{ form.foto.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.esterilizado }}
+                                <label class="form-check-label" for="{{ form.esterilizado.id_for_label }}">
+                                    {{ form.esterilizado.label }}
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Información Médica -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Información Médica</h5>
+                        <div class="mb-3">
+                            <label for="{{ form.alergias.id_for_label }}" class="form-label">
+                                {{ form.alergias.label }}
+                            </label>
+                            {{ form.alergias }}
+                            {% if form.alergias.errors %}
+                                <div class="text-danger">{{ form.alergias.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                {{ form.observaciones.label }}
+                            </label>
+                            {{ form.observaciones }}
+                            {% if form.observaciones.errors %}
+                                <div class="text-danger">{{ form.observaciones.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'mascotas:mis_mascotas' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Guardar Mascota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

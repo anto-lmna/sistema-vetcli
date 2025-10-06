@@ -1,7 +1,6 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
 
-{# CSS adicional específico para el dashboard #}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
@@ -19,13 +18,16 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="#" class="nav-link active">📊 Dashboard</a>
+                <a href="{% url 'core:dashboard_admin' %}" class="nav-link active">📊 Dashboard</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">👥 Clientes</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">👨‍⚕️ Veterinarios</a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link">🐾 Mascotas</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">📅 Agenda</a>
@@ -64,7 +66,7 @@
         <div class="p-5">
             <!-- Stats Cards -->
             <div class="row mb-4">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <div class="stats-card">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
@@ -75,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <div class="stats-card">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
@@ -86,7 +88,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="stats-number">{{ total_mascotas }}</h3>
+                                <p class="stats-label">Mascotas</p>
+                            </div>
+                            <div class="stats-icon">🐾</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
                     <div class="stats-card">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
@@ -99,43 +112,43 @@
                 </div>
             </div>
 
-            <!-- Filtros -->
-            <div class="filter-section">
-                <h6 class="mb-3">Administrador de turnos</h6>
-                <div class="row">
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>Desde</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>Hasta</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>Seleccionar médico</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>Seleccionar cliente</option>
-                        </select>
-                    </div>
+            <!-- Acciones Rápidas -->
+            <div class="content-section mb-4">
+                <div class="section-header">
+                    <h6 class="section-title">🚀 Gestión Rápida</h6>
                 </div>
-                <div class="d-flex justify-content-end mt-3">
-                    <button class="action-btn me-2">Reestablecer</button>
-                    <button class="action-btn">Buscar</button>
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <button class="action-btn success w-100" onclick="alert('Próximamente')">
+                                ➕ Crear Veterinario
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                                ✅ Activar Clientes
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'mascotas:crear_mascota_admin' %}" class="action-btn w-100 text-center text-decoration-none d-block">
+                                🐾 Crear Mascota
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                                📅 Ver Agenda
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Tabla de Clientes Pendientes -->
             {% if clientes_pendientes %}
-            <div class="content-section">
+            <div class="content-section mb-4">
                 <div class="section-header">
                     <h6 class="section-title">Clientes Pendientes de Aprobación</h6>
-                    <button class="action-btn"><i>➕</i> Agregar Cliente</button>
+                    <span class="badge bg-warning">{{ total_clientes_pendientes }}</span>
                 </div>
                 
                 <table class="table custom-table">
@@ -155,9 +168,9 @@
                                 <strong>{{ cliente.get_full_name }}</strong><br>
                                 <small class="text-muted">{{ cliente.email }}</small>
                             </td>
-                            <td>{{ cliente.dni }}</td>
-                            <td>{{ cliente.telefono }}</td>
-                            <td>{% now "d/m/Y" %}</td>
+                            <td>{{ cliente.dni|default:"N/A" }}</td>
+                            <td>{{ cliente.telefono|default:"N/A" }}</td>
+                            <td>{{ cliente.date_joined|date:"d/m/Y" }}</td>
                             <td>
                                 <button class="action-btn success me-2" onclick="alert('Próximamente')">✅ Aprobar</button>
                                 <button class="action-btn danger" onclick="alert('Próximamente')">❌ Rechazar</button>
@@ -169,17 +182,11 @@
                 
                 <!-- Paginacion -->
                 <div class="d-flex justify-content-between align-items-center p-3">
-                    <span class="text-muted">1-15 de {{ total_clientes_pendientes }}</span>
-                    <div class="d-flex">
-                        <button class="btn btn-sm btn-outline-secondary me-1">‹</button>
-                        <button class="btn btn-sm btn-outline-secondary me-1">1</button>
-                        <button class="btn btn-sm btn-outline-secondary me-1">2</button>
-                        <button class="btn btn-sm btn-outline-secondary">›</button>
-                    </div>
+                    <span class="text-muted">Mostrando {{ clientes_pendientes|length }} de {{ total_clientes_pendientes }}</span>
                 </div>
             </div>
             {% else %}
-            <div class="content-section">
+            <div class="content-section mb-4">
                 <div class="empty-state">
                     <div class="empty-state-icon">🎉</div>
                     <h6>¡Excelente!</h6>
@@ -187,6 +194,42 @@
                 </div>
             </div>
             {% endif %}
+
+            <!-- Resumen de Mascotas -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h6 class="section-title">🐾 Mascotas de la Clínica</h6>
+                    <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="action-btn">Ver Todas</a>
+                </div>
+                <div class="p-4">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="text-primary">{{ total_mascotas }}</h4>
+                            <p class="text-muted mb-0">Total de Mascotas</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">{{ mascotas_activas }}</h4>
+                            <p class="text-muted mb-0">Activas</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-secondary">{{ mascotas_inactivas }}</h4>
+                            <p class="text-muted mb-0">Inactivas</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info">{{ total_clientes }}</h4>
+                            <p class="text-muted mb-0">Clientes Activos</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'mascotas:crear_mascota_admin' %}" class="action-btn success me-2">
+                            ➕ Crear Mascota
+                        </a>
+                        <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="action-btn">
+                            📋 Ver Todas las Mascotas
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
