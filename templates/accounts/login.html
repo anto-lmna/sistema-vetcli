@@ -1,38 +1,52 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
+{% load crispy_forms_tags %} 
+
+{% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <h4>🐾 Iniciar Sesión</h4>
-                    <p class="text-muted">Accede a tu cuenta</p>
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-8 col-lg-6"> 
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="mb-3"> 
+                    <div class="d-flex align-items-center mb-4">
+                        
+                        <img src="{% static 'img/logo.png' %}" 
+                            alt="Logo VetCli" 
+                            width="95" height="95" 
+                            class="me-3">    
+                        <h4 class="fw-bold mb-0 text-primary-dark">
+                            ¡Te damos la bienvenida!
+                        </h4>
+                    </div>
+                    
+                    <h6 class="fw-bold text-primary-dark">Iniciar Sesión</h6>
+                    <p class="text-muted small">Accede a tu cuenta en VetCli</p>
                 </div>
 
                 <form method="post">
                     {% csrf_token %}
                     {{ form|crispy }}
                     
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold rounded-pill py-1">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                        </button>
                     </div>
                 </form>
 
-                <hr class="my-4">
-                
-                <div class="text-center">
-                    <p class="mb-2">¿No tienes cuenta?</p>
-                    <a href="{% url 'accounts:registro_opciones' %}" class="btn btn-outline-success btn-sm">
-                        Ver opciones de registro
+                <div class="d-grid gap-2 mt-3">
+                    <a href="#" class="btn btn-outline-custom btn-lg rounded-pill fw-bold py-1">
+                        ¿Olvidaste tu contraseña?
                     </a>
                 </div>
 
-                <div class="text-center mt-3">
-                    <small class="text-muted">
-                        Puedes usar tu email o nombre de usuario para iniciar sesión
-                    </small>
+                <div class="d-flex justify-content-center align-items-center mt-4">
+                    <p class="mb-0 text-muted me-2 small">¿No tienes cuenta?</p>
+                    <a href="{% url 'accounts:registro_opciones' %}" class="small text-decoration-none text-primary-dark hover-underline">
+                        Ver opciones de registro
+                    </a>
                 </div>
             </div>
         </div>

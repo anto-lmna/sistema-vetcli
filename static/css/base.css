@@ -1,6 +1,6 @@
 :root {
     --primary-dark: #5B3A63; 
-    --dark-hover: #6B3D8A;
+    --dark-hover: #7f5f8f;
     --light-hover: #F0E6F8;
     /* Colores Base */
     --bg-light: #F8FAFC;
@@ -53,4 +53,48 @@
     border-color: var(--light-hover); 
     color: var(--primary-dark);
 }
+
+.btn-outline-custom {
+    color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    background-color: transparent;
+    }
+    
+.btn-outline-custom:hover {
+    background-color: var(--light-hover);
+    border-color: var(--primary-dark); 
+    color: var(--primary-dark); 
+    }
 /* BOTONES END */
+
+/* FORM STYLES START */
+
+label {
+    color: var(--primary-dark);
+}
+
+.form-control {
+border-radius: 0.75rem;
+border-color: var(--primary-dark);
+border-width: 1px; 
+}
+
+.form-control:focus {
+    border-color: var(--primary-dark);  
+    box-shadow: 0 0 0 0.25rem rgba(91, 58, 99, 0.25);
+}
+
+/* FORM STYLES END */
+
+/* GLOBAL STYLES START */
+
+.text-primary-dark {
+    color: var(--primary-dark);
+    }
+    
+    .hover-underline:hover {
+    text-decoration: underline !important;                          
+    cursor: pointer;                                 
+    }      
+    
+/* GLOBAL STYLES END */
