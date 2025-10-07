@@ -1,45 +1,56 @@
 :root {
-    --primary-purple: #6B46C1;
-    --light-purple: #8B5CF6;
-    --dark-purple: #622879;
+    --primary-dark: #5B3A63; 
+    --dark-hover: #6B3D8A;
+    --light-hover: #F0E6F8;
+    /* Colores Base */
     --bg-light: #F8FAFC;
     --text-dark: #1F2937;
     --border-light: #E5E7EB;
 }
 
-/* Navbar */
+/* NAVBAR START */
 .navbar-purple {
-    background: var(--dark-purple)!important;
+    background: var(--primary-dark);
 }
 
 .navbar-purple .navbar-brand,
 .navbar-purple .nav-link {
-    color: var(--bg-light) !important;
+    color: var(--bg-light);
 }
 
 .navbar-purple .nav-link:hover {
-    color: var(--bg-light) !important;
+    color: var(--bg-light);
 }
 
-/* Botones */
+.navbar-purple .container-fluid {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+/* NAVBAR END */
 
+
+/* BOTONES START */
 .btn-primary {
-    background-color: var(--primary-purple) !important;
-    border-color: var(--primary-purple) !important;
+    background-color: var(--primary-dark); 
+    border-color: var(--primary-dark);
+    color: white;
 }
 
 .btn-primary:hover {
-    background-color: var(--dark-purple) !important;
-    border-color: var(--dark-purple) !important;
+    background-color: var(--dark-hover);
+    border-color: var(--dark-hover);
+    color: white; 
 }
 
 .btn-outline-primary {
-    color: var(--light-purple) !important;
-    border-color: var(--light-purple) !important;
+    background-color: white; 
+    border-color: white; 
+    color: var(--primary-dark); 
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--primary-purple) !important;
-    border-color:var(--primary-purple) !important;
-    color: var(--bg-light) !important;
+    background-color: var(--light-hover);
+    border-color: var(--light-hover); 
+    color: var(--primary-dark);
 }
+/* BOTONES END */
