@@ -219,6 +219,28 @@ python manage.py crear_datos_prueba
 # Usa otro puerto
 python manage.py runserver 8080
 ```
+
+# [ACTUALIZACIÓN] - Gestión Mascotas 
+
+Migrar Datos Modelo Mascota
+
+```bash
+python manage.py makemigrations mascotas
+```
+```bash
+python manage.py migrate
+```
+Cargar especies y razas
+
+```bash
+python manage.py cargar_especies
+```
+ Instalar dependencia (carga de imagenes)
+
+ ```bash
+pip install pillow
+```
+
 ## Capturas actuales
 
 ### Principal
