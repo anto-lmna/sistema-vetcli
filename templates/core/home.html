@@ -3,13 +3,12 @@
 
 {% block content %}
 
-<!-- Contenedor principal con más espacio y centrado -->
 <div class="row justify-content-center">
-    <!-- Ajustamos a col-md-10 para que ocupe un poco más de ancho en pantallas grandes -->
     <div class="col-12 col-md-10 mx-auto">
+
         <!-- Sección de Bienvenida -->
         <div class="text-center mt-0 p-4 rounded shadow-sm bg-white">
-            <!-- Título principal con color oscuro -->
+            <!-- Título principal -->
             <h1 class="display-5 fw-bold text-primary-dark">¡Te damos la Bienvenida a VetCli!</h1>
             <p class="lead text-muted fw-semibold">Encuentra la mejor atención veterinaria para tus mascotas🐾</p>
         </div>
@@ -23,16 +22,11 @@
                 {% for veterinaria in veterinarias %}
                     <!-- Tarjeta de Veterinaria -->
                     <div class="col-12 col-md-5 mb-4">
-                        <!-- Estilo principal: shadow-lg, border-0, rounded-4 -->
                         <div class="card h-100 shadow-lg border-0 rounded-4">
                             <div class="card-body p-4">
-                                <!-- Título de la tarjeta con color oscuro -->
                                 <h5 class="card-title fw-bold text-primary-dark mb-2">{{ veterinaria.nombre }}</h5>
-                                
-                                <!-- Descripción con borde inferior para separación -->
-                                <p class="card-text text-secondary border-bottom pb-3">{{ veterinaria.descripcion|truncatewords:20 }}</p>
-                                
-                                <!-- Información de Contacto con Íconos (usando emojis o asumiendo iconos de base.html) -->
+                                <p class="card-text text-secondary border-bottom pb-3">{{ veterinaria.descripcion|truncatewords:20 }}</p>  
+                                <!-- Información de Contacto -->
                                 <div class="info-contacto small mt-3">
                                     <p class="mb-1 text-dark">
                                         <span class="fw-semibold">📍 Dirección:</span> {{ veterinaria.direccion|truncatewords:5 }}
@@ -82,7 +76,6 @@
                 <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
                     <div class="card-body">
                         <span class="display-6 mb-2 d-block">👨‍⚕️</span>
-                        <!-- Título de la tarjeta con color oscuro -->
                         <h6 class="card-title fw-bold text-primary-dark">Para Veterinarios</h6>
                         <p class="card-text text-muted small">
                             Si trabajas en una veterinaria, tu administrador te dará acceso.
@@ -109,11 +102,9 @@
             
             <!-- Tarjeta 3: Clientes -->
             <div class="col-12 col-md-4 mb-4">
-                <!-- APLICADO: shadow-lg, border-0, rounded-4. QUITADO bg-light -->
                 <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
                     <div class="card-body">
                         <span class="display-6 mb-2 d-block">🐕</span>
-                        <!-- Título de la tarjeta con color oscuro -->
                         <h6 class="card-title fw-bold text-primary-dark">Para Clientes</h6>
                         <p class="card-text text-muted small">
                             Regístrate en tu veterinaria preferida para gestionar las citas de tu mascota.
