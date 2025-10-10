@@ -2,43 +2,54 @@
 {% block title %}Bienvenido - VetCli{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <div class="text-center mb-5">
-            <h1 class="display-4">¡Te damos la Bienvenida! </h1>
-            <p class="lead">Encuentra la mejor atención veterinaria para tus mascotas</p>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 mx-auto">
+
+        <!-- Sección de Bienvenida -->
+        <div class="text-center mt-0 p-4 rounded shadow-sm bg-white">
+            <!-- Título principal -->
+            <h1 class="display-5 fw-bold text-primary-dark">¡Te damos la Bienvenida a VetCli!</h1>
+            <p class="lead text-muted fw-semibold">Encuentra la mejor atención veterinaria para tus mascotas🐾</p>
         </div>
 
         {% if veterinarias %}
-            <h2 class="mb-4">Veterinarias Disponibles ({{ total_veterinarias }})</h2>
+            <!-- Título de la Sección de Veterinarias -->
+            <h2 class="mb-2 text-center text-primary-dark fw-light">Veterinarias Disponibles ({{ total_veterinarias }})</h2>
             
+            <!-- Listado de Veterinarias -->
             <div class="row">
                 {% for veterinaria in veterinarias %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ veterinaria.nombre }}</h5>
-                                <p class="card-text">{{ veterinaria.descripcion|truncatewords:20 }}</p>
-                                <p class="card-text">
-                                    <small class="text-muted">
-                                        📍 {{ veterinaria.direccion|truncatewords:5 }}<br>
-                                        📞 {{ veterinaria.telefono }}<br>
-                                        ✉️ {{ veterinaria.email }}
-                                    </small>
-                                </p>
+                    <!-- Tarjeta de Veterinaria -->
+                    <div class="col-12 col-md-5 mb-4">
+                        <div class="card h-100 shadow-lg border-0 rounded-4">
+                            <div class="card-body p-4">
+                                <h5 class="card-title fw-bold text-primary-dark mb-2">{{ veterinaria.nombre }}</h5>
+                                <p class="card-text text-secondary border-bottom pb-3">{{ veterinaria.descripcion|truncatewords:20 }}</p>  
+                                <!-- Información de Contacto -->
+                                <div class="info-contacto small mt-3">
+                                    <p class="mb-1 text-dark">
+                                        <span class="fw-semibold">📍 Dirección:</span> {{ veterinaria.direccion|truncatewords:5 }}
+                                    </p>
+                                    <p class="mb-1 text-dark">
+                                        <span class="fw-semibold">📞 Teléfono:</span> {{ veterinaria.telefono }}
+                                    </p>
+                                    <p class="mb-0 text-dark">
+                                        <span class="fw-semibold">✉️ Email:</span> {{ veterinaria.email }}
+                                    </p>
+                                </div>
                             </div>
-                            <div class="card-footer">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <a href="{{ veterinaria.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
-                                            Ver Detalles
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=veterinaria.slug %}" class="btn btn-primary btn-sm">
-                                            Registrarme
-                                        </a>
-                                    </div>
+                            
+                            <!-- Pie de Tarjeta (Botones) -->
+                            <div class="card-footer bg-light border-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ veterinaria.get_absolute_url }}" class="btn btn-outline-primary rounded-pill fw-semibold me-2" >
+                                        Ver Detalles
+                                    </a>
+                                    <!-- Botón 'Registrarme' usa btn-primary -->
+                                    <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=veterinaria.slug %}" class="btn btn-primary rounded-pill fw-bold ">
+                                        Registrarme
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -46,39 +57,62 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="alert alert-info text-center">
-                <h4>No hay veterinarias disponibles</h4>
-                <p>Vuelve pronto para ver veterinarias que acepten nuevos clientes.</p>
+            <!-- Mensaje si no hay veterinarias -->
+            <div class="alert alert-info text-center mt-5 rounded-4 shadow-sm" role="alert">
+                <h4 class="alert-heading">¡Ups!</h4>
+                <p>Por ahora, no hay veterinarias disponibles para nuevos clientes.</p>
+                <hr>
+                <p class="mb-0">Vuelve pronto. Estamos trabajando para añadir más clínicas.</p>
             </div>
         {% endif %}
 
-        <!-- Información adicional -->
-        <div class="row mt-5">
-            <div class="col-md-4 text-center">
-                <div class="card">
+        <!-- --- Información adicional / Roles --- -->
+        <h2 class="mb-4 text-center text-primary-dark fw-light mt-5">¿Cómo quieres acceder?</h2>
+        <div class="row mt-4">
+            
+            <!-- Tarjeta 1: Veterinarios -->
+            <div class="col-12 col-md-4 mb-4">
+                <!-- APLICADO: shadow-lg, border-0, rounded-4 -->
+                <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
                     <div class="card-body">
-                        <h6 class="card-title">👨‍⚕️ Para Veterinarios</h6>
-                        <p class="card-text">¿Trabajas en una veterinaria? Tu administrador te dará acceso.</p>
+                        <span class="display-6 mb-2 d-block">👨‍⚕️</span>
+                        <h6 class="card-title fw-bold text-primary-dark">Para Veterinarios</h6>
+                        <p class="card-text text-muted small">
+                            Si trabajas en una veterinaria, tu administrador te dará acceso.
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="card">
+            
+            <!-- Tarjeta 2: Administradores -->
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card p-3 shadow-lg border-0 rounded-4 text-center"> 
                     <div class="card-body">
-                        <h6 class="card-title">🏥 Para Administradores</h6>
-                        <p class="card-text">¿Tienes una veterinaria? Regístrate como administrador.</p>
-                        <a href="{% url 'accounts:login' %}" class="btn btn-success btn-sm">Iniciar Sesión</a>
+                        <span class="display-5 mb-2 d-block">🏥</span>
+                        <h6 class="card-title fw-bold text-primary-dark">Para Administradores</h6>
+                        <p class="card-text text-muted small mb-0">
+                            ¿Tienes una veterinaria? Inicia sesión para gestionar tu clínica.
+                        </p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm mt-2 rounded-pill fw-semibold">
+                            Iniciar Sesión
+                        </a>
+                    </div>
+                    </div>
+            </div>
+            
+            <!-- Tarjeta 3: Clientes -->
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
+                    <div class="card-body">
+                        <span class="display-6 mb-2 d-block">🐕</span>
+                        <h6 class="card-title fw-bold text-primary-dark">Para Clientes</h6>
+                        <p class="card-text text-muted small">
+                            Regístrate en tu veterinaria preferida para gestionar las citas de tu mascota.
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 text-center">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">🐕 Para Clientes</h6>
-                        <p class="card-text">Regístrate en tu veterinaria preferida para gestionar las citas de tu mascota.</p>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
