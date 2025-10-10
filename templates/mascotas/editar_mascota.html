@@ -155,38 +155,4 @@
         </div>
     </div>
 </div>
-
-{% comment %} <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const especieSelect = document.getElementById("id_especie");
-    const razaSelect = document.getElementById("id_raza");
-
-    especieSelect.addEventListener("change", function() {
-        const especieId = this.value;
-
-        if (!especieId) {
-            razaSelect.innerHTML = '<option value="">---------</option>';
-            razaSelect.disabled = true;
-            return;
-        }
-
-        fetch(`/mascotas/ajax/cargar-razas/?especie_id=${especieId}`)
-            .then(response => response.json())
-            .then(data => {
-                razaSelect.innerHTML = '<option value="">---------</option>';
-                data.forEach(raza => {
-                    const option = document.createElement('option');
-                    option.value = raza.id;
-                    option.textContent = raza.nombre;
-                    razaSelect.appendChild(option);
-                });
-                razaSelect.disabled = false;
-            })
-            .catch(error => {
-                console.error("Error al cargar razas:", error);
-                razaSelect.innerHTML = '<option value="">Error al cargar razas</option>';
-            });
-    });
-});
-</script> {% endcomment %}
 {% endblock %}

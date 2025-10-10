@@ -34,7 +34,7 @@ class MascotaForm(forms.ModelForm):
             "especie": forms.Select(
                 attrs={
                     "class": "form-select",
-                    "id": "id_especie",  # Para filtrar razas con JS
+                    "id": "id_especie",
                 }
             ),
             "raza": forms.Select(attrs={"class": "form-select", "id": "id_raza"}),
@@ -43,7 +43,7 @@ class MascotaForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "type": "date",
-                    "max": date.today().isoformat(),  # No puede ser fecha futura
+                    "max": date.today().isoformat(),
                 }
             ),
             "color": forms.TextInput(
@@ -119,8 +119,24 @@ class MascotaForm(forms.ModelForm):
         self.fields["numero_chip"].required = False
         self.fields["foto"].required = False
 
-        # Si hay una especie seleccionada, filtrar las razas
-        if "especie" in self.data:
+        # Formatear fecha de nacimiento para input type="date"
+        if self.instance.pk and self.instance.fecha_nacimiento:
+            self.initial["fecha_nacimiento"] = self.instance.fecha_nacimiento.strftime(
+                "%Y-%m-%d"
+            )
+
+        # Cargar razas según el contexto
+        if self.instance and self.instance.pk:
+            # Si estamos editando una mascota existente
+            especie = self.instance.especie or None
+            if especie:
+                self.fields["raza"].queryset = Raza.objects.filter(
+                    especie=especie, activo=True
+                ).order_by("nombre")
+            else:
+                self.fields["raza"].queryset = Raza.objects.none()
+        elif "especie" in self.data:
+            # Si venimos de un POST (AJAX o creación)
             try:
                 especie_id = int(self.data.get("especie"))
                 self.fields["raza"].queryset = Raza.objects.filter(
@@ -128,10 +144,6 @@ class MascotaForm(forms.ModelForm):
                 ).order_by("nombre")
             except (ValueError, TypeError):
                 self.fields["raza"].queryset = Raza.objects.none()
-        elif self.instance.pk and self.instance.especie:
-            self.fields["raza"].queryset = Raza.objects.filter(
-                especie=self.instance.especie, activo=True
-            ).order_by("nombre")
         else:
             self.fields["raza"].queryset = Raza.objects.none()
 
@@ -154,7 +166,6 @@ class MascotaForm(forms.ModelForm):
 
     def clean_numero_chip(self):
         numero_chip = self.cleaned_data.get("numero_chip")
-        # Si está vacío, retornar None para evitar problemas con unique
         if not numero_chip or numero_chip.strip() == "":
             return None
         return numero_chip.strip()
