@@ -16,6 +16,8 @@
     {% block extra_css %}
         <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% endblock %}
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/mascotas.js' %}"></script>
 </head>
 <body>
     
@@ -81,6 +83,5 @@
         </div>
     </footer>
     <script src="{% static 'js/mascotas.js' %}"></script>
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

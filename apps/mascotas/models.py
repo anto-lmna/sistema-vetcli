@@ -179,7 +179,7 @@ class Mascota(models.Model):
         if self.fecha_fallecimiento:
             self.activo = False
 
-        # Limpiar numero_chip si está vacío (para evitar problemas con unique)
+        # Limpiar numero_chip si está vacío (para  no tener problemas con unique)
         if self.numero_chip == "":
             self.numero_chip = None
 

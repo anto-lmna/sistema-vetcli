@@ -7,6 +7,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-heart-pulse"></i> Mascotas de la Clínica</h2>
+        <span class="badge bg-primary fs-6">Total: {{ total_mascotas }}</span>
     </div>
 
     <!-- FILTRO -->
@@ -16,7 +17,7 @@
                 {{ form_filtro.buscar.label_tag }}
                 {{ form_filtro.buscar }}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 {{ form_filtro.especie.label_tag }}
                 {{ form_filtro.especie }}
             </div>
@@ -24,49 +25,150 @@
                 {{ form_filtro.sexo.label_tag }}
                 {{ form_filtro.sexo }}
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-outline-primary w-100">
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
                     <i class="bi bi-search"></i> Buscar
                 </button>
             </div>
         </div>
+        
+        {% if request.GET.buscar or request.GET.especie or request.GET.sexo %}
+        <div class="mt-2">
+            <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Limpiar Filtros
+            </a>
+        </div>
+        {% endif %}
     </form>
 
     <!-- LISTA -->
-    <div class="table-responsive shadow-sm">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Especie</th>
-                    <th>Raza</th>
-                    <th>Dueño</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mascota in page_obj %}
-                <tr>
-                    <td class="fw-bold">{{ mascota.nombre }}</td>
-                    <td>{{ mascota.especie.nombre }}</td>
-                    <td>{{ mascota.raza.nombre|default:"—" }}</td>
-                    <td>{{ mascota.dueno.get_full_name|default:mascota.dueno.username }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" 
-                           class="btn btn-sm btn-outline-info">
-                            <i class="bi bi-eye"></i> Ver
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="bi bi-info-circle"></i> No hay mascotas registradas.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nombre</th>
+                        <th>Especie</th>
+                        <th>Raza</th>
+                        <th>Edad</th>
+                        <th>Sexo</th>
+                        <th>Dueño</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mascota in page_obj %}
+                    <tr>
+                        <!-- FOTO -->
+                        <td>
+                            {% if mascota.foto %}
+                                <img src="{{ mascota.foto.url }}" 
+                                     alt="{{ mascota.nombre }}" 
+                                     class="rounded-circle"
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                                     style="width: 50px; height: 50px; font-size: 1.5rem;">
+                                    {% if mascota.especie.nombre == "Perro" %}🐕
+                                    {% elif mascota.especie.nombre == "Gato" %}🐈
+                                    {% else %}🐾{% endif %}
+                                </div>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- NOMBRE -->
+                        <td>
+                            <strong>{{ mascota.nombre }}</strong>
+                            {% if mascota.numero_chip %}
+                                <br><small class="text-muted">
+                                    <i class="bi bi-qr-code"></i> {{ mascota.numero_chip }}
+                                </small>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- ESPECIE -->
+                        <td>
+                            <span class="badge bg-info">{{ mascota.especie.nombre }}</span>
+                        </td>
+                        
+                        <!-- RAZA -->
+                        <td>
+                            {% if mascota.raza %}
+                                {{ mascota.raza.nombre }}
+                            {% else %}
+                                <small class="text-muted">No especificada</small>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- EDAD -->
+                        <td>
+                            <strong>{{ mascota.edad_texto }}</strong>
+                            {% if mascota.fecha_nacimiento %}
+                                <br><small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ mascota.fecha_nacimiento|date:"d/m/Y" }}
+                                </small>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- SEXO -->
+                        <td>
+                            {% if mascota.sexo == 'M' %}
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-gender-male"></i> Macho
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-gender-female"></i> Hembra
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- DUEÑO -->
+                        <td>
+                            <strong>{{ mascota.dueno.get_full_name|default:mascota.dueno.email }}</strong>
+                            <br><small class="text-muted">
+                                <i class="bi bi-envelope"></i> {{ mascota.dueno.email }}
+                            </small>
+                            {% if mascota.dueno.telefono %}
+                                <br><small class="text-muted">
+                                    <i class="bi bi-telephone"></i> {{ mascota.dueno.telefono }}
+                                </small>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- ACCIONES -->
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" 
+                                   class="btn btn-sm btn-outline-info"
+                                   title="Ver detalles">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-success" 
+                                        title="Nueva consulta"
+                                        onclick="alert('Próximamente: Crear consulta para {{ mascota.nombre }}')">
+                                    <i class="bi bi-file-medical"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+                            <p class="mt-3 mb-0">No se encontraron mascotas con los filtros aplicados.</p>
+                            {% if request.GET.buscar or request.GET.especie or request.GET.sexo %}
+                                <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="btn btn-sm btn-primary mt-2">
+                                    Ver Todas las Mascotas
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- PAGINACIÓN -->
@@ -75,28 +177,65 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                    <a class="page-link" href="?page=1{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.especie %}&especie={{ request.GET.especie }}{% endif %}{% if request.GET.sexo %}&sexo={{ request.GET.sexo }}{% endif %}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.especie %}&especie={{ request.GET.especie }}{% endif %}{% if request.GET.sexo %}&sexo={{ request.GET.sexo }}{% endif %}">
+                        &laquo;
+                    </a>
                 </li>
             {% else %}
-                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
             {% endif %}
 
             {% for num in page_obj.paginator.page_range %}
                 {% if num == page_obj.number %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.especie %}&especie={{ request.GET.especie }}{% endif %}{% if request.GET.sexo %}&sexo={{ request.GET.sexo }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.especie %}&especie={{ request.GET.especie }}{% endif %}{% if request.GET.sexo %}&sexo={{ request.GET.sexo }}{% endif %}">
+                        &raquo;
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.especie %}&especie={{ request.GET.especie }}{% endif %}{% if request.GET.sexo %}&sexo={{ request.GET.sexo }}{% endif %}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
                 </li>
             {% else %}
-                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                </li>
             {% endif %}
         </ul>
+        
+        <div class="text-center text-muted">
+            <small>
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                ({{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} mascotas)
+            </small>
+        </div>
     </nav>
     {% endif %}
 </div>

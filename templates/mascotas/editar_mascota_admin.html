@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Editar Mascota (Admin){% endblock %}
+{% block title %}Editar Mascota{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -10,7 +10,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
                     <h4 class="mb-0">
-                        <i class="bi bi-gear-fill"></i> Editar Mascota (Administrador)
+                        <i class="bi bi-gear-fill"></i> Editar Mascota
                     </h4>
                 </div>
 
@@ -171,7 +171,7 @@
     </div>
 </div>
 
-<script>
+{% comment %} <script>
 document.addEventListener("DOMContentLoaded", function() {
     const especieSelect = document.getElementById("id_especie");
     const razaSelect = document.getElementById("id_raza");
@@ -203,5 +203,5 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 });
-</script>
+</script> {% endcomment %}
 {% endblock %}

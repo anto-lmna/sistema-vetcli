@@ -12,23 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-        // Petición AJAX al backend (JSON)
-        fetch(`/mascotas/ajax/cargar-razas/?especie_id=${especieId}`)
-            .then(response => response.json())
-            .then(data => {
-                razaSelect.innerHTML = '<option value="">---------</option>';
-                data.forEach(raza => {
-                    const option = document.createElement('option');
-                    option.value = raza.id;
-                    option.textContent = raza.nombre;
-                    razaSelect.appendChild(option);
+            // Petición AJAX al backend (JSON) ← Aquí estaba mal indentado
+            fetch(`/mascotas/ajax/cargar-razas/?especie_id=${especieId}`)
+                .then(response => response.json())
+                .then(data => {
+                    razaSelect.innerHTML = '<option value="">---------</option>';
+                    data.forEach(raza => {
+                        const option = document.createElement('option');
+                        option.value = raza.id;
+                        option.textContent = raza.nombre;
+                        razaSelect.appendChild(option);
+                    });
+                    razaSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error("Error al cargar razas:", error);
+                    razaSelect.innerHTML = '<option value="">Error al cargar razas</option>';
                 });
-                razaSelect.disabled = false;
-            })
-            .catch(error => {
-                console.error("Error al cargar razas:", error);
-                razaSelect.innerHTML = '<option value="">Error al cargar razas</option>';
-            });
         });
         
         // Trigger inicial si hay especie seleccionada
@@ -60,3 +60,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+

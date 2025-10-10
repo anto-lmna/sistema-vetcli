@@ -378,23 +378,6 @@ def lista_mascotas_veterinario(request):
 # ==================== AJAX / API VIEWS ====================
 
 
-# @login_required
-# def cargar_razas(request):
-#     """Vista AJAX para cargar razas según especie seleccionada"""
-#     especie_id = request.GET.get("especie_id")
-
-#     if especie_id:
-#         razas = (
-#             Raza.objects.filter(especie_id=especie_id, activo=True)
-#             .values("id", "nombre")
-#             .order_by("nombre")
-#         )
-
-#         return render(request, "mascotas/partials/razas_options.html", {"razas": razas})
-
-#     return render(request, "mascotas/partials/razas_options.html", {"razas": []})
-
-
 @login_required
 def cargar_razas(request):
     """Devuelve las razas en formato JSON según la especie seleccionada"""

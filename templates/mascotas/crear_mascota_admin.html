@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Crear Nueva Mascota (Admin){% endblock %}
+{% block title %}Crear Nueva Mascota{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -117,7 +117,7 @@
     </div>
 </div>
 
-<script>
+{% comment %} <script>
 document.addEventListener("DOMContentLoaded", function() {
     const especieSelect = document.getElementById("id_especie");
     const razaSelect = document.getElementById("id_raza");
@@ -148,5 +148,5 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 });
-</script>
+</script> {% endcomment %}
 {% endblock %}
