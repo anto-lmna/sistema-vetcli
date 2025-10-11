@@ -220,7 +220,7 @@ python manage.py crear_datos_prueba
 python manage.py runserver 8080
 ```
 
-# [ACTUALIZACIÓN] - Gestión Mascotas 
+# [ACTUALIZACIÓN] - Gestión de Mascotas 
 
 Migrar Datos Modelo Mascota
 
@@ -240,6 +240,41 @@ python manage.py cargar_especies
  ```bash
 pip install pillow
 ```
+
+## Caracteristicas añadidas
+
+### **Clientes**
+
+Los clientes pueden administrar sus propias mascotas desde su perfil.
+
+**Funciones disponibles:**
+* ➕ Agregar nuevas mascotas.
+* ✏️ Editar datos de sus mascotas.
+* 👁️ Ver detalle de cada mascota.
+* 📋 Visualizar el listado completo de *“Mis Mascotas”*.
+
+---
+
+### **Administrador**
+
+El administrador tiene control total sobre las mascotas registradas en la veterinaria.
+
+**Funciones disponibles:**
+* 👁️ Ver todas las mascotas de la veterinaria.
+* ✏️ Editar información de mascotas.
+* 🔄 Activar o Inactivar mascotas según su estado.
+
+---
+
+### **Veterinario**
+
+El veterinario puede acceder a la información de los pacientes que atiende.
+
+**Funciones disponibles:**
+* 👁️ Ver listado de pacientes (mascotas).
+* 📄 Consultar el detalle de cada paciente.
+
+---
 
 ## Capturas actuales
 
