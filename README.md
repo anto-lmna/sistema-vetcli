@@ -222,7 +222,7 @@ python manage.py runserver 8080
 
 # [ACTUALIZACIÓN] - Gestión de Mascotas 
 
-Migrar Datos Modelo Mascota
+Migrar Datos del Modelo Mascota
 
 ```bash
 python manage.py makemigrations mascotas
@@ -235,7 +235,7 @@ Cargar especies y razas
 ```bash
 python manage.py cargar_especies
 ```
- Instalar dependencia (carga de imagenes)
+ Instalar dependencia (procesamiento de imagenes)
 
  ```bash
 pip install pillow
