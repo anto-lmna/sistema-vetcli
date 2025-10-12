@@ -126,6 +126,16 @@
                                 </div>
 
                             </div>
+
+                        {% else %}
+                          <!-- ALERTA RESTAURADA: Cuando NO hay clínicas disponibles en absoluto  AGREGARLO EN MSJ DE PROXIMO PR!!-->
+                        <div class="alert alert-info mt-3 d-grid text-center rounded-3 shadow-sm p-4">
+                            <strong class="text-center mb-2" style="font-size: 1.25rem;">
+                                No hay veterinarias activas que acepten nuevos clientes en este momento.
+                            </strong>
+                            <span class="mt-2 text-center" style="font-size: 2.5rem;">😔</span>
+                            <p class="mt-3 mb-0 text-muted small">Por favor, inténtalo más tarde.</p>
+                        </div>
                         {% endif %}
                         
                         <!-- Aviso cliente -->
