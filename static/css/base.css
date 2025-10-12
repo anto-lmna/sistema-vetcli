@@ -98,3 +98,28 @@ border-width: 1px;
     }      
     
 /* GLOBAL STYLES END */
+
+/* PAGINATION STYLES START */
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+}
+
+.pagination .page-link {
+    color: var(--primary-dark); 
+    border-color: var(--border-light); 
+}
+
+.pagination .page-link:hover {
+    background-color: var(--light-hover); 
+    border-color: var(--primary-dark); 
+    color: var(--primary-dark);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d; 
+    background-color: transparent;
+    border-color: var(--border-light);
+}
+/* PAGINATION STYLES END */

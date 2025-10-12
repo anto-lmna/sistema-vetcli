@@ -1,108 +1,192 @@
 {% extends 'base.html' %}
+{% load static %} 
 
 {% block title %}Registro - Veterinaria SaaS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="text-center mb-5">
-            <h2>🐾 Opciones de Registro</h2>
-            <p class="lead">Elige cómo quieres registrarte en nuestro sistema</p>
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-12 col-lg-10">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold text-primary-dark">🐾 Opciones de Registro</h1>
+            <p class="lead text-muted">Elige el rol con el que deseas acceder a VetCli</p>
         </div>
 
-        <div class="row">
-            <!-- Registro como Cliente -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <span class="display-1">🐕</span>
-                        </div>
-                        <h5 class="card-title">Soy Dueño de Mascotas</h5>
-                        <p class="card-text">
-                            Quiero registrarme en una veterinaria para gestionar las citas 
-                            y el historial médico de mis mascotas.
+        <div class="row justify-content-center">
+            <!-- Contenedor Clientes -->
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card h-100 p-4 shadow-lg border-0 rounded-4 text-center">
+                    <div class="card-body d-flex flex-column">
+                        <span class="display-3 mb-3 d-block">🐕</span>
+                        <h4 class="card-title fw-bold text-primary-dark mb-3">Soy Dueño de Mascotas</h4>
+                        
+                        <p class="card-text text-muted mb-2 mb-auto" id="seccion-cliente">
+                            Regístrate para gestionar las citas y el historial médico de tus animales.
                         </p>
                         
                         {% if clinicas_disponibles %}
-                            <h6>Veterinarias Disponibles ({{ total_clinicas }})</h6>
-                            <div class="list-group list-group-flush">
-                                {% for clinica in clinicas_disponibles %}
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="text-start">
-                                            <strong>{{ clinica.nombre }}</strong><br>
-                                            <small class="text-muted">{{ clinica.direccion|truncatewords:5 }}</small>
-                                        </div>
-                                        <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
-                                           class="btn btn-primary btn-sm">
-                                            Registrarme
-                                        </a>
+                            
+                            <div class="flex-grow-1">
+
+                                <div class="form-group text-start">
+                                    <label for="buscarClinica" class="fw-bold small mb-2 text-primary-dark">Buscar Veterinaria</label>
+                                    <input type="text" class="form-control rounded-pill" id="buscarClinica" placeholder="Escribe el nombre de tu clínica...">
+                                </div>
+
+                                <div id="seccionClinicasVisibles">
+                                    <!-- Título de la sección -->
+                                    <h6 class="fw-bold text-primary-dark mt-2 pt-3 border-top">Veterinarias Disponibles ({{ clinicas_disponibles.paginator.count }})</h6>
+                                    
+                                    <!-- CONTADOR: Muestra 1-2 de 50, o 3-4 de 50, etc. -->
+                                    {% if clinicas_disponibles.paginator.count > 0 %}
+                                    <div class="text-start small text-muted mb-2">
+                                        <span class="fw-semibold">
+                                            Mostrando {{ clinicas_disponibles.start_index }}-{{ clinicas_disponibles.end_index }} de {{ clinicas_disponibles.paginator.count }}
+                                        </span>
                                     </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="alert alert-info">
-                                <small>No hay veterinarias disponibles en este momento</small>
+                                    {% endif %}
+                                    
+                                    <!-- LISTA DE CLÍNICAS: Muestra los 2 elementos enviados por Django -->
+                                    <div class="list-group list-group-flush mt-2 mb-3" id="listadoClinicas">
+                                        {% for clinica in clinicas_disponibles %}
+                                            <div class="list-group-item d-flex flex-column flex-sm-row justify-content-sm-between align-items-start align-items-sm-center px-0 py-2 border-0 border-bottom">
+                                                <div class="text-start nombre-clinica">
+                                                    <strong class="text-primary-dark">{{ clinica.nombre }}</strong><br>
+                                                    <small class="text-muted">{{ clinica.direccion|truncatewords:5 }}</small>
+                                                </div>
+                                                <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
+                                                    class="btn btn-primary btn-sm rounded-pill fw-bold mt-2 mt-sm-0">
+                                                    Registrarme
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- CONTROLES DE PAGINACIÓN ADAPTADOS -->
+                                    {% if clinicas_disponibles.has_other_pages %}
+                                    <nav aria-label="Navegación de clínicas">
+                                        <ul class="pagination pagination-sm justify-content-center">
+                                            
+                                            <!-- Primer página (<<) -->
+                                            <li class="page-item {% if not clinicas_disponibles.has_previous %}disabled{% endif %}">
+                                                <a class="page-link" href="?page=1" aria-label="Primer página">
+                                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            <!-- Anterior (<) -->
+                                            <li class="page-item {% if not clinicas_disponibles.has_previous %}disabled{% endif %}">
+                                                <a class="page-link" href="{% if clinicas_disponibles.has_previous %}?page={{ clinicas_disponibles.previous_page_number }}{% else %}#{% endif %}" aria-label="Anterior">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            <!-- Números de página ADAPTADOS para no desbordar -->
+                                            {% for i in clinicas_disponibles.paginator.page_range %}
+
+                                                {% if i == 1 or i == clinicas_disponibles.paginator.num_pages or i == clinicas_disponibles.number or i == clinicas_disponibles.number|add:'-1' or i == clinicas_disponibles.number|add:'1' %}
+                                                    <li class="page-item {% if clinicas_disponibles.number == i %}active{% endif %}">
+                                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                                    </li>
+                                                {# Puntos suspensivos antes de la página actual (solo visible en pantallas medianas o más grandes) #}
+                                                {% elif i == clinicas_disponibles.number|add:'-2' and clinicas_disponibles.number|add:'-2' > 1 %}
+                                                    <li class="page-item disabled d-none d-sm-block">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                {# Puntos suspensivos después de la página actual (solo visible en pantallas medianas o más grandes) #}
+                                                {% elif i == clinicas_disponibles.number|add:'2' and clinicas_disponibles.number|add:'2' < clinicas_disponibles.paginator.num_pages %}
+                                                    <li class="page-item disabled d-none d-sm-block">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            
+                                            <!-- Siguiente (>) -->
+                                            <li class="page-item {% if not clinicas_disponibles.has_next %}disabled{% endif %}">
+                                                <a class="page-link" href="{% if clinicas_disponibles.has_next %}?page={{ clinicas_disponibles.next_page_number }}{% else %}#{% endif %}" aria-label="Siguiente">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+
+                                            <!-- Última página (>>) -->
+                                            <li class="page-item {% if not clinicas_disponibles.has_next %}disabled{% endif %}">
+                                                <a class="page-link" href="?page={{ clinicas_disponibles.paginator.num_pages }}" aria-label="Última página">
+                                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    {% endif %}
+                                    
+                                </div>
+                                
+                                <!-- ALERTA: Usa la clase 'd-none' para ocultarse inicialmente -->
+                                <div class="alert alert-warning mt-3 d-grid text-center rounded-3 d-none" id="noEncontrado">
+                                    <strong class="text-center">No se encontraron veterinarias con ese nombre.</strong>
+                                    <span class="mt-2 text-center" style="font-size: 2.5rem;">😿</span>
+                                </div>
+
                             </div>
                         {% endif %}
+                        
+                        <!-- Aviso cliente -->
+                        <div class="alert alert-info mt-auto p-2 rounded-3 small text-start">
+                            <ul class="mb-0 list-unstyled">
+                                <li><strong class="text-primary-dark">Aviso:</strong> Tu pre-registro requiere activación por parte del administrador de la veterinaria.</li>
+                            </ul>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
-
-            <!-- Registro como Admin/Veterinario -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <span class="display-1">👨‍⚕️</span>
-                        </div>
-                        <h5 class="card-title">Soy Profesional Veterinario</h5>
+            <!-- Contenedor Dueños y Profesionales -->
+            <div class="col-12 col-md-6 mb-4">
+                <div class="card h-100 p-4 shadow-lg border-0 rounded-4 text-center">
+                    <div class="card-body d-flex flex-column">
+                        <span class="display-3 mb-3 d-block">👨‍⚕️</span>
+                        <h4 class="card-title fw-bold text-primary-dark mb-3">Soy Profesional Veterinario</h4>
+                        <p class="card-text text-muted mb-4 flex-grow-1">
+                            Si ya trabajas en una clínica, o si eres dueño de una, accede por aquí.
+                        </p>
                         
-                        <div class="mt-4">
-                            <h6>¿Tienes una clínica veterinaria?</h6>
-                            <p class="card-text">
-                                Si eres dueño de una veterinaria, puedes registrarte como 
-                                administrador y gestionar todo tu equipo.
+                        <div class="p-3 mb-3 border rounded-3 bg-light text-primary-dark">
+                            <h6 class="fw-bold mb-1">¿Eres dueño de una Veterinaria?</h6>
+                            <p class="small mb-2 text-muted">
+                                Contáctanos para registrar tu clínica y ser el administrador principal.
                             </p>
-                            <a href="#" class="btn btn-success mb-3 btn-sm" onclick="alert('Próximamente - Contacta al soporte')">
+                            <a href="#" class="btn btn-primary btn-sm rounded-pill fw-bold" onclick="alert('Próximamente - Contacta al soporte')">
                                 Registrar mi Veterinaria
                             </a>
                         </div>
 
-                        <hr>
-
-                        <div class="mt-4">
-                            <h6>¿Trabajas en una veterinaria registrada?</h6>
-                            <p class="card-text">
-                                Si ya trabajas en una veterinaria que usa nuestro sistema, 
-                                tu administrador debe darte de alta directamente.
+                        <div class="p-3 border rounded-3 bg-light text-primary-dark">
+                            <h6 class="fw-bold mb-1">¿Trabajas en una Clínica registrada?</h6>
+                            <p class="small mb-2 text-muted">
+                                Tu administrador debe darte de alta. Usa tus credenciales para iniciar.
                             </p>
-                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
                                 Iniciar Sesión
                             </a>
                         </div>
+                        <!-- Aviso Dueños y Profesionales -->
+                        <div class="alert alert-info mt-4 p-2 rounded-3 small text-start">
+                            <ul class="mb-0 list-unstyled">
+                                <li><strong class="text-primary-dark">Veterinarios:</strong> Solo el administrador de la clínica puede crear y activar tu cuenta.</li>
+                                <li><strong class="text-primary-dark">Administradores:</strong> Debes contactar a soporte para el registro inicial de tu veterinaria.</li>
+                            </ul>
+                        </div>
+                        
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Información adicional -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <h6><strong>Información importante:</strong></h6>
-                    <ul class="mb-0">
-                        <li><strong>Clientes:</strong> Tu registro quedará pendiente hasta que la veterinaria te active</li>
-                        <li><strong>Veterinarios:</strong> Solo el administrador de la clínica puede crear tu cuenta</li>
-                        <li><strong>Administradores:</strong> Contacta al soporte para registrar tu veterinaria</li>
-                    </ul>
                 </div>
             </div>
         </div>
 
         <div class="text-center mt-4">
-            <p>¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión aquí</a></p>
+            <p>¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}" class="text-primary-dark hover-underline text-decoration-none fw-semibold">Inicia sesión aquí</a></p>
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'js/buscador.js' %}"></script>
+{% endblock extra_js %}
