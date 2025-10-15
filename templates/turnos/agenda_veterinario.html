@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Agenda semanal{% endblock %}
+
+{% block content %}
+<h2>📅 Agenda Semanal</h2>
+<div id="calendar" class="mt-4"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'timeGridWeek',
+    locale: 'es',
+    slotMinTime: "08:00:00",
+    slotMaxTime: "22:00:00",
+    allDaySlot: false,
+    firstDay: 1, // Lunes
+    height: 'auto',
+    nowIndicator: true,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'timeGridDay,timeGridWeek,listWeek'
+    },
+    events: '{% url "turnos:turnos_json" %}',
+    eventDidMount: function(info) {
+      const estado = info.event.extendedProps.estado;
+      const reservado = info.event.extendedProps.reservado;
+      const cliente = info.event.extendedProps.cliente || '—';
+      const mascota = info.event.extendedProps.mascota || '—';
+      let tooltip = `
+        <b>Estado:</b> ${estado}<br>
+        <b>Cliente:</b> ${cliente}<br>
+        <b>Mascota:</b> ${mascota}<br>
+      `;
+      info.el.setAttribute('title', tooltip);
+      new bootstrap.Tooltip(info.el);
+    },
+    eventClick: function(info) {
+      const turnoId = info.event.id;
+      window.location.href = `/turnos/${turnoId}/`;  // Si querés llevar al detalle
+    },
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

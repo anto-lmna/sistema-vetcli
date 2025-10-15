@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Turnos disponibles{% endblock %}
+{% block content %}
+<h2>Turnos disponibles</h2>
+<table class="table table-striped">
+  <thead>
+    <tr><th>Veterinario</th><th>Fecha</th><th>Hora</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for turno in turnos %}
+    <tr>
+      <td>{{ turno.veterinario.nombre_completo }}</td>
+      <td>{{ turno.fecha }}</td>
+      <td>{{ turno.hora_inicio }}</td>
+      <td>
+        <form method="post" action="{% url 'turnos:reservar' turno.pk %}">
+          {% csrf_token %}
+          <select name="mascota" class="form-select form-select-sm d-inline w-auto">
+            {% for mascota in user.mascotas.all %}
+              <option value="{{ mascota.id }}">{{ mascota.nombre }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-sm btn-success">Reservar</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No hay turnos disponibles.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

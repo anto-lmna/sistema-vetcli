@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Agenda Global de la Clínica{% endblock %}
+
+{% block content %}
+<h2>🏥 Agenda Global de la Clínica</h2>
+
+<!-- 🔍 Filtros -->
+<div class="row mb-4">
+  <div class="col-md-5">
+    <label for="veterinarioSelect" class="form-label">Veterinario</label>
+    <select id="veterinarioSelect" class="form-select">
+      <option value="">Todos</option>
+      {% for vet in user.clinica.usuarios.all %}
+        {% if vet.rol == "veterinario" %}
+          <option value="{{ vet.id }}">{{ vet.nombre_completo }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-5">
+    <label for="estadoSelect" class="form-label">Estado</label>
+    <select id="estadoSelect" class="form-select">
+      <option value="">Todos</option>
+      {% for estado in estados %}
+        <option value="{{ estado.codigo }}">{{ estado.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button id="filtrarBtn" class="btn btn-primary w-100">Filtrar</button>
+  </div>
+</div>
+
+<div id="calendar"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calendarEl = document.getElementById('calendar');
+  const urlBase = '{% url "turnos:turnos_clinica_json" %}';
+
+  let calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'timeGridWeek',
+    locale: 'es',
+    slotMinTime: "08:00:00",
+    slotMaxTime: "22:00:00",
+    allDaySlot: false,
+    firstDay: 1,
+    height: 'auto',
+    nowIndicator: true,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'timeGridDay,timeGridWeek,listWeek'
+    },
+    events: urlBase,
+    eventDidMount: function(info) {
+      const vet = info.event.extendedProps.veterinario;
+      const estado = info.event.extendedProps.estado;
+      const cliente = info.event.extendedProps.cliente || '—';
+      const mascota = info.event.extendedProps.mascota || '—';
+      let tooltip = `
+        <b>Veterinario:</b> ${vet}<br>
+        <b>Estado:</b> ${estado}<br>
+        <b>Cliente:</b> ${cliente}<br>
+        <b>Mascota:</b> ${mascota}<br>
+      `;
+      info.el.setAttribute('title', tooltip);
+      new bootstrap.Tooltip(info.el);
+    },
+    eventClick: function(info) {
+      const turnoId = info.event.id;
+      window.location.href = `/turnos/${turnoId}/`;
+    },
+  });
+
+  calendar.render();
+
+  // 🔁 Filtro dinámico
+  document.getElementById('filtrarBtn').addEventListener('click', function() {
+    const vet = document.getElementById('veterinarioSelect').value;
+    const estado = document.getElementById('estadoSelect').value;
+    const query = new URLSearchParams();
+
+    if (vet) query.append('veterinario', vet);
+    if (estado) query.append('estado', estado);
+
+    calendar.refetchEvents({
+      url: urlBase + '?' + query.toString()
+    });
+    calendar.removeAllEvents();
+    calendar.addEventSource(urlBase + '?' + query.toString());
+  });
+});
+</script>
+{% endblock %}
