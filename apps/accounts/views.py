@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import redirect, render, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage # <-- agrego paginacion
 
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView, TemplateView
@@ -92,15 +93,43 @@ class RegistroExitosoView(TemplateView):
 
 
 def registro_view(request):
-    """Vista que muestra las opciones de registro"""
-    # Mostrar clínicas disponibles para pre-registro
-    clinicas_disponibles = Clinica.objects.filter(
+    """Vista que muestra las opciones de registro con paginación de clínicas"""
+    todas_las_clinicas = Clinica.objects.filter(
         is_active=True, acepta_nuevos_clientes=True
-    )
+    ).order_by('nombre')
+    
+    paginator = Paginator(todas_las_clinicas, 2)
+    page_number = request.GET.get('page')
+    
+    try:
+        clinicas_disponibles_paginadas = paginator.get_page(page_number)
+    except EmptyPage:
+        # En caso de página vacía (ej: URL manipulada), ir a la última página
+        clinicas_disponibles_paginadas = paginator.get_page(paginator.num_pages)
+        
+    # --- LÓGICA DE PAGINACIÓN TRUNCADA (2 páginas alrededor) ---
+    rango_a_mostrar = 2
+    current_page = clinicas_disponibles_paginadas.number
+    total_pages = paginator.num_pages
+    
+    start_index = max(1, current_page - rango_a_mostrar)
+    end_index = min(total_pages, current_page + rango_a_mostrar) + 1
+    
+    # Asegurar que el rango sea de 5 números si es posible (cerca de los bordes)
+    if end_index - start_index < (2 * rango_a_mostrar + 1):
+        if current_page <= rango_a_mostrar:
+            end_index = min(total_pages + 1, (2 * rango_a_mostrar) + 2)
+        elif current_page >= total_pages - rango_a_mostrar:
+            start_index = max(1, total_pages - (2 * rango_a_mostrar))
+
+    page_range_custom = range(start_index, end_index)
 
     context = {
-        "clinicas_disponibles": clinicas_disponibles,
-        "total_clinicas": clinicas_disponibles.count(),
+        "clinicas_disponibles": clinicas_disponibles_paginadas,
+        "total_clinicas": paginator.count,
+        "page_range_custom": page_range_custom, 
+        "show_ellipsis_start": start_index > 1, 
+        "show_ellipsis_end": end_index <= total_pages, 
     }
 
     return render(request, "accounts/registro_opciones.html", context)
