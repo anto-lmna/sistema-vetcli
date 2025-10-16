@@ -1,48 +1,89 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %}Agenda semanal{% endblock %}
+
+{% block title %}Mi Agenda{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<link rel="stylesheet" href="{% static 'css/agenda.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>📅 Agenda Semanal</h2>
-<div id="calendar" class="mt-4"></div>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-check"></i> Mi Agenda</h2>
+        <div>
+            <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nueva Disponibilidad
+            </a>
+            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-list"></i> Ver Disponibilidades
+            </a>
+        </div>
+    </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'timeGridWeek',
-    locale: 'es',
-    slotMinTime: "08:00:00",
-    slotMaxTime: "22:00:00",
-    allDaySlot: false,
-    firstDay: 1, // Lunes
-    height: 'auto',
-    nowIndicator: true,
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'timeGridDay,timeGridWeek,listWeek'
-    },
-    events: '{% url "turnos:turnos_json" %}',
-    eventDidMount: function(info) {
-      const estado = info.event.extendedProps.estado;
-      const reservado = info.event.extendedProps.reservado;
-      const cliente = info.event.extendedProps.cliente || '—';
-      const mascota = info.event.extendedProps.mascota || '—';
-      let tooltip = `
-        <b>Estado:</b> ${estado}<br>
-        <b>Cliente:</b> ${cliente}<br>
-        <b>Mascota:</b> ${mascota}<br>
-      `;
-      info.el.setAttribute('title', tooltip);
-      new bootstrap.Tooltip(info.el);
-    },
-    eventClick: function(info) {
-      const turnoId = info.event.id;
-      window.location.href = `/turnos/${turnoId}/`;  // Si querés llevar al detalle
-    },
-  });
-  calendar.render();
-});
-</script>
+    <!-- Estadísticas del día -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h3 class="text-info">{{ turnos_hoy|default:0 }}</h3>
+                    <p class="mb-0 text-muted">Turnos Hoy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h3 class="text-success">{{ turnos_confirmados|default:0 }}</h3>
+                    <p class="mb-0 text-muted">Confirmados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ turnos_pendientes|default:0 }}</h3>
+                    <p class="mb-0 text-muted">Pendientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ turnos_disponibles|default:0 }}</h3>
+                    <p class="mb-0 text-muted">Disponibles</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="card">
+        <div class="card-body">
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalle del turno -->
+    <div class="modal fade" id="turnoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Turno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="turnoModalBody">
+                    <!-- Contenido cargado dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js'></script>
+<script src="{% static 'js/calendario.js' %}"></script>
 {% endblock %}

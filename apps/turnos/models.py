@@ -54,6 +54,19 @@ class DisponibilidadVeterinario(models.Model):
         verbose_name_plural = "Disponibilidades de Veterinarios"
         ordering = ["fecha", "hora_inicio"]
 
+    @property
+    def turnos_generados(self):
+        return Turno.objects.filter(
+            veterinario=self.veterinario,
+            fecha=self.fecha,
+            hora_inicio__gte=self.hora_inicio,
+            hora_inicio__lt=self.hora_fin,
+        )
+
+    @property
+    def turnos_reservados(self):
+        return self.turnos_generados.filter(reservado=True)
+
     def __str__(self):
         return f"{self.veterinario} - {self.fecha} ({self.hora_inicio}-{self.hora_fin})"
 

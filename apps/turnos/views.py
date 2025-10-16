@@ -19,6 +19,11 @@ class DisponibilidadListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def test_func(self):
         return self.request.user.rol == "veterinario"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+        return context
+
     def get_queryset(self):
         return DisponibilidadVeterinario.objects.filter(
             veterinario=self.request.user
@@ -232,8 +237,6 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 # Cliente
-
-
 class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Turno
     template_name = "turnos/disponibles.html"

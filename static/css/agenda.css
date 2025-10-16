@@ -1,0 +1,3 @@
+.fc-event-main { cursor: pointer; }
+.turno-disponible { opacity: 0.6; }
+.turno-reservado { font-weight: bold; }

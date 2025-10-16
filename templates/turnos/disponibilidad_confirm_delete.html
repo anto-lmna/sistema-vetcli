@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Disponibilidad{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        Estás por eliminar la siguiente disponibilidad:
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <p><strong>Fecha:</strong> {{ object.fecha|date:"l, d F Y" }}</p>
+                            <p><strong>Horario:</strong> {{ object.hora_inicio|time:"H:i" }} - {{ object.hora_fin|time:"H:i" }}</p>
+                            <p><strong>Duración por turno:</strong> {{ object.duracion_turno }} minutos</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <strong>⚠️ Atención:</strong> Se eliminarán todos los turnos disponibles (no reservados) de este horario.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Confirmar Eliminación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

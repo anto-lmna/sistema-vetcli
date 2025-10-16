@@ -1,11 +1,126 @@
-{% extends "base.html" %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Nueva Disponibilidad{% endblock %}
+
 {% block content %}
-<h2>Crear disponibilidad</h2>
-<form method="post">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  <button class="btn btn-primary">Guardar</button>
-</form>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-plus"></i> Publicar Nueva Disponibilidad
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>¿Cómo funciona?</strong><br>
+                        Define un bloque de horario y se generarán turnos automáticamente según la duración que especifiques.
+                        Los clientes podrán reservar estos turnos.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.fecha.id_for_label }}" class="form-label">
+                                <i class="bi bi-calendar"></i> Fecha <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" 
+                                   name="fecha" 
+                                   id="{{ form.fecha.id_for_label }}"
+                                   class="form-control"
+                                   min="{{ today|date:'Y-m-d' }}"
+                                   required>
+                            {% if form.fecha.errors %}
+                                <div class="text-danger">{{ form.fecha.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Selecciona el día en que estarás disponible</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.hora_inicio.id_for_label }}" class="form-label">
+                                    <i class="bi bi-clock"></i> Hora de Inicio <span class="text-danger">*</span>
+                                </label>
+                                <input type="time" 
+                                       name="hora_inicio" 
+                                       id="{{ form.hora_inicio.id_for_label }}"
+                                       class="form-control"
+                                       required>
+                                {% if form.hora_inicio.errors %}
+                                    <div class="text-danger">{{ form.hora_inicio.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.hora_fin.id_for_label }}" class="form-label">
+                                    <i class="bi bi-clock-fill"></i> Hora de Fin <span class="text-danger">*</span>
+                                </label>
+                                <input type="time" 
+                                       name="hora_fin" 
+                                       id="{{ form.hora_fin.id_for_label }}"
+                                       class="form-control"
+                                       required>
+                                {% if form.hora_fin.errors %}
+                                    <div class="text-danger">{{ form.hora_fin.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.duracion_turno.id_for_label }}" class="form-label">
+                                <i class="bi bi-hourglass-split"></i> Duración de cada turno (minutos) <span class="text-danger">*</span>
+                            </label>
+                            <select name="duracion_turno" 
+                                    id="{{ form.duracion_turno.id_for_label }}"
+                                    class="form-select"
+                                    required>
+                                <option value="">Selecciona la duración...</option>
+                                <option value="15">15 minutos</option>
+                                <option value="20">20 minutos</option>
+                                <option value="30" selected>30 minutos (Recomendado)</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60">60 minutos (1 hora)</option>
+                            </select>
+                            {% if form.duracion_turno.errors %}
+                                <div class="text-danger">{{ form.duracion_turno.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Se generarán turnos con esta duración dentro del horario especificado
+                            </div>
+                        </div>
+
+                        <!-- Preview de turnos (calculado con JS) -->
+                        <div id="preview-turnos" class="alert alert-light" style="display: none;">
+                            <h6><i class="bi bi-eye"></i> Vista previa:</h6>
+                            <p class="mb-0" id="preview-text"></p>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Publicar Disponibilidad
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/disponibilidad.js' %}"></script>
 {% endblock %}
