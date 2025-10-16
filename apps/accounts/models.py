@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 
 class CustomUser(AbstractUser):
@@ -47,6 +48,16 @@ class CustomUser(AbstractUser):
     @property
     def is_cliente(self):
         return self.rol == "cliente"
+
+    @property
+    def dashboard_url(self):
+        if self.rol == "veterinario":
+            return reverse("core:dashboard_veterinario")
+        elif self.rol == "cliente":
+            return reverse("core:dashboard_cliente")
+        elif self.rol == "admin_veterinaria":
+            return reverse("core:dashboard_admin")
+        return reverse("core:home")
 
 
 class PerfilVeterinario(models.Model):
