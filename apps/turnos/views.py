@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.db import transaction
+from datetime import timedelta
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, DetailView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -10,29 +12,51 @@ from apps.mascotas.models import Mascota
 from .models import Turno, DisponibilidadVeterinario, EstadoTurno
 
 
-# Veterinario
+# ==================== VETERINARIO ====================
+
+
 class DisponibilidadListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = DisponibilidadVeterinario
     template_name = "turnos/disponibilidad_list.html"
     context_object_name = "disponibilidades"
 
     def test_func(self):
-        return self.request.user.rol == "veterinario"
+        return self.request.user.rol in ["veterinario", "admin_veterinaria"]
+
+    def get_queryset(self):
+        if hasattr(self, "_queryset_cache"):
+            return self._queryset_cache
+
+        qs = DisponibilidadVeterinario.objects.filter(
+            veterinario=self.request.user
+        ).order_by("-fecha_inicio")
+
+        filtro = self.request.GET.get("filtro", "futuras")
+        hoy = timezone.now().date()
+        if filtro == "pasadas":
+            qs = qs.filter(fecha_fin__lt=hoy)
+        else:
+            qs = qs.filter(fecha_fin__gte=hoy)
+
+        fecha_busqueda = self.request.GET.get("buscar_fecha")
+        if fecha_busqueda:
+            qs = qs.filter(
+                fecha_inicio__lte=fecha_busqueda, fecha_fin__gte=fecha_busqueda
+            )
+
+        self._queryset_cache = qs
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["today"] = timezone.now().date()
+        context["filtro_actual"] = self.request.GET.get("filtro", "futuras")
         return context
-
-    def get_queryset(self):
-        return DisponibilidadVeterinario.objects.filter(
-            veterinario=self.request.user
-        ).order_by("-fecha")
 
 
 class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = DisponibilidadVeterinario
-    fields = ["fecha", "hora_inicio", "hora_fin", "duracion_turno"]
+    fields = ["fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin", "duracion_turno"]
     template_name = "turnos/disponibilidad_form.html"
     success_url = reverse_lazy("turnos:disponibilidades")
 
@@ -40,11 +64,37 @@ class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateVi
         return self.request.user.rol == "veterinario"
 
     def form_valid(self, form):
-        form.instance.veterinario = self.request.user
-        form.instance.clinica = self.request.user.clinica
+        user = self.request.user
+        clinica = user.clinica
+
+        inicio = form.cleaned_data["hora_inicio"]
+        fin = form.cleaned_data["hora_fin"]
+        if inicio < clinica.hora_apertura or fin > clinica.hora_cierre:
+            messages.error(
+                self.request,
+                f"El horario está fuera del horario de atención de la clínica "
+                f"({clinica.hora_apertura.strftime('%H:%M')} - {clinica.hora_cierre.strftime('%H:%M')}).",
+            )
+            return self.form_invalid(form)
+
+        fecha_inicio = form.cleaned_data["fecha_inicio"]
+        fecha_fin = form.cleaned_data["fecha_fin"]
+        if fecha_fin < fecha_inicio:
+            messages.error(
+                self.request,
+                "La fecha de fin no puede ser anterior a la fecha de inicio.",
+            )
+            return self.form_invalid(form)
+
+        form.instance.veterinario = user
+        form.instance.clinica = clinica
         response = super().form_valid(form)
-        form.instance.generar_turnos()
-        messages.success(self.request, "Disponibilidad creada y turnos generados.")
+
+        form.instance.generar_turnos_rango()
+
+        messages.success(
+            self.request, "Disponibilidad creada y turnos generados correctamente."
+        )
         return response
 
 
@@ -61,28 +111,29 @@ class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
 
     def delete(self, request, *args, **kwargs):
         disp = self.get_object()
-        # Contar turnos reservados
+
         turnos_reservados = Turno.objects.filter(
             veterinario=disp.veterinario,
-            fecha=disp.fecha,
+            clinica=disp.clinica,
+            fecha__range=(disp.fecha_inicio, disp.fecha_fin),
             hora_inicio__gte=disp.hora_inicio,
-            hora_inicio__lt=disp.hora_fin,
+            hora_fin__lte=disp.hora_fin,
             reservado=True,
         ).count()
 
         if turnos_reservados > 0:
             messages.error(
                 request,
-                f"No se puede eliminar. Hay {turnos_reservados} turno(s) ya reservado(s) en este horario.",
+                f"No se puede eliminar. Hay {turnos_reservados} turno(s) ya reservado(s) en este rango.",
             )
             return redirect("turnos:disponibilidades")
 
-        # Eliminar solo turnos no reservados
         turnos_eliminados = Turno.objects.filter(
             veterinario=disp.veterinario,
-            fecha=disp.fecha,
+            clinica=disp.clinica,
+            fecha__range=(disp.fecha_inicio, disp.fecha_fin),
             hora_inicio__gte=disp.hora_inicio,
-            hora_inicio__lt=disp.hora_fin,
+            hora_fin__lte=disp.hora_fin,
             reservado=False,
         ).delete()[0]
 
@@ -90,6 +141,7 @@ class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
             request,
             f"Disponibilidad eliminada. {turnos_eliminados} turno(s) disponible(s) eliminado(s).",
         )
+
         return super().delete(request, *args, **kwargs)
 
 
@@ -104,16 +156,27 @@ class AgendaVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         return (
             Turno.objects.filter(
-                veterinario=self.request.user, fecha__gte=timezone.now().date()
+                veterinario=self.request.user,
+                reservado=True,  # ✅ Solo turnos reservados
+                cliente__isnull=False,  # ✅ Con cliente asignado
+                fecha__gte=timezone.now().date(),
             )
             .select_related("estado", "cliente", "mascota")
             .order_by("fecha", "hora_inicio")
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Estadísticas
+        turnos_hoy = self.get_queryset().filter(fecha=timezone.now().date())
+        context["turnos_hoy"] = turnos_hoy
+        context["total_turnos_hoy"] = turnos_hoy.count()
+
+        return context
+
 
 class TurnoDetalleVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    """Ver detalle de un turno (veterinario)"""
-
     model = Turno
     template_name = "turnos/turno_detalle_veterinario.html"
     context_object_name = "turno"
@@ -133,8 +196,12 @@ class TurnoIniciarAtencionView(LoginRequiredMixin, UserPassesTestMixin, View):
         turno = get_object_or_404(Turno, pk=pk, veterinario=request.user)
 
         if not turno.reservado:
-            messages.error(
-                request, "No se puede iniciar atención de un turno no reservado."
+            messages.error(request, "No se puede iniciar un turno no reservado.")
+            return redirect("turnos:agenda_vet")
+
+        if turno.estado.codigo != EstadoTurno.CONFIRMADO:
+            messages.warning(
+                request, f"El turno ya está en estado {turno.estado.nombre}."
             )
             return redirect("turnos:agenda_vet")
 
@@ -201,20 +268,20 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.rol == "veterinario"
 
     def get(self, request, *args, **kwargs):
-        turnos = Turno.objects.filter(veterinario=request.user).select_related(
-            "estado", "mascota", "cliente"
-        )
+        # ✅ FILTRAR solo turnos RESERVADOS
+        turnos = Turno.objects.filter(
+            veterinario=request.user,
+            reservado=True,  # Solo reservados
+            cliente__isnull=False,  # Con cliente
+        ).select_related("estado", "mascota", "cliente")
+
         eventos = []
 
         for turno in turnos:
             start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
             end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
 
-            # Título según si está reservado o no
-            if turno.reservado and turno.mascota:
-                titulo = f"{turno.mascota.nombre} - {turno.cliente.nombre_completo}"
-            else:
-                titulo = "Disponible"
+            titulo = f"{turno.mascota.nombre} - {turno.cliente.get_full_name()}"
 
             eventos.append(
                 {
@@ -228,7 +295,7 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
                         "reservado": turno.reservado,
                         "mascota": turno.mascota.nombre if turno.mascota else "",
                         "cliente": (
-                            turno.cliente.nombre_completo if turno.cliente else ""
+                            turno.cliente.get_full_name() if turno.cliente else ""
                         ),
                     },
                 }
@@ -236,8 +303,12 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         return JsonResponse(eventos, safe=False)
 
 
-# Cliente
+# ==================== CLIENTE ====================
+
+
 class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Lista de turnos disponibles para que el cliente reserve"""
+
     model = Turno
     template_name = "turnos/disponibles.html"
     context_object_name = "turnos"
@@ -249,7 +320,7 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         return (
             Turno.objects.filter(
                 clinica=self.request.user.clinica,
-                reservado=False,
+                reservado=False,  # ✅ Solo no reservados
                 fecha__gte=timezone.now().date(),
             )
             .select_related("veterinario", "estado")
@@ -258,7 +329,11 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Agregar mascotas del cliente para el formulario de reserva
+        from apps.accounts.models import CustomUser
+
+        context["veterinarios"] = CustomUser.objects.filter(
+            rol="veterinario", clinica=self.request.user.clinica, is_active=True
+        )
         context["mascotas"] = Mascota.objects.filter(
             dueno=self.request.user, activo=True
         )
@@ -266,13 +341,15 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
 
 
 class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """Reservar turno (confirmación automática)"""
+    """
+    Reservar turno - Confirmación AUTOMÁTICA
+    ✅ Cliente reserva → Estado CONFIRMADO directamente
+    """
 
     def test_func(self):
         return self.request.user.rol == "cliente"
 
     def post(self, request, pk):
-        turno = get_object_or_404(Turno, pk=pk, reservado=False)
         mascota_id = request.POST.get("mascota")
         motivo = request.POST.get("motivo", "")
 
@@ -281,26 +358,34 @@ class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
 
         try:
-            # Reservar turno (ya pasa a confirmado automáticamente)
-            turno.reservar(request.user, mascota)
+            with transaction.atomic():
+                turno = Turno.objects.select_for_update().get(pk=pk, reservado=False)
 
-            # Guardar motivo si lo proporcionó
-            if motivo:
-                turno.motivo = motivo
-                turno.save()
+                # ✅ Usar método .reservar() que ya cambia a CONFIRMADO
+                turno.reservar(request.user, mascota)
+
+                if motivo:
+                    turno.motivo = motivo
+                    turno.save()
 
             messages.success(
                 request,
-                f"¡Turno reservado exitosamente para {mascota.nombre}! "
-                f"Fecha: {turno.fecha.strftime('%d/%m/%Y')} a las {turno.hora_inicio.strftime('%H:%M')}",
+                f"✅ Turno reservado exitosamente para {mascota.nombre} el "
+                f"{turno.fecha.strftime('%d/%m/%Y')} a las {turno.hora_inicio.strftime('%H:%M')}",
             )
+        except Turno.DoesNotExist:
+            messages.error(request, "El turno ya fue reservado por otro cliente.")
         except ValueError as e:
             messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f"Error al reservar: {str(e)}")
 
         return redirect("turnos:mis_turnos")
 
 
 class MisTurnosListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Lista de turnos del cliente"""
+
     model = Turno
     template_name = "turnos/mis_turnos.html"
     context_object_name = "turnos"
@@ -315,6 +400,20 @@ class MisTurnosListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             .order_by("-fecha", "-hora_inicio")
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+
+        # Separar próximos y pasados
+        context["turnos_proximos"] = self.get_queryset().filter(
+            fecha__gte=timezone.now().date()
+        )
+        context["turnos_pasados"] = self.get_queryset().filter(
+            fecha__lt=timezone.now().date()
+        )
+
+        return context
+
 
 class TurnoDetalleClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     """Ver detalle de un turno (cliente)"""
@@ -326,6 +425,11 @@ class TurnoDetalleClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailVie
     def test_func(self):
         turno = self.get_object()
         return self.request.user == turno.cliente
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = timezone.now().date()
+        return context
 
 
 class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -342,9 +446,6 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
         fecha_hora_turno = timezone.make_aware(fecha_hora_turno)
         ahora = timezone.now()
 
-        # Mínimo 2 horas de anticipación
-        from datetime import timedelta
-
         if fecha_hora_turno - ahora < timedelta(hours=2):
             messages.error(
                 request,
@@ -360,7 +461,7 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
             return redirect("turnos:mis_turnos")
 
-        # Cancelar y liberar el turno
+        # Liberar el turno (vuelve a estar disponible)
         estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
         turno.estado = estado_pendiente
         turno.reservado = False
@@ -375,10 +476,12 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:mis_turnos")
 
 
-# Administrador
+# ==================== ADMINISTRADOR ====================
 
 
 class AgendaClinicaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """Agenda completa de la clínica (admin)"""
+
     model = Turno
     template_name = "turnos/agenda_clinica.html"
     context_object_name = "turnos"
@@ -389,7 +492,9 @@ class AgendaClinicaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         return (
             Turno.objects.filter(
-                clinica=self.request.user.clinica, fecha__gte=timezone.now().date()
+                clinica=self.request.user.clinica,
+                reservado=True,  # ✅ Solo turnos reservados
+                fecha__gte=timezone.now().date(),
             )
             .select_related("veterinario", "estado", "cliente", "mascota")
             .order_by("fecha", "hora_inicio")
@@ -428,17 +533,15 @@ class TurnoCancelarAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
         turno = get_object_or_404(Turno, pk=pk, clinica=request.user.clinica)
         motivo = request.POST.get("motivo", "Cancelado por administración")
 
-        # Si estaba reservado, cancelar
         if turno.reservado:
             estado_cancelado = EstadoTurno.objects.get(codigo=EstadoTurno.CANCELADO)
             turno.estado = estado_cancelado
             turno.motivo_cancelacion = motivo
             turno.save()
             messages.success(
-                request, f"Turno de {turno.cliente.nombre_completo} cancelado."
+                request, f"Turno de {turno.cliente.get_full_name} cancelado."
             )
         else:
-            # Si no estaba reservado, simplemente eliminarlo
             turno.delete()
             messages.success(request, "Turno disponible eliminado.")
 
@@ -469,15 +572,32 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         form.instance.clinica = self.request.user.clinica
         form.instance.creado_por = self.request.user
         form.instance.reservado = True
+        form.instance.estado = EstadoTurno.objects.get(codigo=EstadoTurno.CONFIRMADO)
 
-        # Estado confirmado automáticamente
-        estado_confirmado = EstadoTurno.objects.get(codigo=EstadoTurno.CONFIRMADO)
-        form.instance.estado = estado_confirmado
+        # Validar solapamiento
+        inicio = form.instance.hora_inicio
+        fin = (
+            timezone.datetime.combine(form.instance.fecha, inicio)
+            + timezone.timedelta(minutes=form.instance.duracion_minutos)
+        ).time()
+
+        solapado = Turno.objects.filter(
+            veterinario=form.instance.veterinario,
+            fecha=form.instance.fecha,
+            hora_inicio__lt=fin,
+            hora_fin__gt=inicio,
+        ).exists()
+
+        if solapado:
+            form.add_error(
+                None, "El turno se solapa con otro existente para el veterinario."
+            )
+            return self.form_invalid(form)
 
         messages.success(
             self.request,
-            f"Turno creado para {form.instance.cliente.nombre_completo} "
-            f"el {form.instance.fecha.strftime('%d/%m/%Y')} a las {form.instance.hora_inicio.strftime('%H:%M')}",
+            f"Turno creado para {form.instance.cliente.get_full_name} el "
+            f"{form.instance.fecha.strftime('%d/%m/%Y')} a las {inicio.strftime('%H:%M')}",
         )
         return super().form_valid(form)
 
@@ -485,7 +605,6 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         form = super().get_form(form_class)
         from apps.accounts.models import CustomUser
 
-        # Filtrar por clínica
         form.fields["veterinario"].queryset = CustomUser.objects.filter(
             rol="veterinario", clinica=self.request.user.clinica, is_active=True
         )
@@ -493,7 +612,6 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             rol="cliente", clinica=self.request.user.clinica, is_active=True
         )
 
-        # Widgets mejorados
         form.fields["fecha"].widget.attrs.update(
             {"type": "date", "class": "form-control"}
         )
@@ -518,7 +636,10 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         veterinario_id = request.GET.get("veterinario")
         estado_codigo = request.GET.get("estado")
 
-        turnos = Turno.objects.filter(clinica=clinica, fecha__gte=timezone.now().date())
+        # ✅ Solo turnos reservados
+        turnos = Turno.objects.filter(
+            clinica=clinica, reservado=True, fecha__gte=timezone.now().date()
+        )
 
         if veterinario_id:
             turnos = turnos.filter(veterinario_id=veterinario_id)
@@ -527,7 +648,6 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         turnos = turnos.select_related("veterinario", "estado", "mascota", "cliente")
 
-        # Paleta de colores por veterinario
         colores = [
             "#007bff",
             "#28a745",
@@ -544,18 +664,18 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         eventos = []
 
         for turno in turnos:
-            vet = turno.veterinario
-            if vet not in colores_por_vet:
-                colores_por_vet[vet] = colores[len(colores_por_vet) % len(colores)]
+            vet_id = turno.veterinario.id
+            if vet_id not in colores_por_vet:
+                colores_por_vet[vet_id] = colores[len(colores_por_vet) % len(colores)]
 
-            start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
-            end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
+            start = timezone.make_aware(
+                timezone.datetime.combine(turno.fecha, turno.hora_inicio)
+            )
+            end = timezone.make_aware(
+                timezone.datetime.combine(turno.fecha, turno.hora_fin)
+            )
 
-            # Título según si está reservado
-            if turno.reservado and turno.mascota:
-                titulo = f"{vet.nombre_completo} - {turno.mascota.nombre}"
-            else:
-                titulo = f"{vet.nombre_completo} - Disponible"
+            titulo = f"{turno.veterinario.get_full_name()} - {turno.mascota.nombre}"
 
             eventos.append(
                 {
@@ -563,16 +683,12 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
                     "title": titulo,
                     "start": start.isoformat(),
                     "end": end.isoformat(),
-                    "color": colores_por_vet[vet],
+                    "color": colores_por_vet[vet_id],
                     "extendedProps": {
-                        "veterinario": vet.nombre_completo,
+                        "veterinario": turno.veterinario.get_full_name(),
                         "estado": turno.estado.nombre if turno.estado else "",
-                        "cliente": (
-                            turno.cliente.nombre_completo
-                            if turno.cliente
-                            else "Disponible"
-                        ),
-                        "mascota": turno.mascota.nombre if turno.mascota else "",
+                        "cliente": turno.cliente.get_full_name(),
+                        "mascota": turno.mascota.nombre,
                         "reservado": turno.reservado,
                     },
                 }

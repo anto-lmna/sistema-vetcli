@@ -1,55 +1,67 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}Nueva Disponibilidad{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <div class="card">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-calendar-plus"></i> Publicar Nueva Disponibilidad
-                    </h4>
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Publicar Nueva Disponibilidad</h4>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i>
                         <strong>¿Cómo funciona?</strong><br>
-                        Define un bloque de horario y se generarán turnos automáticamente según la duración que especifiques.
-                        Los clientes podrán reservar estos turnos.
+                        Definí un rango de fechas y horarios. Se generarán automáticamente turnos según la duración elegida. 
+                        Los clientes podrán reservar dentro de esos horarios.
                     </div>
 
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
                         {% endif %}
 
-                        <div class="mb-3">
-                            <label for="{{ form.fecha.id_for_label }}" class="form-label">
-                                <i class="bi bi-calendar"></i> Fecha <span class="text-danger">*</span>
-                            </label>
-                            <input type="date" 
-                                   name="fecha" 
-                                   id="{{ form.fecha.id_for_label }}"
-                                   class="form-control"
-                                   min="{{ today|date:'Y-m-d' }}"
-                                   required>
-                            {% if form.fecha.errors %}
-                                <div class="text-danger">{{ form.fecha.errors }}</div>
-                            {% endif %}
-                            <div class="form-text">Selecciona el día en que estarás disponible</div>
+                        <!-- 📆 Rango de fechas -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fecha_inicio.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar"></i> Fecha desde <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" 
+                                       name="fecha_inicio" 
+                                       id="{{ form.fecha_inicio.id_for_label }}" 
+                                       class="form-control"
+                                       min="{{ today|date:'Y-m-d' }}"
+                                       required>
+                                {% if form.fecha_inicio.errors %}
+                                    <div class="text-danger">{{ form.fecha_inicio.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fecha_fin.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar-event"></i> Fecha hasta <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" 
+                                       name="fecha_fin" 
+                                       id="{{ form.fecha_fin.id_for_label }}" 
+                                       class="form-control"
+                                       min="{{ today|date:'Y-m-d' }}"
+                                       required>
+                                {% if form.fecha_fin.errors %}
+                                    <div class="text-danger">{{ form.fecha_fin.errors }}</div>
+                                {% endif %}
+                            </div>
                         </div>
 
+                        <!-- 🕒 Horarios -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.hora_inicio.id_for_label }}" class="form-label">
-                                    <i class="bi bi-clock"></i> Hora de Inicio <span class="text-danger">*</span>
+                                    <i class="bi bi-clock"></i> Hora de inicio <span class="text-danger">*</span>
                                 </label>
                                 <input type="time" 
                                        name="hora_inicio" 
@@ -59,11 +71,11 @@
                                 {% if form.hora_inicio.errors %}
                                     <div class="text-danger">{{ form.hora_inicio.errors }}</div>
                                 {% endif %}
+                                <div class="form-text">Debe estar dentro del horario de atención de la clínica.</div>
                             </div>
-
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.hora_fin.id_for_label }}" class="form-label">
-                                    <i class="bi bi-clock-fill"></i> Hora de Fin <span class="text-danger">*</span>
+                                    <i class="bi bi-clock-fill"></i> Hora de fin <span class="text-danger">*</span>
                                 </label>
                                 <input type="time" 
                                        name="hora_fin" 
@@ -76,18 +88,16 @@
                             </div>
                         </div>
 
+                        <!-- ⏱️ Duración -->
                         <div class="mb-3">
                             <label for="{{ form.duracion_turno.id_for_label }}" class="form-label">
-                                <i class="bi bi-hourglass-split"></i> Duración de cada turno (minutos) <span class="text-danger">*</span>
+                                <i class="bi bi-hourglass-split"></i> Duración de cada turno (minutos)
                             </label>
-                            <select name="duracion_turno" 
-                                    id="{{ form.duracion_turno.id_for_label }}"
-                                    class="form-select"
-                                    required>
-                                <option value="">Selecciona la duración...</option>
+                            <select name="duracion_turno" id="{{ form.duracion_turno.id_for_label }}" class="form-select" required>
+                                <option value="">Seleccioná...</option>
                                 <option value="15">15 minutos</option>
                                 <option value="20">20 minutos</option>
-                                <option value="30" selected>30 minutos (Recomendado)</option>
+                                <option value="30" selected>30 minutos (recomendado)</option>
                                 <option value="45">45 minutos</option>
                                 <option value="60">60 minutos (1 hora)</option>
                             </select>
@@ -95,16 +105,17 @@
                                 <div class="text-danger">{{ form.duracion_turno.errors }}</div>
                             {% endif %}
                             <div class="form-text">
-                                Se generarán turnos con esta duración dentro del horario especificado
+                                Se generarán turnos con esta duración dentro del rango horario.
                             </div>
                         </div>
 
-                        <!-- Preview de turnos (calculado con JS) -->
-                        <div id="preview-turnos" class="alert alert-light" style="display: none;">
-                            <h6><i class="bi bi-eye"></i> Vista previa:</h6>
+                        <!-- 👁️ Vista previa dinámica -->
+                        <div id="preview-turnos" class="alert alert-light border mt-3" style="display: none;">
+                            <h6><i class="bi bi-eye"></i> Vista previa estimada</h6>
                             <p class="mb-0" id="preview-text"></p>
                         </div>
 
+                        <!-- Botones -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancelar
@@ -122,5 +133,39 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/disponibilidad.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const fechaInicio = document.querySelector("[name='fecha_inicio']");
+    const fechaFin = document.querySelector("[name='fecha_fin']");
+    const horaInicio = document.querySelector("[name='hora_inicio']");
+    const horaFin = document.querySelector("[name='hora_fin']");
+    const duracion = document.querySelector("[name='duracion_turno']");
+    const preview = document.getElementById("preview-turnos");
+    const previewText = document.getElementById("preview-text");
+
+    function actualizarVistaPrevia() {
+        const f1 = new Date(fechaInicio.value);
+        const f2 = new Date(fechaFin.value);
+        const h1 = horaInicio.value;
+        const h2 = horaFin.value;
+        const d = parseInt(duracion.value);
+        if (!f1 || !f2 || !h1 || !h2 || !d) {
+            preview.style.display = "none";
+            return;
+        }
+
+        const diffDays = Math.floor((f2 - f1) / (1000 * 60 * 60 * 24)) + 1;
+        const diffHours = (new Date(`1970-01-01T${h2}:00`) - new Date(`1970-01-01T${h1}:00`)) / (1000 * 60 * 60);
+        const turnosPorDia = Math.floor((diffHours * 60) / d);
+        const totalTurnos = diffDays * turnosPorDia;
+
+        previewText.textContent = `Se crearán aproximadamente ${totalTurnos} turnos (${turnosPorDia} por día, durante ${diffDays} día${diffDays>1?"s":""}).`;
+        preview.style.display = "block";
+    }
+
+    [fechaInicio, fechaFin, horaInicio, horaFin, duracion].forEach(el => {
+        el.addEventListener("change", actualizarVistaPrevia);
+    });
+});
+</script>
 {% endblock %}

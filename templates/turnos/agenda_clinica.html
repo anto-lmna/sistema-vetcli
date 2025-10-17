@@ -13,7 +13,7 @@
       <option value="">Todos</option>
       {% for vet in user.clinica.usuarios.all %}
         {% if vet.rol == "veterinario" %}
-          <option value="{{ vet.id }}">{{ vet.nombre_completo }}</option>
+          <option value="{{ vet.id }}">{{ vet.get_full_name }}</option>
         {% endif %}
       {% endfor %}
     </select>

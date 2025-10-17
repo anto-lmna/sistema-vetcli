@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Turno{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header" style="background-color: {{ turno.estado.color }}; color: white;">
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-event"></i> Detalle del Turno
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Estado -->
+                    <div class="text-center mb-4">
+                        <span class="badge" style="background-color: {{ turno.estado.color }}; font-size: 1.5rem; padding: 10px 20px;">
+                            {{ turno.estado.nombre }}
+                        </span>
+                    </div>
+
+                    <!-- Información del Turno -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">
+                                <i class="bi bi-calendar-date"></i> Fecha y Hora
+                            </h5>
+                            <p class="mb-2">
+                                <strong>Fecha:</strong><br>
+                                <span class="fs-5">{{ turno.fecha|date:"l, d F Y" }}</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>Hora:</strong><br>
+                                <span class="fs-5">{{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Duración:</strong> {{ turno.duracion_minutos }} minutos
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">
+                                <i class="bi bi-person-badge"></i> Veterinario
+                            </h5>
+                            <p class="mb-2">
+                                <strong>Dr(a). {{ turno.veterinario.nombre_completo }}</strong>
+                            </p>
+                            {% if turno.veterinario.perfilveterinario %}
+                            <p class="mb-0">
+                                <small class="text-muted">
+                                    Matrícula: {{ turno.veterinario.perfilveterinario.matricula }}
+                                </small>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Información de la Mascota -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="bi bi-heart-fill text-danger"></i> Tu Mascota
+                        </h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Nombre:</strong> {{ turno.mascota.nombre }}</p>
+                                        <p class="mb-2"><strong>Especie:</strong> {{ turno.mascota.especie }}</p>
+                                        <p class="mb-0"><strong>Raza:</strong> {{ turno.mascota.raza|default:"No especificada" }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Edad:</strong> {{ turno.mascota.edad_texto }}</p>
+                                        <p class="mb-0"><strong>Sexo:</strong> {{ turno.mascota.get_sexo_display }}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="{% url 'mascotas:detalle_mascota' turno.mascota.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Ver Perfil Completo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motivo -->
+                    {% if turno.motivo %}
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">
+                            <i class="bi bi-chat-text"></i> Motivo de la Consulta
+                        </h5>
+                        <p class="bg-light p-3 rounded">{{ turno.motivo }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Información Adicional -->
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Información Importante:</h6>
+                        <ul class="mb-0">
+                            <li>Por favor, llega 10 minutos antes de tu turno.</li>
+                            <li>Trae la libreta sanitaria de tu mascota.</li>
+                            <li>Si necesitas cancelar, hazlo con al menos 2 horas de anticipación.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="{% url 'turnos:mis_turnos' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver a Mis Turnos
+                        </a>
+                        
+                        {% if turno.estado.codigo not in 'completado,cancelado,no_asistio' and turno.fecha >= today %}
+                        <button type="button" 
+                                class="btn btn-danger ms-auto" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#cancelarModal">
+                            <i class="bi bi-x-circle"></i> Cancelar Turno
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelar -->
+{% if turno.estado.codigo not in 'completado,cancelado,no_asistio' and turno.fecha >= today %}
+<div class="modal fade" id="cancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar Cancelación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'turnos:turno_cancelar_cliente' turno.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        ¿Estás seguro de que deseas cancelar este turno?
+                    </div>
+                    <p>Esta acción liberará el turno para que otros clientes puedan reservarlo.</p>
+                    <p><small class="text-muted">Recuerda: Solo puedes cancelar con al menos 2 horas de anticipación.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        No, mantener turno
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Sí, cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

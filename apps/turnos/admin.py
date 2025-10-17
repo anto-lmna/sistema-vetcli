@@ -2,9 +2,7 @@ from django.contrib import admin
 from .models import EstadoTurno, DisponibilidadVeterinario, Turno
 
 
-# ======================
-# ADMIN: ESTADOS DE TURNO
-# ======================
+# Estados de Turno
 @admin.register(EstadoTurno)
 class EstadoTurnoAdmin(admin.ModelAdmin):
     list_display = ["nombre", "codigo", "color", "activo"]
@@ -15,27 +13,33 @@ class EstadoTurnoAdmin(admin.ModelAdmin):
     fieldsets = ((None, {"fields": ("nombre", "codigo", "color", "activo")}),)
 
 
-# ======================
-# ADMIN: DISPONIBILIDAD VETERINARIO
-# ======================
+# Disponibilidad Veterinario
 @admin.register(DisponibilidadVeterinario)
 class DisponibilidadVeterinarioAdmin(admin.ModelAdmin):
     list_display = [
         "veterinario",
         "clinica",
-        "fecha",
+        "fecha_inicio",
+        "fecha_fin",
         "hora_inicio",
         "hora_fin",
         "duracion_turno",
     ]
-    list_filter = ["clinica", "fecha", "veterinario"]
+    list_filter = ["clinica", "veterinario", "fecha_inicio", "fecha_fin"]
     search_fields = ["veterinario__nombre_completo", "veterinario__email"]
-    date_hierarchy = "fecha"
-    ordering = ["-fecha", "hora_inicio"]
+    date_hierarchy = "fecha_inicio"
+    ordering = ["-fecha_inicio", "hora_inicio"]
 
     fieldsets = (
         ("Veterinario", {"fields": ("veterinario", "clinica")}),
-        ("Horario", {"fields": ("fecha", "hora_inicio", "hora_fin", "duracion_turno")}),
+        (
+            "Rango de Fechas",
+            {"fields": ("fecha_inicio", "fecha_fin")},
+        ),
+        (
+            "Horario",
+            {"fields": ("hora_inicio", "hora_fin", "duracion_turno")},
+        ),
     )
 
     def get_queryset(self, request):
@@ -46,12 +50,10 @@ class DisponibilidadVeterinarioAdmin(admin.ModelAdmin):
         """Generar turnos automáticamente al guardar"""
         super().save_model(request, obj, form, change)
         if not change:  # Solo al crear, no al editar
-            obj.generar_turnos()
+            obj.generar_turnos_rango()
 
 
-# ======================
-# ADMIN: TURNOS
-# ======================
+# Administrar Turnos
 @admin.register(Turno)
 class TurnoAdmin(admin.ModelAdmin):
     list_display = [

@@ -12,13 +12,13 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h4 class="mb-0">🏥 VetCli</h4>
+            <h4 class="mb-0">VetCli</h4>
             <small class="opacity-75">Panel de Veterinario</small>
         </div>
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">📊 Dashboard</a>
+                <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">📊 Panel</a>
             </div>
             <div class="nav-item">
                 <a href="{% url 'turnos:agenda_vet' %}" class="nav-link">📅 Turnos</a>
@@ -67,7 +67,7 @@
                     <div class="stats-card info">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h3 class="stats-number">--</h3>
+                                <h3 class="stats-number">{{ turnos_hoy }}</h3>
                                 <p class="stats-label">Turnos Hoy</p>
                             </div>
                             <div class="stats-icon">📅</div>
@@ -193,19 +193,4 @@
                 </div>
                 {% endif %}
             </div>
-
-            <!-- Próximos Turnos -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h6 class="section-title">📅 Próximos Turnos</h6>
-                </div>
-                <div class="empty-state">
-                    <div class="empty-state-icon">🚀</div>
-                    <h6>Próximamente</h6>
-                    <p class="mb-0">Aquí verás tus próximas citas programadas.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

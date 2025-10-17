@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-4">
             <!-- Foto de la mascota -->
-            <div class="card mb-4">
+            <div class="card mb-4 rounded-left">
                 {% if mascota.foto %}
                     <img src="{{ mascota.foto.url }}" class="card-img-top" alt="{{ mascota.nombre }}">
                 {% else %}
@@ -65,8 +65,8 @@
         <div class="col-md-8">
             <!-- Información Básica -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información Básica</h5>
+                <div class="card-header bg-gradient-secondary text-dark">
+                    <h5 class="mb-0 "><i class="bi bi-info-circle"></i> Información Básica</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -122,8 +122,8 @@
             
             <!-- Dueño -->
             {% if user.rol != 'cliente' %}
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
+            <div class="card mb-4 ">
+                <div class="card-header bg-dark text-white">
                     <h5 class="mb-0"><i class="bi bi-person"></i> Dueño</h5>
                 </div>
                 <div class="card-body">
@@ -139,7 +139,7 @@
             <!-- Información Médica -->
             {% if mascota.alergias or mascota.condiciones_preexistentes or mascota.observaciones %}
             <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
+                <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="bi bi-file-medical"></i> Información Médica</h5>
                 </div>
                 <div class="card-body">
@@ -166,7 +166,6 @@
                 </div>
             </div>
             {% endif %}
-            
             <!-- Metadatos -->
             <div class="card">
                 <div class="card-body">

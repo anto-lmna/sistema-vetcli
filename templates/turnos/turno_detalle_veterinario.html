@@ -8,18 +8,14 @@
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <div class="card">
-                <div class="card-header {% if turno.reservado %}bg-success{% else %}bg-secondary{% endif %} text-white">
+                <div class="card-header bg-success text-white">
                     <h4 class="mb-0">
                         <i class="bi bi-calendar-event"></i>
-                        {% if turno.reservado %}
-                            Turno Reservado
-                        {% else %}
-                            Turno Disponible
-                        {% endif %}
+                        Turno Reservado
                     </h4>
                 </div>
                 <div class="card-body">
-                    <!-- Información del Turno -->
+                    <!-- Info del Turno -->
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h5 class="border-bottom pb-2">📅 Fecha y Hora</h5>
@@ -34,12 +30,11 @@
                                     {{ turno.estado.nombre }}
                                 </span>
                             </p>
-                            <p><strong>Tipo:</strong> {{ turno.get_tipo_consulta_display }}</p>
+                            <p><strong>Tipo:</strong> {{ turno.tipo_consulta|default:"Consulta general" }}</p>
                         </div>
                     </div>
 
-                    {% if turno.reservado %}
-                    <!-- Información del Paciente -->
+                    <!-- Info del Paciente -->
                     <div class="mb-4">
                         <h5 class="border-bottom pb-2">🐾 Paciente</h5>
                         <div class="card bg-light">
@@ -49,10 +44,12 @@
                                         <p class="mb-2"><strong>Mascota:</strong> {{ turno.mascota.nombre }}</p>
                                         <p class="mb-2"><strong>Especie:</strong> {{ turno.mascota.especie }}</p>
                                         <p class="mb-2"><strong>Raza:</strong> {{ turno.mascota.raza|default:"No especificada" }}</p>
-                                        <p class="mb-2"><strong>Edad:</strong> {{ turno.mascota.edad_texto }}</p>
+                                        {% if turno.mascota.fecha_nacimiento %}
+                                        <p class="mb-2"><strong>Edad:</strong> {{ turno.mascota.fecha_nacimiento|timesince }}</p>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6">
-                                        <p class="mb-2"><strong>Dueño:</strong> {{ turno.cliente.nombre_completo }}</p>
+                                        <p class="mb-2"><strong>Dueño:</strong> {{ turno.cliente.get_full_name }}</p>
                                         <p class="mb-2"><strong>Teléfono:</strong> {{ turno.cliente.telefono|default:"No especificado" }}</p>
                                         <p class="mb-2"><strong>Email:</strong> {{ turno.cliente.email }}</p>
                                     </div>
@@ -74,7 +71,7 @@
                     </div>
                     {% endif %}
 
-                    <!-- Acciones -->
+                    <!-- Acciones según el estado -->
                     <div class="d-flex gap-2 flex-wrap">
                         {% if turno.estado.codigo == 'confirmado' %}
                         <form method="post" action="{% url 'turnos:turno_iniciar' turno.pk %}" class="flex-grow-1">
@@ -94,7 +91,7 @@
                         </form>
                         {% endif %}
 
-                        {% if turno.estado.codigo in 'confirmado,en_curso' %}
+                        {% if turno.estado.codigo == 'confirmado' or turno.estado.codigo == 'en_curso' %}
                         <form method="post" action="{% url 'turnos:turno_no_asistio' turno.pk %}" 
                               onsubmit="return confirm('¿Confirmar que el cliente no asistió?');"
                               class="flex-grow-1">
@@ -105,17 +102,13 @@
                         </form>
                         {% endif %}
 
-                        <a href="{% url 'mascotas:detalle_mascota' turno.mascota.pk %}" class="btn btn-outline-primary flex-grow-1">
+                        {% if turno.mascota.pk %}
+                        <a href="{% url 'mascotas:detalle_mascota' turno.mascota.pk %}" 
+                           class="btn btn-outline-primary flex-grow-1">
                             <i class="bi bi-file-medical"></i> Ver Historial
                         </a>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <!-- Turno no reservado -->
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle"></i>
-                        <p class="mb-0">Este turno aún está disponible para que los clientes lo reserven.</p>
-                    </div>
-                    {% endif %}
 
                     <div class="mt-4">
                         <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-secondary">

@@ -1,11 +1,13 @@
+from django.utils import timezone
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from django.contrib import messages
 
 from apps.clinicas.models import Clinica
 from apps.mascotas.models import Mascota
 from apps.accounts.models import CustomUser
+from apps.turnos.models import Turno, EstadoTurno
 
 
 class VeterinariaListView(ListView):
@@ -127,12 +129,18 @@ def dashboard_veterinario_view(request):
         .order_by("-fecha_registro")[:6]
     )
 
+    hoy = timezone.localdate()
+    turnos_hoy = Turno.objects.filter(
+        veterinario=request.user, reservado=True, cliente__isnull=False, fecha=hoy
+    ).count()
+
     context = {
         "user": request.user,
         "clinica": clinica,
         "perfil": perfil,
         "total_mascotas": total_mascotas,
         "mascotas_recientes": mascotas_recientes,
+        "turnos_hoy": turnos_hoy,
     }
 
     return render(request, "core/dashboard_veterinario.html", context)
