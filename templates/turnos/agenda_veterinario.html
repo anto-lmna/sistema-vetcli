@@ -12,10 +12,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-calendar-check"></i> Mi Agenda</h2>
         <div>
-            <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-success">
+            <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-dispo">
                 <i class="bi bi-plus-circle"></i> Nueva Disponibilidad
             </a>
-            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-outline-secondary btn-sec">
                 <i class="bi bi-list"></i> Ver Disponibilidades
             </a>
         </div>
@@ -62,7 +62,7 @@
 
     <div class="card mt-4">
         <div class="card-header bg-light">
-            <h5 class="mb-0">📋 Próximos Turnos</h5>
+            <h5 class="mb-0">Próximos Turnos</h5>
         </div>
         <div class="card-body">
             {% if turnos %}
@@ -95,7 +95,7 @@
                                 </td>
                                 <td>
                                     <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" 
-                                       class="btn btn-sm btn-outline-primary">
+                                       class="btn btn-sm btn-outline-secondary btn-ver">
                                         <i class="bi bi-eye"></i> Ver
                                     </a>
                                 </td>
@@ -129,35 +129,19 @@
             </div>
         </div>
     </div>
+    <a href="{% url 'core:dashboard_veterinario' %}" class="btn btn-outline-secondary mt-3">
+    <i class="bi bi-arrow-left"></i> Volver al Panel 
+</a>
 </div>
+
+
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    const TURNOS_JSON_URL = "{% url 'turnos:turnos_json' %}";
+</script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js'></script>
 <script src="{% static 'js/calendario.js' %}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'es',
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: '{% url "turnos:turnos_json" %}',
-        eventClick: function(info) {
-            window.location.href = '/turnos/turno/' + info.event.id + '/detalle-vet/';
-        },
-        eventTimeFormat: {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        }
-    });
-    calendar.render();
-});
-</script>
 {% endblock %}

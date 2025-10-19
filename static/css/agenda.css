@@ -1,3 +1,57 @@
+:root {
+    --primary-dark: #5B3A63; 
+    --dark-hover: #7f5f8f;
+    --light-hover: #F0E6F8;
+    --secondary-dark:#4eb96f;
+    --secondary-hover:#268844;
+    /* Colores Base */
+    --bg-light: #F8FAFC;
+    --text-dark: #1F2937;
+    --border-light: #E5E7EB;
+}
+/* NAVBAR START */
+.navbar-purple {
+    background: var(--primary-dark);
+    margin-bottom: 3rem;
+}
+
+.navbar-purple .navbar-brand,
+.navbar-purple .nav-link {
+    color: var(--bg-light);
+}
+
+.navbar-purple .nav-link:hover {
+    color: var(--bg-light);
+}
+
+.navbar-purple .container-fluid {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+/* NAVBAR END */
+
 .fc-event-main { cursor: pointer; }
 .turno-disponible { opacity: 0.6; }
 .turno-reservado { font-weight: bold; }
+
+/* Botones */
+.btn-dispo{
+    color: var(--bg-light);
+    background-color: var(--secondary-dark);
+}
+
+.btn-dispo:hover{
+    color: white;
+    background-color: var(--secondary-hover);
+}
+
+
+.btn-sec:hover{
+    background-color: var(--dark-hover);
+}
+.btn-ver:hover{
+    background-color: var(--dark-hover);
+}
+.btn-volver{
+    background-color: var(--dark-hover);
+}

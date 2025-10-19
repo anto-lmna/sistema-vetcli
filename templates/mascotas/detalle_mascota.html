@@ -59,6 +59,12 @@
                         <i class="bi bi-arrow-left"></i> Volver
                     </a>
                 </div>
+            {% elif user.rol == 'veterinario' %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'core:dashboard_veterinario' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
             {% endif %}
         </div>
         

@@ -21,7 +21,7 @@
                 <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">📊 Panel</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'turnos:agenda_vet' %}" class="nav-link">📅 Turnos</a>
+                <a href="{% url 'turnos:agenda_vet' %}" class="nav-link">📅 Agenda</a>
             </div>
             <div class="nav-item">
                 <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="nav-link">🐕 Pacientes</a>
@@ -128,9 +128,9 @@
                 <div class="p-4">
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <button class="action-btn success w-100" onclick="alert('Próximamente')">
-                                📅 Ver Turnos del día
-                            </button>
+                                <a href="{% url 'turnos:agenda_vet' %}?filtro=hoy" class="action-btn w-100 text-center text-decoration-none d-block">
+                                    📅 Ver Turnos del día
+                                </a>
                         </div>
                         <div class="col-md-4 mb-3">
                             <button class="action-btn w-100" onclick="alert('Próximamente')">
@@ -150,9 +150,8 @@
             <div class="content-section mb-4">
                 <div class="section-header">
                     <h6 class="section-title">🐾 Pacientes Recientes</h6>
-                    <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn">Ver Todos</a>
+                    <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn text-decoration-none">Ver Todos</a>
                 </div>
-                
                 {% if mascotas_recientes %}
                 <div class="p-3">
                     <div class="row">

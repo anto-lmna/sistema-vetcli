@@ -157,8 +157,8 @@ class AgendaVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return (
             Turno.objects.filter(
                 veterinario=self.request.user,
-                reservado=True,  # ✅ Solo turnos reservados
-                cliente__isnull=False,  # ✅ Con cliente asignado
+                reservado=True,
+                cliente__isnull=False,
                 fecha__gte=timezone.now().date(),
             )
             .select_related("estado", "cliente", "mascota")
