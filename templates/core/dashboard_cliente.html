@@ -136,14 +136,14 @@
                             </a>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                            <a href="{% url 'turnos:disponibles' %}" class="action-btn success w-100 text-center text-decoration-none d-block">
                                 📅 Pedir Turno
-                            </button>
+                            </a>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                            <a href="#" class="action-btn success w-100 text-center text-decoration-none d-block" onclick="alert('Próximamente')" >
                                 📋 Ver Historiales
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
             <div class="content-section">
                 <div class="section-header">
                     <h6 class="section-title">🐾 Mis Mascotas</h6>
-                    <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn">➕ Agregar Mascota</a>
+                    <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn text-decoration-none">➕ Agregar Mascota</a>
                 </div>
                 
                 {% if mascotas_recientes %}
@@ -185,7 +185,7 @@
                         {% endfor %}
                     </div>
                     <div class="text-center mt-3">
-                        <a href="{% url 'mascotas:mis_mascotas' %}" class="btn btn-primary">
+                        <a href="{% url 'mascotas:mis_mascotas' %}" class="btn  btn-outline-secondary">
                             Ver Todas Mis Mascotas ({{ total_mascotas }})
                         </a>
                     </div>

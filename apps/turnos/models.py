@@ -78,41 +78,34 @@ class DisponibilidadVeterinario(models.Model):
         return self.turnos_generados.filter(reservado=True)
 
     def generar_turnos_rango(self):
-        """
-        Genera turnos desde fecha_inicio hasta fecha_fin respetando:
-        - Duración actual del turno.
-        - Turnos ya existentes para evitar solapamientos.
-        """
-        estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
+        """Genera turnos desde fecha_inicio hasta fecha_fin"""
+        try:
+            estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
+        except EstadoTurno.DoesNotExist:
+            return 0
+
         fecha_actual = self.fecha_inicio
+        turnos_creados = 0
 
         while fecha_actual <= self.fecha_fin:
-            dia_semana = fecha_actual.strftime("%A").lower()
-            if (
-                hasattr(self.clinica, "dias_atencion")
-                and dia_semana in self.clinica.dias_atencion
-            ):
-                hora_actual = datetime.combine(fecha_actual, self.hora_inicio)
-                hora_fin_dt = datetime.combine(fecha_actual, self.hora_fin)
+            hora_actual = datetime.combine(fecha_actual, self.hora_inicio)
+            hora_fin_dt = datetime.combine(fecha_actual, self.hora_fin)
 
-                while (
-                    hora_actual + timedelta(minutes=self.duracion_turno) <= hora_fin_dt
-                ):
-                    nuevo_inicio = hora_actual.time()
-                    nuevo_fin = (
-                        hora_actual + timedelta(minutes=self.duracion_turno)
-                    ).time()
+            while hora_actual + timedelta(minutes=self.duracion_turno) <= hora_fin_dt:
+                nuevo_inicio = hora_actual.time()
+                nuevo_fin = (
+                    hora_actual + timedelta(minutes=self.duracion_turno)
+                ).time()
 
-                    # Verificar solapamientos
-                    turno_solapado = Turno.objects.filter(
-                        veterinario=self.veterinario,
-                        clinica=self.clinica,
-                        fecha=fecha_actual,
-                        hora_inicio__lt=nuevo_fin,
-                        hora_fin__gt=nuevo_inicio,
-                    ).exists()
-
-                    if not turno_solapado:
+                # Verificar solapamiento
+                if not Turno.objects.filter(
+                    veterinario=self.veterinario,
+                    clinica=self.clinica,
+                    fecha=fecha_actual,
+                    hora_inicio__lt=nuevo_fin,
+                    hora_fin__gt=nuevo_inicio,
+                ).exists():
+                    try:
                         Turno.objects.create(
                             clinica=self.clinica,
                             veterinario=self.veterinario,
@@ -123,9 +116,15 @@ class DisponibilidadVeterinario(models.Model):
                             estado=estado_pendiente,
                             creado_por=self.veterinario,
                         )
+                        turnos_creados += 1
+                    except Exception:
+                        pass
 
-                    hora_actual += timedelta(minutes=self.duracion_turno)
+                hora_actual += timedelta(minutes=self.duracion_turno)
+
             fecha_actual += timedelta(days=1)
+
+        return turnos_creados
 
     def clean(self):
         # Validaciones básicas
@@ -142,55 +141,6 @@ class DisponibilidadVeterinario(models.Model):
     def turnos_reservados(self):
         """Devuelve solo los turnos reservados en este rango"""
         return self.turnos_generados.filter(reservado=True)
-
-
-def generar_turnos_rango(self):
-    """
-    Genera turnos desde fecha_inicio hasta fecha_fin respetando:
-    - Duración actual del turno.
-    - Turnos ya existentes para evitar solapamientos.
-    """
-    estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
-    fecha_actual = self.fecha_inicio
-
-    while fecha_actual <= self.fecha_fin:
-        dia_semana = fecha_actual.strftime("%A").lower()
-        if (
-            hasattr(self.clinica, "dias_atencion")
-            and dia_semana in self.clinica.dias_atencion
-        ):
-            hora_actual = datetime.combine(fecha_actual, self.hora_inicio)
-            hora_fin_dt = datetime.combine(fecha_actual, self.hora_fin)
-
-            while hora_actual + timedelta(minutes=self.duracion_turno) <= hora_fin_dt:
-                nuevo_inicio = hora_actual.time()
-                nuevo_fin = (
-                    hora_actual + timedelta(minutes=self.duracion_turno)
-                ).time()
-
-                # Verificar si existe algún turno que se solape
-                turno_solapado = Turno.objects.filter(
-                    veterinario=self.veterinario,
-                    clinica=self.clinica,
-                    fecha=fecha_actual,
-                    hora_inicio__lt=nuevo_fin,
-                    hora_fin__gt=nuevo_inicio,
-                ).exists()
-
-                if not turno_solapado:
-                    Turno.objects.create(
-                        clinica=self.clinica,
-                        veterinario=self.veterinario,
-                        fecha=fecha_actual,
-                        hora_inicio=nuevo_inicio,
-                        hora_fin=nuevo_fin,
-                        duracion_minutos=self.duracion_turno,
-                        estado=estado_pendiente,
-                        creado_por=self.veterinario,
-                    )
-
-                hora_actual += timedelta(minutes=self.duracion_turno)
-        fecha_actual += timedelta(days=1)
 
 
 class Turno(models.Model):
@@ -246,7 +196,7 @@ class Turno(models.Model):
                     "La hora_fin no coincide con la duración del turno."
                 )
         # Validar que la mascota pertenezca al cliente
-        if self.mascota and self.cliente and self.mascota.propietario != self.cliente:
+        if self.mascota and self.cliente and self.mascota.dueno != self.cliente:
             raise ValidationError("La mascota no pertenece al cliente asignado.")
 
         # No se pueden reservar turnos pasados
@@ -257,7 +207,6 @@ class Turno(models.Model):
             raise ValidationError("No se puede reservar un turno en el pasado.")
 
     def save(self, *args, **kwargs):
-        # Calcular hora_fin si no existe
         if not self.hora_fin and self.hora_inicio:
             self.hora_fin = (
                 datetime.combine(self.fecha, self.hora_inicio)
@@ -269,8 +218,10 @@ class Turno(models.Model):
         """Reserva un turno disponible"""
         if self.reservado:
             raise ValueError("El turno ya está reservado.")
+
         if mascota.dueno != cliente:
             raise ValueError("La mascota no pertenece al cliente.")
+
         if datetime.combine(self.fecha, self.hora_inicio) < datetime.now():
             raise ValueError("No se puede reservar un turno en el pasado.")
 

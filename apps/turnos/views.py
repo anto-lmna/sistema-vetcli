@@ -360,8 +360,6 @@ class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
         try:
             with transaction.atomic():
                 turno = Turno.objects.select_for_update().get(pk=pk, reservado=False)
-
-                # ✅ Usar método .reservar() que ya cambia a CONFIRMADO
                 turno.reservar(request.user, mascota)
 
                 if motivo:

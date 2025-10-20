@@ -5,34 +5,42 @@
 
 {% block content %}
 <div class="container mt-4">
+
+    <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-calendar-plus"></i> Turnos Disponibles</h2>
-        <a href="{% url 'turnos:mis_turnos' %}" class="btn btn-outline-primary">
-            <i class="bi bi-calendar-check"></i> Mis Turnos
-        </a>
+        <div>
+            <h2><i class="bi bi-calendar-plus"></i> Turnos Disponibles</h2>
+            <p class="text-muted mb-0">Selecciona un día y elige un horario 🐾</p>
+        </div>
+        <div>
+            <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> Volver al Dashboard
+            </a>
+            <a href="{% url 'turnos:mis_turnos' %}" class="btn btn-primary">
+                <i class="bi bi-calendar-check"></i> Mis Turnos
+            </a>
+        </div>
     </div>
 
     {% if not mascotas %}
-    <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle"></i>
-        <strong>Atención:</strong> Necesitas registrar al menos una mascota antes de reservar un turno.
-        <a href="{% url 'mascotas:agregar_mascota' %}" class="btn btn-sm btn-primary ms-2">
-            <i class="bi bi-plus-circle"></i> Agregar Mascota
-        </a>
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>
+            <strong>Atención:</strong> Necesitas registrar al menos una mascota antes de reservar un turno.
+            <a href="{% url 'mascotas:agregar_mascota' %}" class="btn btn-sm btn-primary ms-2">
+                <i class="bi bi-plus-circle"></i> Agregar Mascota
+            </a>
+        </div>
     </div>
     {% endif %}
 
     <!-- Filtros -->
-    <div class="card mb-4">
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Fecha desde</label>
-                    <input type="date" name="fecha_desde" class="form-control" value="{{ request.GET.fecha_desde }}">
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label class="form-label">Veterinario</label>
-                    <select name="veterinario" class="form-select">
+                    <select name="veterinario" class="form-select" onchange="this.form.submit()">
                         <option value="">Todos</option>
                         {% for vet in veterinarios %}
                         <option value="{{ vet.id }}" {% if request.GET.veterinario == vet.id|stringformat:"s" %}selected{% endif %}>
@@ -41,8 +49,8 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">
                         <i class="bi bi-search"></i> Filtrar
                     </button>
                 </div>
@@ -51,59 +59,102 @@
     </div>
 
     {% if turnos %}
-    <!-- Agrupar por fecha -->
-    {% regroup turnos by fecha as turnos_por_fecha %}
-    
-    {% for fecha_grupo in turnos_por_fecha %}
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-                <i class="bi bi-calendar-date"></i>
-                {{ fecha_grupo.grouper|date:"l, d F Y" }}
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                {% for turno in fecha_grupo.list %}
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100 border-success">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title mb-0">
-                                    <i class="bi bi-clock"></i>
-                                    {{ turno.hora_inicio|time:"H:i" }}
-                                </h5>
-                                <span class="badge bg-success">Disponible</span>
-                            </div>
-                            
-                            <p class="mb-2">
-                                <strong><i class="bi bi-person"></i> Veterinario:</strong><br>
-                                Dr(a). {{ turno.veterinario.get_full_name}}
-                            </p>
-                            
-                            <p class="mb-2">
-                                <strong><i class="bi bi-hourglass-split"></i> Duración:</strong>
-                                {{ turno.duracion_minutos }} minutos
-                            </p>
+        <!-- Selector de día -->
+        {% regroup turnos by fecha as turnos_por_fecha %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <label for="fecha-select" class="form-label fw-bold">
+                    <i class="bi bi-calendar3"></i> Selecciona un día
+                </label>
+                <select id="fecha-select" class="form-select mb-3">
+                    <option value="">-- Elegí una fecha --</option>
+                    {% for grupo in turnos_por_fecha %}
+                        <option value="{{ grupo.grouper }}">{{ grupo.grouper|date:"l, d F Y" }}</option>
+                    {% endfor %}
+                </select>
 
-                            {% if mascotas %}
-                            <button type="button" 
-                                    class="btn btn-primary w-100 mt-2" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#reservarModal{{ turno.id }}">
-                                <i class="bi bi-check-circle"></i> Reservar
-                            </button>
-                            {% else %}
-                            <button class="btn btn-secondary w-100 mt-2" disabled>
-                                <i class="bi bi-lock"></i> Sin mascotas
-                            </button>
-                            {% endif %}
-                        </div>
+                <div id="turnos-dia">
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">Selecciona una fecha para ver los horarios disponibles</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Modal para reservar -->
-                {% if mascotas %}
+        <!-- Datos embebidos en JSON -->
+        <script>
+            const turnosData = {
+                {% for grupo in turnos_por_fecha %}
+                "{{ grupo.grouper }}": [
+                    {% for turno in grupo.list %}
+                    {
+                        "id": "{{ turno.id }}",
+                        "hora": "{{ turno.hora_inicio|time:'H:i' }}",
+                        "veterinario": "Dr(a). {{ turno.veterinario.get_full_name }}",
+                        "duracion": "{{ turno.duracion_minutos }}",
+                        "mascotas": [
+                            {% for mascota in mascotas %}
+                                {"id": "{{ mascota.id }}", "nombre": "{{ mascota.nombre }}", "especie": "{{ mascota.especie }}"}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        ]
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            };
+
+            const fechaSelect = document.getElementById('fecha-select');
+            const turnosDiaDiv = document.getElementById('turnos-dia');
+
+            fechaSelect.addEventListener('change', function() {
+                const fecha = this.value;
+                const turnos = turnosData[fecha] || [];
+
+                if (!turnos.length) {
+                    turnosDiaDiv.innerHTML = `
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle"></i> No hay turnos disponibles para este día.
+                        </div>`;
+                    return;
+                }
+
+                let html = `
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Veterinario</th>
+                                <th>Duración</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                turnos.forEach(t => {
+                    html += `
+                        <tr>
+                            <td><strong>${t.hora}</strong></td>
+                            <td>${t.veterinario}</td>
+                            <td>${t.duracion} min</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-success" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#reservarModal${t.id}">
+                                    Reservar
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                turnosDiaDiv.innerHTML = html;
+            });
+        </script>
+
+        <!-- Modales (fuera del bloque principal para no duplicarlos) -->
+        {% for fecha_grupo in turnos_por_fecha %}
+            {% for turno in fecha_grupo.list %}
                 <div class="modal fade" id="reservarModal{{ turno.id }}" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -116,63 +167,41 @@
                             <form method="post" action="{% url 'turnos:reservar' turno.pk %}">
                                 {% csrf_token %}
                                 <div class="modal-body">
-                                    <div class="alert alert-info">
-                                        <strong>Turno seleccionado:</strong><br>
-                                        📅 {{ turno.fecha|date:"d/m/Y" }} a las {{ turno.hora_inicio|time:"H:i" }}<br>
+                                    <div class="alert alert-info small">
+                                        📅 <strong>{{ turno.fecha|date:"d/m/Y" }}</strong> — {{ turno.hora_inicio|time:"H:i" }}<br>
                                         👨‍⚕️ Dr(a). {{ turno.veterinario.get_full_name }}
                                     </div>
-
                                     <div class="mb-3">
-                                        <label for="mascota{{ turno.id }}" class="form-label">
-                                            <i class="bi bi-heart-fill text-danger"></i> Selecciona tu mascota <span class="text-danger">*</span>
-                                        </label>
+                                        <label for="mascota{{ turno.id }}" class="form-label">Mascota <span class="text-danger">*</span></label>
                                         <select name="mascota" id="mascota{{ turno.id }}" class="form-select" required>
                                             <option value="">Selecciona una mascota...</option>
                                             {% for mascota in mascotas %}
-                                            <option value="{{ mascota.id }}">
-                                                {{ mascota.nombre }} - {{ mascota.especie }}
-                                                ({{ mascota.edad_texto }})
-                                            </option>
+                                            <option value="{{ mascota.id }}">{{ mascota.nombre }} - {{ mascota.especie }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
-
                                     <div class="mb-3">
-                                        <label for="motivo{{ turno.id }}" class="form-label">
-                                            <i class="bi bi-chat-text"></i> Motivo de la consulta (opcional)
-                                        </label>
-                                        <textarea name="motivo" 
-                                                  id="motivo{{ turno.id }}" 
-                                                  class="form-control" 
-                                                  rows="3"
-                                                  placeholder="Ej: Control de vacunas, revisión general, síntomas específicos..."></textarea>
+                                        <label for="motivo{{ turno.id }}" class="form-label">Motivo (opcional)</label>
+                                        <textarea name="motivo" id="motivo{{ turno.id }}" class="form-control" rows="2"></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        Cancelar
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check-circle"></i> Confirmar Reserva
-                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endfor %}
+            {% endfor %}
+        {% endfor %}
 
     {% else %}
-    <div class="alert alert-info text-center">
-        <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
-        <h4 class="mt-3">No hay turnos disponibles</h4>
-        <p class="mb-0">Actualmente no hay turnos disponibles. Por favor, vuelve más tarde o contacta a la clínica.</p>
-    </div>
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">No hay turnos disponibles</h4>
+            <p class="mb-0">Actualmente no hay turnos disponibles. Por favor, vuelve más tarde o contacta a la clínica.</p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
