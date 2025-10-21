@@ -30,7 +30,7 @@
                 <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link">🐾 Mascotas</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">📅 Agenda</a>
+                <a href="{% url 'turnos:agenda_clinica' %}" class="nav-link">📅 Agenda</a>
             </div>
             <div class="nav-item">
                 <a href="#" class="nav-link">⚙️ Configuración</a>
@@ -135,9 +135,9 @@
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
+                            <a href="{% url 'turnos:agenda_clinica' %}" class="action-btn w-100 text-center text-decoration-none d-block">
                                 📅 Ver Agenda
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -194,41 +194,6 @@
                 </div>
             </div>
             {% endif %}
-
-            <!-- Resumen de Mascotas -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h6 class="section-title">🐾 Mascotas de la Clínica</h6>
-                    <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="action-btn">Ver Todas</a>
-                </div>
-                <div class="p-4">
-                    <div class="row text-center">
-                        <div class="col-md-3">
-                            <h4 class="text-primary">{{ total_mascotas }}</h4>
-                            <p class="text-muted mb-0">Total de Mascotas</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 class="text-success">{{ mascotas_activas }}</h4>
-                            <p class="text-muted mb-0">Activas</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 class="text-secondary">{{ mascotas_inactivas }}</h4>
-                            <p class="text-muted mb-0">Inactivas</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 class="text-info">{{ total_clientes }}</h4>
-                            <p class="text-muted mb-0">Clientes Activos</p>
-                        </div>
-                    </div>
-                    <div class="text-center mt-4">
-                        <a href="{% url 'mascotas:crear_mascota_admin' %}" class="action-btn success me-2">
-                            ➕ Crear Mascota
-                        </a>
-                        <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="action-btn">
-                            📋 Ver Todas las Mascotas
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

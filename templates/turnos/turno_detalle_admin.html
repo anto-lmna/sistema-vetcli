@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Turno{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Detalle del Turno
+                    </h4>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Información del Turno -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">📅 Fecha y Hora</h5>
+                            <p><strong>Fecha:</strong> {{ turno.fecha|date:"l, d F Y" }}</p>
+                            <p><strong>Hora:</strong> {{ turno.hora_inicio|time:"H:i" }} - {{ turno.hora_fin|time:"H:i" }}</p>
+                            <p><strong>Duración:</strong> {{ turno.duracion_minutos }} minutos</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">📊 Estado</h5>
+                            <p>
+                                <span class="badge" style="background-color: {{ turno.estado.color }}; font-size: 1.2rem;">
+                                    {{ turno.estado.nombre }}
+                                </span>
+                            </p>
+                            <p><strong>Tipo:</strong> {{ turno.tipo_consulta|default:"Consulta general" }}</p>
+                            <p><strong>Creado:</strong> {{ turno.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Veterinario -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">👨‍⚕️ Veterinario</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <p class="mb-2"><strong>Dr(a). {{ turno.veterinario.get_full_name }}</strong></p>
+                                <p class="mb-2">
+                                    <i class="bi bi-envelope"></i> {{ turno.veterinario.email }}
+                                </p>
+                                {% if turno.veterinario.telefono %}
+                                <p class="mb-0">
+                                    <i class="bi bi-telephone"></i> {{ turno.veterinario.telefono }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cliente y Mascota -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">👤 Cliente y Mascota</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Cliente</h6>
+                                        <p class="mb-2"><strong>{{ turno.cliente.get_full_name }}</strong></p>
+                                        <p class="mb-2">
+                                            <i class="bi bi-envelope"></i> {{ turno.cliente.email }}
+                                        </p>
+                                        {% if turno.cliente.telefono %}
+                                        <p class="mb-0">
+                                            <i class="bi bi-telephone"></i> {{ turno.cliente.telefono }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-success">Mascota</h6>
+                                        <p class="mb-2"><strong>{{ turno.mascota.nombre }}</strong></p>
+                                        <p class="mb-2">Especie: {{ turno.mascota.especie }}</p>
+                                        <p class="mb-2">Raza: {{ turno.mascota.raza|default:"No especificada" }}</p>
+                                        {% if turno.mascota.fecha_nacimiento %}
+                                        <p class="mb-0">Edad: {{ turno.mascota.fecha_nacimiento|timesince }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if turno.mascota.alergias %}
+                                <div class="alert alert-warning mt-3 mb-0">
+                                    <strong>⚠️ Alergias:</strong> {{ turno.mascota.alergias }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motivo -->
+                    {% if turno.motivo %}
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2">📝 Motivo de Consulta</h5>
+                        <p class="bg-light p-3 rounded">{{ turno.motivo }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Acciones -->
+                    <div class="d-flex gap-2 justify-content-between">
+                        <a href="{% url 'turnos:agenda_clinica' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver a Agenda
+                        </a>
+                        
+                        {% if turno.estado.codigo != 'completado' and turno.estado.codigo != 'cancelado' %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal">
+                            <i class="bi bi-x-circle"></i> Cancelar Turno
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelar -->
+<div class="modal fade" id="cancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Cancelar Turno</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'turnos:turno_cancelar_admin' turno.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cancelar este turno?</p>
+                    <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo de cancelación</label>
+                        <textarea name="motivo" id="motivo" class="form-control" rows="3" 
+                                  placeholder="Ej: Emergencia, cambio de horario..."></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        El cliente será notificado de la cancelación.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Cancelación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+
+    .cliente-card {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .cliente-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .cliente-card.selected {
+        border: 2px solid #28a745;
+        background-color: #d4edda;
+    }
+    .mascota-option {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .mascota-option:hover {
+        background-color: #f8f9fa;
+        border-color: #28a745;
+    }
+    .mascota-option.selected {
+        background-color: #d4edda;
+        border-color: #28a745;
+        border-width: 2px;
+    }
+    #busqueda-resultados {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+    }

@@ -1,96 +1,171 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
-{% block title %}Agenda Global de la Clínica{% endblock %}
+
+{% block title %}Agenda de la Clínica{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<link rel="stylesheet" href="{% static 'css/agenda.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>🏥 Agenda Global de la Clínica</h2>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar3"></i> Agenda de la Clínica</h2>
+        <div>
+            <a href="{% url 'turnos:turno_crear_admin' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Crear Turno Manual
+            </a>
+        </div>
+    </div>
 
-<!-- 🔍 Filtros -->
-<div class="row mb-4">
-  <div class="col-md-5">
-    <label for="veterinarioSelect" class="form-label">Veterinario</label>
-    <select id="veterinarioSelect" class="form-select">
-      <option value="">Todos</option>
-      {% for vet in user.clinica.usuarios.all %}
-        {% if vet.rol == "veterinario" %}
-          <option value="{{ vet.id }}">{{ vet.get_full_name }}</option>
-        {% endif %}
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-5">
-    <label for="estadoSelect" class="form-label">Estado</label>
-    <select id="estadoSelect" class="form-select">
-      <option value="">Todos</option>
-      {% for estado in estados %}
-        <option value="{{ estado.codigo }}">{{ estado.nombre }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-2 d-flex align-items-end">
-    <button id="filtrarBtn" class="btn btn-primary w-100">Filtrar</button>
-  </div>
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Veterinario</label>
+                    <select id="filtroVeterinario" class="form-select">
+                        <option value="">Todos los veterinarios</option>
+                        {% for vet in veterinarios %}
+                        <option value="{{ vet.id }}">Dr(a). {{ vet.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select id="filtroEstado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        {% for estado in estados %}
+                        <option value="{{ estado.codigo }}">{{ estado.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button id="btnAplicarFiltros" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-primary">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ turnos.count }}</h3>
+                    <p class="mb-0 text-muted">Total Turnos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h3 class="text-success">{{ veterinarios.count }}</h3>
+                    <p class="mb-0 text-muted">Veterinarios Activos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center border-warning">
+                <div class="card-body">
+                    <h3 class="text-warning">
+                        {{ turnos|length }}
+                    </h3>
+                    <p class="mb-0 text-muted"> Turnos próximos</p>
+                </div>
+            </div>
+        </div>
+            <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h3 class="text-info">
+                        {% now "d" %}
+                    </h3>
+                    <p class="mb-0 text-muted">{% now "F Y" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="bi bi-calendar-week"></i> Vista de Calendario
+            </h5>
+        </div>
+        <div class="card-body">
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- Lista de turnos próximos -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">📋 Próximos Turnos</h5>
+        </div>
+        <div class="card-body">
+            {% if turnos %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Veterinario</th>
+                                <th>Cliente</th>
+                                <th>Mascota</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for turno in turnos|slice:":15" %}
+                            <tr>
+                                <td>{{ turno.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ turno.hora_inicio|time:"H:i" }}</td>
+                                <td>Dr(a). {{ turno.veterinario.get_full_name }}</td>
+                                <td>{{ turno.cliente.get_full_name }}</td>
+                                <td>
+                                    <strong>{{ turno.mascota.nombre }}</strong><br>
+                                    <small class="text-muted">{{ turno.mascota.especie }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background-color: {{ turno.estado.color }}">
+                                        {{ turno.estado.nombre }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'turnos:turno_detalle_admin' turno.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">No hay turnos próximos</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<div id="calendar"></div>
-
+{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const calendarEl = document.getElementById('calendar');
-  const urlBase = '{% url "turnos:turnos_clinica_json" %}';
-
-  let calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'timeGridWeek',
-    locale: 'es',
-    slotMinTime: "08:00:00",
-    slotMaxTime: "22:00:00",
-    allDaySlot: false,
-    firstDay: 1,
-    height: 'auto',
-    nowIndicator: true,
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'timeGridDay,timeGridWeek,listWeek'
-    },
-    events: urlBase,
-    eventDidMount: function(info) {
-      const vet = info.event.extendedProps.veterinario;
-      const estado = info.event.extendedProps.estado;
-      const cliente = info.event.extendedProps.cliente || '—';
-      const mascota = info.event.extendedProps.mascota || '—';
-      let tooltip = `
-        <b>Veterinario:</b> ${vet}<br>
-        <b>Estado:</b> ${estado}<br>
-        <b>Cliente:</b> ${cliente}<br>
-        <b>Mascota:</b> ${mascota}<br>
-      `;
-      info.el.setAttribute('title', tooltip);
-      new bootstrap.Tooltip(info.el);
-    },
-    eventClick: function(info) {
-      const turnoId = info.event.id;
-      window.location.href = `/turnos/${turnoId}/`;
-    },
-  });
-
-  calendar.render();
-
-  // 🔁 Filtro dinámico
-  document.getElementById('filtrarBtn').addEventListener('click', function() {
-    const vet = document.getElementById('veterinarioSelect').value;
-    const estado = document.getElementById('estadoSelect').value;
-    const query = new URLSearchParams();
-
-    if (vet) query.append('veterinario', vet);
-    if (estado) query.append('estado', estado);
-
-    calendar.refetchEvents({
-      url: urlBase + '?' + query.toString()
-    });
-    calendar.removeAllEvents();
-    calendar.addEventSource(urlBase + '?' + query.toString());
-  });
-});
+    const TURNOS_JSON_URL = '{% url "turnos:turnos_clinica_json" %}';
 </script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js'></script>
+<script src="{% static 'js/agenda_admin.js' %}"></script>
 {% endblock %}

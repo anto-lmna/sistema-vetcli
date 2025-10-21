@@ -4,13 +4,15 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db import transaction
 from datetime import timedelta
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, DetailView, View, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
+from apps.accounts.models import CustomUser
 from apps.mascotas.models import Mascota
 from .models import Turno, DisponibilidadVeterinario, EstadoTurno
-
+from .forms import TurnoCrearAdminForm
 
 # ==================== VETERINARIO ====================
 
@@ -547,28 +549,43 @@ class TurnoCancelarAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    """Crear turno manual (admin) - Para agendar por teléfono"""
+    """Crear turno manual (admin) - Con búsqueda de cliente"""
 
     model = Turno
+    form_class = TurnoCrearAdminForm  # Usar el nuevo formulario
     template_name = "turnos/turno_crear_admin.html"
-    fields = [
-        "veterinario",
-        "cliente",
-        "mascota",
-        "fecha",
-        "hora_inicio",
-        "duracion_minutos",
-        "tipo_consulta",
-        "motivo",
-    ]
     success_url = reverse_lazy("turnos:agenda_clinica")
 
     def test_func(self):
         return self.request.user.rol == "admin_veterinaria"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
+        from apps.accounts.models import CustomUser
+        from apps.mascotas.models import Mascota
+
+        # Obtener cliente y mascota de los campos ocultos
+        cliente_id = form.cleaned_data["cliente_id"]
+        mascota_id = form.cleaned_data["mascota_id"]
+
+        try:
+            cliente = CustomUser.objects.get(
+                id=cliente_id, rol="cliente", clinica=self.request.user.clinica
+            )
+            mascota = Mascota.objects.get(id=mascota_id, dueno=cliente, activo=True)
+        except (CustomUser.DoesNotExist, Mascota.DoesNotExist):
+            form.add_error(None, "Cliente o mascota no válidos")
+            return self.form_invalid(form)
+
+        # Configurar el turno
         form.instance.clinica = self.request.user.clinica
         form.instance.creado_por = self.request.user
+        form.instance.cliente = cliente
+        form.instance.mascota = mascota
         form.instance.reservado = True
         form.instance.estado = EstadoTurno.objects.get(codigo=EstadoTurno.CONFIRMADO)
 
@@ -594,33 +611,10 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
         messages.success(
             self.request,
-            f"Turno creado para {form.instance.cliente.get_full_name} el "
+            f"Turno creado para {cliente.get_full_name()} - {mascota.nombre} el "
             f"{form.instance.fecha.strftime('%d/%m/%Y')} a las {inicio.strftime('%H:%M')}",
         )
         return super().form_valid(form)
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        from apps.accounts.models import CustomUser
-
-        form.fields["veterinario"].queryset = CustomUser.objects.filter(
-            rol="veterinario", clinica=self.request.user.clinica, is_active=True
-        )
-        form.fields["cliente"].queryset = CustomUser.objects.filter(
-            rol="cliente", clinica=self.request.user.clinica, is_active=True
-        )
-
-        form.fields["fecha"].widget.attrs.update(
-            {"type": "date", "class": "form-control"}
-        )
-        form.fields["hora_inicio"].widget.attrs.update(
-            {"type": "time", "class": "form-control"}
-        )
-        form.fields["duracion_minutos"].widget.attrs.update({"class": "form-control"})
-        form.fields["tipo_consulta"].widget.attrs.update({"class": "form-select"})
-        form.fields["motivo"].widget.attrs.update({"class": "form-control", "rows": 3})
-
-        return form
 
 
 class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -634,7 +628,6 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         veterinario_id = request.GET.get("veterinario")
         estado_codigo = request.GET.get("estado")
 
-        # ✅ Solo turnos reservados
         turnos = Turno.objects.filter(
             clinica=clinica, reservado=True, fecha__gte=timezone.now().date()
         )
@@ -692,3 +685,99 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
                 }
             )
         return JsonResponse(eventos, safe=False)
+
+
+# ==================== APIS PARA ADMIN ====================
+
+
+class BuscarClientesAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """API para buscar clientes y obtener sus mascotas"""
+
+    def test_func(self):
+        return self.request.user.rol == "admin_veterinaria"
+
+    def get(self, request):
+        query = request.GET.get("q", "").strip()
+
+        if len(query) < 2:
+            return JsonResponse({"clientes": []})
+
+        clientes = CustomUser.objects.filter(
+            Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+            | Q(email__icontains=query)
+            | Q(username__icontains=query),
+            rol="cliente",
+            clinica=request.user.clinica,
+            is_active=True,
+        )[:10]
+
+        resultados = []
+        for cliente in clientes:
+            mascotas = Mascota.objects.filter(
+                dueno=cliente, activo=True
+            ).select_related("raza", "especie")
+
+            resultados.append(
+                {
+                    "id": cliente.id,
+                    "nombre_completo": cliente.get_full_name(),  # ✅ con paréntesis
+                    "email": cliente.email or "No registrado",
+                    "telefono": getattr(cliente, "telefono", "No registrado"),
+                    "mascotas": [
+                        {
+                            "id": m.id,
+                            "nombre": m.nombre,
+                            "especie": str(m.especie) if m.especie else "Sin especie",
+                            "raza": (
+                                str(m.raza) if m.raza else "Sin raza"
+                            ),  # ✅ convertido a string
+                        }
+                        for m in mascotas
+                    ],
+                }
+            )
+
+        return JsonResponse({"clientes": resultados})
+
+
+class MascotasPorClienteAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """API para obtener mascotas de un cliente específico"""
+
+    def test_func(self):
+        return self.request.user.rol == "admin_veterinaria"
+
+    def get(self, request, cliente_id):
+        try:
+            cliente = CustomUser.objects.get(
+                id=cliente_id, rol="cliente", clinica=request.user.clinica
+            )
+
+            mascotas = Mascota.objects.filter(
+                dueno=cliente, activo=True
+            ).select_related("raza", "especie")
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "cliente": {
+                        "id": cliente.id,
+                        "nombre_completo": cliente.get_full_name(),
+                        "email": cliente.email or "No registrado",
+                        "telefono": getattr(cliente, "telefono", "No registrado"),
+                    },
+                    "mascotas": [
+                        {
+                            "id": m.id,
+                            "nombre": m.nombre,
+                            "especie": str(m.especie) if m.especie else "Sin especie",
+                            "raza": str(m.raza) if m.raza else "Sin raza",
+                        }
+                        for m in mascotas
+                    ],
+                }
+            )
+        except CustomUser.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Cliente no encontrado"}, status=404
+            )

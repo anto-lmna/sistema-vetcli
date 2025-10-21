@@ -74,4 +74,15 @@ urlpatterns = [
         name="turno_cancelar_admin",
     ),
     path("turno/crear/", views.TurnoCrearAdminView.as_view(), name="turno_crear_admin"),
+    # APIs para admin
+    path(
+        "api/buscar-clientes/",
+        views.BuscarClientesAPIView.as_view(),
+        name="api_buscar_clientes",
+    ),
+    path(
+        "api/mascotas/<int:cliente_id>/",
+        views.MascotasPorClienteAPIView.as_view(),
+        name="api_mascotas_cliente",
+    ),
 ]
