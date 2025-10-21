@@ -123,3 +123,24 @@ border-width: 1px;
     border-color: var(--border-light);
 }
 /* PAGINATION STYLES END */
+
+.info-item {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: background-color 0.2s ease;
+}
+
+.info-item:hover {
+    background-color: #eef3f7;
+}
+
+.info-item small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.info-item span {
+    font-size: 1rem;
+    color: #212529;
+}

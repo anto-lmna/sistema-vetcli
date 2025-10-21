@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-circle"></i> Mi Perfil</h2>
+        <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+
+<!-- Información del cliente -->
+<div class="card mb-4 shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-person-lines-fill me-2"></i> Información Personal
+        </h5>
+        <a href="{% url 'core:editar_perfil_cliente' %}" class="btn btn-light btn-sm">
+            <i class="bi bi-pencil-square"></i> Editar
+        </a>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">Nombre completo</small>
+                    <span class="fw-semibold">{{ user.get_full_name }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">Email</small>
+                    <span>{{ user.email }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">Fecha de nacimiento</small>
+                    <span>{{ user.fecha_nacimiento|date:"d/m/Y"|default:"-" }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">DNI</small>
+                    <span>{{ user.dni|default:"-" }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">Teléfono</small>
+                    <span>{{ user.telefono|default:"-" }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <small class="text-muted d-block">Dirección</small>
+                    <span>{{ user.direccion|default:"-" }}</span>
+                </div>
+            </div>
+    </div>
+</div>
+
+
+    <!-- Mascotas del cliente -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-heart-fill"></i> Mis Mascotas</h5>
+            <a href="{% url 'mascotas:agregar_mascota' %}" class="btn btn-light btn-sm">
+                <i class="bi bi-plus-circle"></i> Nueva Mascota
+            </a>
+        </div>
+        <div class="card-body">
+            {% if mascotas %}
+            <div class="row">
+                {% for mascota in mascotas %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        {% if mascota.foto %}
+                            <img src="{{ mascota.foto.url }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                        {% else %}
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height:150px;">
+                                <i class="bi bi-image text-white" style="font-size:3rem;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ mascota.nombre }}</h5>
+                            <p class="mb-1 text-muted">{{ mascota.especie }} • {{ mascota.edad_texto }}</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary">
+                                    Ver
+                                </a>
+                                <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-sm btn-outline-warning">
+                                    Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center mb-0">
+                <i class="bi bi-info-circle"></i> No tienes mascotas registradas aún.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

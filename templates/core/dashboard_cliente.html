@@ -33,7 +33,7 @@
                 <a href="#" class="nav-link">📄 Recetas</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">👤 Mi Perfil</a>
+                <a href="{% url 'core:perfil_cliente' %}" class="nav-link">👤 Mi Perfil</a>
             </div>
             
             <div class="nav-item mt-4 border-top pt-4">
@@ -82,7 +82,7 @@
                     <div class="stats-card">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h3 class="stats-number">--</h3>
+                                <h3 class="stats-number">{{turnos_pendientes}}</h3>
                                 <p class="stats-label">Turnos Pendientes</p>
                             </div>
                             <div class="stats-icon">📅</div>

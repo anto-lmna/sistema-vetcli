@@ -1,13 +1,17 @@
 from django.utils import timezone
 from django.contrib import messages
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+from .forms import PerfilClienteForm
+
+from apps.turnos.models import Turno
 from apps.clinicas.models import Clinica
 from apps.mascotas.models import Mascota
 from apps.accounts.models import CustomUser
-from apps.turnos.models import Turno, EstadoTurno
 
 
 class VeterinariaListView(ListView):
@@ -146,6 +150,7 @@ def dashboard_veterinario_view(request):
     return render(request, "core/dashboard_veterinario.html", context)
 
 
+# Cliente
 @login_required
 def dashboard_cliente_view(request):
     """Dashboard para clientes"""
@@ -167,6 +172,14 @@ def dashboard_cliente_view(request):
 
     # Estadísticas del cliente
     total_mascotas = Mascota.objects.filter(dueno=request.user).count()
+    hoy = timezone.now().date()
+
+    # 🩵 Contar turnos pendientes (por venir)
+    turnos_pendientes = Turno.objects.filter(
+        cliente=request.user,
+        fecha__gte=hoy,
+        estado__codigo__in=["pendiente", "confirmado"],  # adaptá según tus códigos
+    ).count()
 
     # Obtener las últimas 3 mascotas para mostrar en el dashboard
     mascotas_recientes = (
@@ -181,6 +194,54 @@ def dashboard_cliente_view(request):
         "perfil": perfil,
         "total_mascotas": total_mascotas,
         "mascotas_recientes": mascotas_recientes,
+        "turnos_pendientes": turnos_pendientes,
     }
 
     return render(request, "core/dashboard_cliente.html", context)
+
+
+class PerfilClienteView(LoginRequiredMixin, TemplateView):
+    template_name = "core/perfil_cliente.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        # Verifica permisos de cliente antes de continuar
+        if not request.user.is_cliente:
+            messages.error(request, "No tienes permisos de cliente.")
+            return redirect("core:home")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        perfil = getattr(user, "perfilcliente", None)
+        clinica = user.clinica
+        mascotas = Mascota.objects.filter(dueno=user).order_by("-fecha_registro")
+
+        context.update(
+            {
+                "user": user,
+                "perfil": perfil,
+                "clinica": clinica,
+                "mascotas": mascotas,
+            }
+        )
+        return context
+
+
+class PerfilClienteUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = PerfilClienteForm
+    template_name = "core/perfil_cliente_editar.html"
+    success_url = reverse_lazy("core:perfil_cliente")
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, "Tu perfil se actualizó correctamente")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Ocurrió un error al actualizar tu perfil.")
+        return super().form_invalid(form)

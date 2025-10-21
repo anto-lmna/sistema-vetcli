@@ -5,6 +5,8 @@ from .views import (
     dashboard_admin_view,
     dashboard_cliente_view,
     dashboard_veterinario_view,
+    PerfilClienteView,
+    PerfilClienteUpdateView,
 )
 
 app_name = "core"
@@ -19,4 +21,10 @@ urlpatterns = [
         name="dashboard_veterinario",
     ),
     path("dashboard/cliente/", dashboard_cliente_view, name="dashboard_cliente"),
+    path("mi-perfil/", PerfilClienteView.as_view(), name="perfil_cliente"),
+    path(
+        "perfil/editar/",
+        PerfilClienteUpdateView.as_view(),
+        name="editar_perfil_cliente",
+    ),
 ]
