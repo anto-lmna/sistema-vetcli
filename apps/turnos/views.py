@@ -114,12 +114,18 @@ class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
     def delete(self, request, *args, **kwargs):
         disp = self.get_object()
 
+        # Validar fechas válidas
+        if not disp.fecha_inicio or not disp.fecha_fin:
+            messages.error(request, "La disponibilidad no tiene fechas válidas.")
+            return redirect("turnos:disponibilidades")
+
+        # Contar turnos reservados dentro del rango
         turnos_reservados = Turno.objects.filter(
             veterinario=disp.veterinario,
             clinica=disp.clinica,
             fecha__range=(disp.fecha_inicio, disp.fecha_fin),
             hora_inicio__gte=disp.hora_inicio,
-            hora_fin__lte=disp.hora_fin,
+            hora_inicio__lt=disp.hora_fin,
             reservado=True,
         ).count()
 
@@ -130,12 +136,13 @@ class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
             )
             return redirect("turnos:disponibilidades")
 
+        # Eliminar los turnos disponibles (no reservados)
         turnos_eliminados = Turno.objects.filter(
             veterinario=disp.veterinario,
             clinica=disp.clinica,
             fecha__range=(disp.fecha_inicio, disp.fecha_fin),
             hora_inicio__gte=disp.hora_inicio,
-            hora_fin__lte=disp.hora_fin,
+            hora_inicio__lt=disp.hora_fin,
             reservado=False,
         ).delete()[0]
 
