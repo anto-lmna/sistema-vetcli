@@ -98,9 +98,9 @@ python manage.py createsuperuser
 ```
 
 Te pedirá:
-- **Email**: admin@veterinaria.com (o el que prefieras)
-- **Nombre completo**: Administrador del Sistema
-- **Password**: (elige una contraseña segura)
+- **Email**: admin@veterinaria.com (puede quedar vacio)
+- **Nombre completo**: admin
+- **Password**: (ponen algo simple "admin123")
 - **Confirmar password**: (repite la contraseña)
 
 ### 7. Cargar Datos de Prueba
@@ -108,7 +108,6 @@ Te pedirá:
 ```bash
 python manage.py crear_datos_prueba
 ```
-
 Este comando carga:
 - 1 clínica veterinaria de ejemplo
 - 1 administrador de veterinaria
@@ -121,8 +120,6 @@ Este comando carga:
 ```bash
 python manage.py runserver
 ```
-
-Accede a la aplicación en: **http://127.0.0.1:8000/**
 
 ##  Usuarios de Prueba
 
@@ -148,23 +145,6 @@ Después de cargar los datos de prueba, se pueden usar estas credenciales:
    - **Email**: pendiente@gmail.com
    - **Password**: pendiente123
 
-
-## Base de Datos (no implementado todavía)
-
-Por defecto, el proyecto usa **SQLite** para desarrollo. Para usar PostgreSQL en producción:
-
-1. Instala PostgreSQL
-2. Crea una base de datos
-3. Actualiza tu `.env`:
-
-```env
-DATABASE_URL=postgresql://usuario:password@localhost:5432/veterinaria_db
-```
-
-4. Instala el adaptador:
-```bash
-pip install psycopg2-binary
-```
 
 ## Archivos Importantes
 
@@ -220,7 +200,7 @@ python manage.py crear_datos_prueba
 python manage.py runserver 8080
 ```
 
-# [ACTUALIZACIÓN] - Gestión de Mascotas 
+## [ACTUALIZACIÓN] - Gestión de Mascotas 
 
 Migrar Datos del Modelo Mascota
 
@@ -241,9 +221,9 @@ python manage.py cargar_especies
 pip install pillow
 ```
 
-## Caracteristicas añadidas
+### Caracteristicas añadidas
 
-### **Clientes**
+#### **Clientes**
 
 Los clientes pueden administrar sus propias mascotas desde su perfil.
 
@@ -255,7 +235,7 @@ Los clientes pueden administrar sus propias mascotas desde su perfil.
 
 ---
 
-### **Administrador**
+#### **Administrador**
 
 El administrador tiene control total sobre las mascotas registradas en la veterinaria.
 
@@ -266,7 +246,7 @@ El administrador tiene control total sobre las mascotas registradas en la veteri
 
 ---
 
-### **Veterinario**
+#### **Veterinario**
 
 El veterinario puede acceder a la información de los pacientes que atiende.
 
@@ -275,6 +255,44 @@ El veterinario puede acceder a la información de los pacientes que atiende.
 * 📄 Consultar el detalle de cada paciente.
 
 ---
+
+## [ACTUALIZACIÓN 2 ] - Gestión de Turnos 
+
+Recomiendo eliminar el db.sqlite3 y realizar los siguientes pasos nuevamente:
+
+```bash
+python manage.py makemigrations 
+```
+```bash
+python manage.py migrate
+```
+```bash
+python manage.py crear_datos_prueba
+```
+```bash
+python manage.py cargar_especies
+```
+```bash
+python manage.py cargar_estados_turnos
+```
+
+_*Si solo quieren cargar el modelo Turnos_:
+
+**Migrar Datos del Modelo Turno**
+
+```bash
+python manage.py makemigrations turnos
+```
+```bash
+python manage.py migrate
+```
+
+```bash
+python manage.py cargar_estados_turnos
+```
+
+### Caracteristicas añadidas:
+
 
 ## Capturas actuales
 

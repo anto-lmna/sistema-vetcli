@@ -1,8 +1,7 @@
+from datetime import time, date
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.clinicas.models import Clinica
-from apps.accounts.models import PerfilVeterinario, PerfilCliente
-from datetime import time
 
 User = get_user_model()
 
@@ -74,6 +73,8 @@ class Command(BaseCommand):
                 rol="veterinario",
                 dni="87654321",
                 telefono="011-9876-5432",
+                direccion="Av. Siempre Viva 742",
+                fecha_nacimiento=date(1987, 7, 9),
                 is_active=True,
                 clinica=clinica,
             )
@@ -98,7 +99,9 @@ class Command(BaseCommand):
                 last_name="García",
                 rol="cliente",
                 dni="11223344",
+                fecha_nacimiento=date(1984, 3, 14),
                 telefono="011-1111-2222",
+                direccion="Malabia 1565",
                 is_active=True,
                 pendiente_aprobacion=False,
                 clinica=clinica,
@@ -123,7 +126,9 @@ class Command(BaseCommand):
                 last_name="Rodríguez",
                 rol="cliente",
                 dni="44556677",
+                fecha_nacimiento=date(1992, 1, 23),
                 telefono="011-5555-6666",
+                direccion="Guatemala 4567",
                 is_active=False,
                 pendiente_aprobacion=True,
                 clinica=clinica,

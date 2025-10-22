@@ -1,3 +1,5 @@
+📋 CREDENCIALES DE ACCESO:
+
 Administrador Veterinaria
     username="admin_vet",
     email="admin@veterinaria.com",

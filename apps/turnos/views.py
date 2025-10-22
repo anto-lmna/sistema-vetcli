@@ -326,33 +326,65 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         return self.request.user.rol == "cliente"
 
     def get_queryset(self):
-        return (
+        queryset = (
             Turno.objects.filter(
                 clinica=self.request.user.clinica,
-                reservado=False,  # ✅ Solo no reservados
+                reservado=False,
                 fecha__gte=timezone.now().date(),
             )
             .select_related("veterinario", "estado")
             .order_by("fecha", "hora_inicio")
         )
 
+        # Filtro por veterinario
+        veterinario_id = self.request.GET.get("veterinario")
+        if veterinario_id:
+            queryset = queryset.filter(veterinario_id=veterinario_id)
+
+        # Filtro por fecha
+        fecha = self.request.GET.get("fecha")
+        if fecha:
+            queryset = queryset.filter(fecha=fecha)
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         from apps.accounts.models import CustomUser
 
+        # Veterinarios activos en la clínica
         context["veterinarios"] = CustomUser.objects.filter(
             rol="veterinario", clinica=self.request.user.clinica, is_active=True
         )
+
+        # Mascotas activas del cliente
         context["mascotas"] = Mascota.objects.filter(
             dueno=self.request.user, activo=True
         )
+
+        fechas_queryset = Turno.objects.filter(
+            clinica=self.request.user.clinica,
+            reservado=False,
+            fecha__gte=timezone.now().date(),
+        )
+
+        # Aplicar filtro de veterinario si existe
+        veterinario_id = self.request.GET.get("veterinario")
+        if veterinario_id:
+            fechas_queryset = fechas_queryset.filter(veterinario_id=veterinario_id)
+
+        # Obtener fechas únicas ordenadas
+        context["fechas_disponibles"] = (
+            fechas_queryset.values_list("fecha", flat=True).distinct().order_by("fecha")
+        )
+
         return context
 
 
 class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Reservar turno - Confirmación AUTOMÁTICA
-    ✅ Cliente reserva → Estado CONFIRMADO directamente
+    Cliente reserva → Estado CONFIRMADO directamente
     """
 
     def test_func(self):

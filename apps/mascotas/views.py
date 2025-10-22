@@ -156,7 +156,7 @@ def lista_mascotas_admin(request):
     # Obtener todas las mascotas de la clínica
     mascotas = (
         Mascota.objects.filter(dueno__clinica=request.user.clinica)
-        .select_related("especie", "raza", "dueno")
+        .select_related("dueno")  # ✅ Corregido: especie y raza no son FK
         .order_by("-fecha_registro")
     )
 
@@ -171,12 +171,13 @@ def lista_mascotas_admin(request):
         if buscar:
             mascotas = mascotas.filter(
                 Q(nombre__icontains=buscar)
-                | Q(dueno__nombre_completo__icontains=buscar)
+                | Q(dueno__first_name__icontains=buscar)  # ✅ Corregido
+                | Q(dueno__last_name__icontains=buscar)  # ✅ Corregido
                 | Q(dueno__email__icontains=buscar)
             )
 
         if especie:
-            mascotas = mascotas.filter(especie=especie)
+            mascotas = mascotas.filter(especie__iexact=especie)  # ✅ Mejor con iexact
 
         if sexo:
             mascotas = mascotas.filter(sexo=sexo)
@@ -187,7 +188,7 @@ def lista_mascotas_admin(request):
             mascotas = mascotas.filter(activo=False)
 
     # Paginación
-    paginator = Paginator(mascotas, 20)  # 20 mascotas por página
+    paginator = Paginator(mascotas, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -337,9 +338,9 @@ def lista_mascotas_veterinario(request):
 
     # Obtener mascotas activas de la clínica
     mascotas = (
-        Mascota.objects.filter(dueno__clinica=request.user.clinica, activo=True)
-        .select_related("especie", "raza", "dueno")
-        .order_by("nombre")
+        Mascota.objects.filter(dueno__clinica=request.user.clinica)
+        .select_related("dueno")  # ✅ Corregido: especie y raza no son FK
+        .order_by("-fecha_registro")
     )
 
     # Aplicar filtros
@@ -352,7 +353,9 @@ def lista_mascotas_veterinario(request):
         if buscar:
             mascotas = mascotas.filter(
                 Q(nombre__icontains=buscar)
-                | Q(dueno__nombre_completo__icontains=buscar)
+                | Q(dueno__first_name__icontains=buscar)
+                | Q(dueno__last_name__icontains=buscar)
+                | Q(dueno__email__icontains=buscar)
             )
 
         if especie:
