@@ -481,11 +481,12 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, pk):
         turno = get_object_or_404(Turno, pk=pk, cliente=request.user)
 
-        # Validar que el turno sea futuro (al menos 2 horas antes)
-        fecha_hora_turno = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
-        fecha_hora_turno = timezone.make_aware(fecha_hora_turno)
+        fecha_hora_turno = timezone.make_aware(
+            timezone.datetime.combine(turno.fecha, turno.hora_inicio)
+        )
         ahora = timezone.now()
 
+        # 🔹 Validar tiempo
         if fecha_hora_turno - ahora < timedelta(hours=2):
             messages.error(
                 request,
@@ -494,24 +495,27 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
             return redirect("turnos:mis_turnos")
 
-        # Validar que no esté ya completado o en curso
+        # 🔹 Validar estado
         if turno.estado.codigo in [EstadoTurno.COMPLETADO, EstadoTurno.EN_CURSO]:
             messages.error(
                 request, f"No se puede cancelar un turno {turno.estado.nombre.lower()}."
             )
             return redirect("turnos:mis_turnos")
 
-        # Liberar el turno (vuelve a estar disponible)
-        estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
-        turno.estado = estado_pendiente
-        turno.reservado = False
-        turno.cliente = None
-        turno.mascota = None
-        turno.motivo = ""
-        turno.save()
+        # 🔹 Cancelar con transacción atómica
+        with transaction.atomic():
+            estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
+            Turno.objects.filter(pk=turno.pk).update(
+                estado=estado_pendiente,
+                reservado=False,
+                cliente=None,
+                mascota=None,
+                motivo="",
+            )
 
         messages.success(
-            request, "Turno cancelado. El horario queda disponible nuevamente."
+            request,
+            "Tu turno fue cancelado correctamente. El horario queda disponible nuevamente.",
         )
         return redirect("turnos:mis_turnos")
 
