@@ -293,6 +293,35 @@ python manage.py cargar_estados_turnos
 
 ### Caracteristicas añadidas:
 
+#### **Cliente**
+
+* 📅 Ver turnos disponibles
+* 🔍 Buscar turnos por **veterinario** y **día**
+* 📝 Solicitar turno
+* ❌ Cancelar turno
+* 👁️ Ver detalle del turno
+
+---
+
+#### **Veterinario**
+
+* 🗓️ Ver su **agenda de turnos**
+* ➕ Crear **disponibilidades** de atención
+* 👁️ Ver detalle de turno
+* 🗑️ Eliminar disponibilidad *(solo si no tiene turnos reservados)*
+
+---
+
+#### **Administrador**
+
+* 🗓️ Ver agenda completa
+* 🧾 Crear turnos **manualmente**
+* ❌ Cancelar turnos
+
+---
+
+
+
 
 ## Capturas actuales
 
@@ -315,16 +344,74 @@ python manage.py cargar_estados_turnos
 
 ### Dashboard Administrador
 
-<img width="1366" height="725" alt="dashboard_admin" src="https://github.com/user-attachments/assets/d5ab34c6-613c-42a6-95cf-43308bd1dc53" />
+<img width="1366" height="688" alt="dashboard_admin" src="https://github.com/user-attachments/assets/8d778694-b4fa-4793-9d49-a4be85f5a6ba" />
+
 
 ### Dashboard Veterinario
 
-<img width="1366" height="729" alt="dashboard_veterinario" src="https://github.com/user-attachments/assets/41f61ddd-3dcc-4665-a8e4-1cec6bc9a678" />
+<img width="1366" height="690" alt="dashboard_veterinario" src="https://github.com/user-attachments/assets/82189344-c8ec-4a29-9023-08d52a41ea27" />
+
 
 ### Dashboard Cliente
+<img width="1366" height="692" alt="dashboard_cliente" src="https://github.com/user-attachments/assets/d82e8f6e-3d07-49e9-9947-dfb4a078219c" />
 
-<img width="1366" height="723" alt="dashboard_cliente" src="https://github.com/user-attachments/assets/be69a06e-1994-4217-b8f2-c182d4005f6c" />
-<img width="1366" height="725" alt="dashborad_cliente" src="https://github.com/user-attachments/assets/0056373d-e3e6-45a4-a0f9-7b4bd8a7477d" />
+### Perfil Cliente
+<img width="1366" height="692" alt="perfil_cliente" src="https://github.com/user-attachments/assets/80d614e9-7229-4b2e-92b4-5a7ebef6f59f" />
+
+### Gestión Mascotas
+
+#### Agregar mascota
+<img width="1366" height="657" alt="agregar_mascota)" src="https://github.com/user-attachments/assets/f536604b-4f15-4072-ac40-2c0351740246" />
+
+#### Detalle Mascota
+<img width="1366" height="677" alt="detalle_mascota" src="https://github.com/user-attachments/assets/8f80d234-dd61-4478-80d9-c33c504bdc5c" />
+
+#### Mascotas Registradas
+<img width="1366" height="680" alt="mascotas_registradas_admin_2" src="https://github.com/user-attachments/assets/f0234166-4cf2-484b-aa02-fbfc00c4dcc2" />
+
+#### Inactivar Mascota
+<img width="1366" height="688" alt="inactivar_mascota" src="https://github.com/user-attachments/assets/a0e8d3de-68bc-411e-92fc-a466b505ac8a" />
+
+### Gestión Turnos
+
+#### Agenda administrador
+
+<img width="1366" height="685" alt="agenda_clinica_admin" src="https://github.com/user-attachments/assets/799355e4-f31e-454d-b32d-b8506f5cfaab" />
+
+#### Agenda Veterinario
+
+<img width="1366" height="700" alt="agenda_veterinario" src="https://github.com/user-attachments/assets/d41a75c1-f243-4b2d-8543-54612796ce1f" />
+
+#### Crear disponibilidad
+
+<img width="1366" height="686" alt="publicar_disponibilidad" src="https://github.com/user-attachments/assets/8935055e-bcbf-4fc5-ba4b-5941a4690cf7" />
+
+<img width="1366" height="437" alt="disponibilidades" src="https://github.com/user-attachments/assets/e0a36610-7e84-4450-a270-539612a63fc5" />
+
+#### Crear Turno Manual
+
+<img width="1366" height="688" alt="turno_manual_admin" src="https://github.com/user-attachments/assets/fd921879-ef30-4d08-a3a7-fde9baa125d8" />
+
+#### Crear/Eliminar/Ver turnos (cliente)
+
+<img width="1366" height="688" alt="turnos_disponibles" src="https://github.com/user-attachments/assets/b487c3d5-6214-4a52-a905-42609e1f4016" />
+
+<img width="1366" height="684" alt="reservar_turno" src="https://github.com/user-attachments/assets/89b96f16-3417-490b-a256-61e96b00c561" />
+
+<img width="1366" height="686" alt="mis_turnos" src="https://github.com/user-attachments/assets/3d506390-7298-4047-83c2-d6b178cefb6e" />
+
+<img width="1366" height="671" alt="detalle_turno" src="https://github.com/user-attachments/assets/6f707be8-3a6f-443e-ac53-ef4fc37384e4" />
+
+<img width="1366" height="680" alt="cancelar_turno" src="https://github.com/user-attachments/assets/0a83834b-ed03-4a95-b75a-34d1b783c6a1" />
+
+
+
+
+
+
+
+
+
 
 ## Documentación Adicional
 
