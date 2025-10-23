@@ -10,10 +10,10 @@
 
 .sidebar {
     background: var(--primary-dark);
-    border-radius: 10px;
+    border-radius: 5px;
     justify-content: center;
     min-height: 100vh;
-    width: 270px;
+    width: 220px;
     position: fixed;
     left: 0;
     top: 0;
@@ -24,10 +24,11 @@
 
 .main-content {
     flex: 1;
-    margin-left: 280px;
+    margin-left: 250px;
     background: var(--bg-light);
     min-height: 100vh;
     padding: 0;
+    
 }
 
 .top-header {
@@ -46,10 +47,15 @@
 
 .sidebar-nav {
     padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .nav-item {
     margin: 0.25rem 0;
+    align-self: center;
 }
 
 .nav-link {

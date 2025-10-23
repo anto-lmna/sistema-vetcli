@@ -78,7 +78,7 @@
     {% if turnos %}
         <!-- Resultados -->
         <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-dark text-white">
                 <h5 class="mb-0">
                     <i class="bi bi-calendar-event"></i>
                     Turnos disponibles{% if request.GET.fecha %} para {{ request.GET.fecha|date:"d/m/Y" }}{% endif %}
@@ -120,7 +120,7 @@
                             <div class="modal fade" id="reservarModal{{ turno.id }}" tabindex="-1">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
+                                        <div class="modal-header bg-success text-white">
                                             <h5 class="modal-title"><i class="bi bi-calendar-check"></i> Reservar Turno</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>

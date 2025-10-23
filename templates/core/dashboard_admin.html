@@ -18,28 +18,25 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="{% url 'core:dashboard_admin' %}" class="nav-link active">📊 Dashboard</a>
+                <a href="#" class="nav-link">Clientes</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">👥 Clientes</a>
+                <a href="#" class="nav-link">Veterinarios</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">👨‍⚕️ Veterinarios</a>
+                <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link">Mascotas</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link">🐾 Mascotas</a>
+                <a href="{% url 'turnos:agenda_clinica' %}" class="nav-link">Agenda</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'turnos:agenda_clinica' %}" class="nav-link">📅 Agenda</a>
-            </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link">⚙️ Configuración</a>
+                <a href="#" class="nav-link">Configuración</a>
             </div>
             <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
                 <form method="post" action="{% url 'accounts:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
-                        🚪 Salir
+                        Salir
                     </button>
                 </form>
             </div>

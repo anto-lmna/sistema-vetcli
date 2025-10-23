@@ -97,11 +97,11 @@
                     </div>
                     
                     <div class="card-footer bg-transparent">
-                        <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-info">
+                        <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> Ver Detalle
                         </a>
                         {% if mascota.activo %}
-                            <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-sm btn-warning">
+                            <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-sm btn-dark text-light">
                                 <i class="bi bi-pencil"></i> Editar
                             </a>
                         {% endif %}

@@ -7,7 +7,6 @@ from django.views.generic import ListView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import PerfilClienteForm
-
 from apps.turnos.models import Turno
 from apps.clinicas.models import Clinica
 from apps.mascotas.models import Mascota
@@ -174,11 +173,11 @@ def dashboard_cliente_view(request):
     total_mascotas = Mascota.objects.filter(dueno=request.user).count()
     hoy = timezone.now().date()
 
-    # 🩵 Contar turnos pendientes (por venir)
+    # Contar turnos pendientes (por venir)
     turnos_pendientes = Turno.objects.filter(
         cliente=request.user,
         fecha__gte=hoy,
-        estado__codigo__in=["pendiente", "confirmado"],  # adaptá según tus códigos
+        estado__codigo__in=["pendiente", "confirmado"],
     ).count()
 
     # Obtener las últimas 3 mascotas para mostrar en el dashboard
@@ -239,6 +238,8 @@ class PerfilClienteUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
     def form_valid(self, form):
+        if not form.cleaned_data.get("fecha_nacimiento"):
+            form.instance.fecha_nacimiento = self.request.user.fecha_nacimiento
         messages.success(self.request, "Tu perfil se actualizó correctamente")
         return super().form_valid(form)
 

@@ -18,29 +18,26 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="{% url 'core:dashboard_cliente' %}" class="nav-link">📊 Dashboard</a>
+                <a href="{% url 'mascotas:mis_mascotas' %}" class="nav-link">Mis Mascotas</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'mascotas:mis_mascotas' %}" class="nav-link">🐾 Mis Mascotas</a>
+                <a href="{% url 'turnos:mis_turnos' %}" class="nav-link">Mis Turnos</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'turnos:mis_turnos' %}" class="nav-link">📅 Mis Turnos</a>
+                <a href="#" class="nav-link">Historiales</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">📋 Historiales</a>
+                <a href="#" class="nav-link">Recetas</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">📄 Recetas</a>
-            </div>
-            <div class="nav-item">
-                <a href="{% url 'core:perfil_cliente' %}" class="nav-link">👤 Mi Perfil</a>
+                <a href="{% url 'core:perfil_cliente' %}" class="nav-link">Mi Perfil</a>
             </div>
             
             <div class="nav-item mt-4 border-top pt-4">
                 <form method="post" action="{% url 'accounts:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="nav-link w-100 text-start" style="border: none; background: none;">
-                        🚪 Salir
+                        Salir
                     </button>
                 </form>
             </div>
@@ -106,7 +103,7 @@
             <div class="content-section mb-4">
                 <div class="section-header">
                     <h6 class="section-title">👤 Mi Información</h6>
-                    <a href="{% url 'core:editar_perfil_cliente' %}" class="btn btn-light btn-sm">
+                    <a href="{% url 'core:editar_perfil_cliente' %}" class="btn  btn-outline-secondary btn-sm">
                                  Editar
                     </a>
                 </div>
@@ -180,7 +177,7 @@
                                             {{ mascota.especie }} - {{ mascota.edad_texto }}
                                         </small>
                                     </p>
-                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-dark">
                                         Ver Detalle
                                     </a>
                                 </div>
@@ -189,7 +186,7 @@
                         {% endfor %}
                     </div>
                     <div class="text-center mt-3">
-                        <a href="{% url 'mascotas:mis_mascotas' %}" class="btn  btn-outline-secondary">
+                        <a href="{% url 'mascotas:mis_mascotas' %}" class="btn  btn-outline-dark">
                             Ver Todas Mis Mascotas ({{ total_mascotas }})
                         </a>
                     </div>

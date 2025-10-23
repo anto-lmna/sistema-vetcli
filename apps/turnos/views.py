@@ -11,8 +11,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from apps.accounts.models import CustomUser
 from apps.mascotas.models import Mascota
-from .models import Turno, DisponibilidadVeterinario, EstadoTurno
 from .forms import TurnoCrearAdminForm
+from .models import Turno, DisponibilidadVeterinario, EstadoTurno
+
 
 # ==================== VETERINARIO ====================
 

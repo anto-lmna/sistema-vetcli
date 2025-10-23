@@ -27,7 +27,7 @@
     {% for fecha_grupo in turnos_por_fecha %}
         {% if fecha_grupo.grouper >= today %}
         <div class="card mb-3">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-dark text-white">
                 <strong>{{ fecha_grupo.grouper|date:"l, d F Y" }}</strong>
             </div>
             <div class="list-group list-group-flush">

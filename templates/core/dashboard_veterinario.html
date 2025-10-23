@@ -18,25 +18,25 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">📊 Panel</a>
+                <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link active">Panel</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'turnos:agenda_vet' %}" class="nav-link">📅 Agenda</a>
+                <a href="{% url 'turnos:agenda_vet' %}" class="nav-link">Agenda</a>
             </div>
             <div class="nav-item">
-                <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="nav-link">🐕 Pacientes</a>
+                <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="nav-link">Pacientes</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">📋 Historiales</a>
+                <a href="#" class="nav-link">Historiales</a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">⚙️ Configuración</a>
+                <a href="#" class="nav-link">Configuración</a>
             </div>
-            <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
+            <div class="nav-item mt-4">
                 <form method="post" action="{% url 'accounts:logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
-                        🚪 Salir
+                    <button type="submit" class="nav-link">
+                        Salir
                     </button>
                 </form>
             </div>
@@ -175,7 +175,7 @@
                                             {{ mascota.especie }} - {{ mascota.edad_texto }}
                                         </small>
                                     </p>
-                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-dark">
                                         Ver Detalle
                                     </a>
                                 </div>

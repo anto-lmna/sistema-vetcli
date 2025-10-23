@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from apps.accounts.models import CustomUser
 
 
@@ -22,7 +23,8 @@ class PerfilClienteForm(forms.ModelForm):
             "direccion": forms.TextInput(attrs={"class": "form-control"}),
             "dni": forms.TextInput(attrs={"class": "form-control"}),
             "fecha_nacimiento": forms.DateInput(
-                attrs={"type": "date", "class": "form-control"}
+                format="%Y-%m-%d",
+                attrs={"type": "date", "class": "form-control"},
             ),
         }
         labels = {
@@ -34,3 +36,18 @@ class PerfilClienteForm(forms.ModelForm):
             "dni": "DNI",
             "fecha_nacimiento": "Fecha de nacimiento",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.fecha_nacimiento:
+            self.initial["fecha_nacimiento"] = self.instance.fecha_nacimiento.strftime(
+                "%Y-%m-%d"
+            )
+
+    def clean_fecha_nacimiento(self):
+        """Evita fechas futuras"""
+        fecha = self.cleaned_data.get("fecha_nacimiento")
+        if fecha and fecha > timezone.now().date():
+            raise forms.ValidationError("La fecha de nacimiento no puede ser futura.")
+        return fecha

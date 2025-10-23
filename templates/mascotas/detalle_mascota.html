@@ -34,7 +34,7 @@
             <!-- Acciones -->
             {% if user.rol == 'cliente' and user == mascota.dueno %}
                 <div class="d-grid gap-2">
-                    <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-warning">
+                    <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-outline-primary">
                         <i class="bi bi-pencil"></i> Editar Información
                     </a>
                     <a href="{% url 'mascotas:mis_mascotas' %}" class="btn btn-secondary">
