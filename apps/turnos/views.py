@@ -533,7 +533,7 @@ class AgendaClinicaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return (
             Turno.objects.filter(
                 clinica=self.request.user.clinica,
-                reservado=True,  # ✅ Solo turnos reservados
+                reservado=True,
                 fecha__gte=timezone.now().date(),
             )
             .select_related("veterinario", "estado", "cliente", "mascota")
