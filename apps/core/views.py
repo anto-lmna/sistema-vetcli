@@ -1,10 +1,9 @@
 from django.utils import timezone
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.views.generic import ListView, TemplateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .forms import PerfilClienteForm
 from apps.turnos.models import Turno
@@ -13,8 +12,50 @@ from apps.mascotas.models import Mascota
 from apps.accounts.models import CustomUser
 
 
-class VeterinariaListView(ListView):
-    """Vista principal - Lista todas las veterinarias disponibles"""
+# ==================== MIXINS PERSONALIZADOS ====================
+
+
+class AdminVeterinariaRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea administrador de veterinaria"""
+
+    def test_func(self):
+        return (
+            self.request.user.is_authenticated
+            and self.request.user.is_admin_veterinaria
+        )
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permisos de administrador")
+        return redirect("core:home")
+
+
+class VeterinarioRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea veterinario"""
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_veterinario
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permisos de veterinario")
+        return redirect("core:home")
+
+
+class ClienteRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea cliente"""
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_cliente
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permisos de cliente")
+        return redirect("core:home")
+
+
+# ==================== VISTAS PÚBLICAS ====================
+
+
+class HomeView(ListView):
+    """Página de inicio - muestra lista de veterinarias disponibles"""
 
     model = Clinica
     template_name = "core/home.html"
@@ -25,189 +66,203 @@ class VeterinariaListView(ListView):
             is_active=True, acepta_nuevos_clientes=True
         ).order_by("nombre")
 
-
-def home_view(request):
-    """Página de inicio - muestra lista de veterinarias"""
-    veterinarias = Clinica.objects.filter(
-        is_active=True, acepta_nuevos_clientes=True
-    ).order_by("nombre")
-
-    context = {"veterinarias": veterinarias, "total_veterinarias": veterinarias.count()}
-    return render(request, "core/home.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total_veterinarias"] = self.get_queryset().count()
+        return context
 
 
-@login_required
-def dashboard_view(request):
-    """Dashboard - redirige según el rol del usuario"""
-    user = request.user
-
-    if user.is_admin_veterinaria:
-        return redirect("core:dashboard_admin")
-    elif user.is_veterinario:
-        return redirect("core:dashboard_veterinario")
-    elif user.is_cliente:
-        return redirect("core:dashboard_cliente")
-
-    messages.warning(request, "No tienes un rol asignado")
-    return redirect("core:home")
+# ==================== DASHBOARD PRINCIPAL ====================
 
 
-@login_required
-def dashboard_admin_view(request):
+class DashboardView(LoginRequiredMixin, TemplateView):
+    """Dashboard principal - redirige según el rol del usuario"""
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+
+        if user.is_admin_veterinaria:
+            return redirect("core:dashboard_admin")
+        elif user.is_veterinario:
+            return redirect("core:dashboard_veterinario")
+        elif user.is_cliente:
+            return redirect("core:dashboard_cliente")
+
+        messages.warning(request, "No tienes un rol asignado")
+        return redirect("core:home")
+
+
+# ==================== DASHBOARD ADMINISTRADOR ====================
+
+
+class DashboardAdminView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, TemplateView
+):
     """Dashboard para administradores de veterinaria"""
-    if not request.user.is_admin_veterinaria:
-        messages.error(request, "No tienes permisos de administrador")
-        return redirect("core:home")
 
-    try:
-        clinica = Clinica.objects.get(admin=request.user)
-    except Clinica.DoesNotExist:
-        messages.error(request, "No tienes una clínica asignada")
-        return redirect("core:home")
+    template_name = "core/dashboard_admin.html"
 
-    # Estadísticas de clientes
-    clientes_pendientes = clinica.clientes_pendientes()
-    total_clientes_pendientes = clinica.total_clientes_pendientes()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-    # Estadísticas de veterinarios
-    total_veterinarios = clinica.total_veterinarios
+        try:
+            clinica = Clinica.objects.get(admin=user)
+        except Clinica.DoesNotExist:
+            messages.error(self.request, "No tienes una clínica asignada")
+            return context
 
-    # Estadísticas de clientes activos
-    total_clientes = CustomUser.objects.filter(
-        rol="cliente", clinica=clinica, is_active=True
-    ).count()
+        # Estadísticas de clientes pendientes
+        clientes_pendientes = clinica.clientes_pendientes()
+        total_clientes_pendientes = clinica.total_clientes_pendientes()
 
-    # Estadísticas de mascotas
-    total_mascotas = Mascota.objects.filter(dueno__clinica=clinica).count()
+        # Estadísticas de veterinarios
+        total_veterinarios = clinica.total_veterinarios
 
-    mascotas_activas = Mascota.objects.filter(
-        dueno__clinica=clinica, activo=True
-    ).count()
+        # Estadísticas de clientes activos
+        total_clientes = CustomUser.objects.filter(
+            rol="cliente", clinica=clinica, is_active=True
+        ).count()
 
-    mascotas_inactivas = Mascota.objects.filter(
-        dueno__clinica=clinica, activo=False
-    ).count()
+        # Estadísticas de mascotas
+        total_mascotas = Mascota.objects.filter(dueno__clinica=clinica).count()
+        mascotas_activas = Mascota.objects.filter(
+            dueno__clinica=clinica, activo=True
+        ).count()
+        mascotas_inactivas = Mascota.objects.filter(
+            dueno__clinica=clinica, activo=False
+        ).count()
 
-    context = {
-        "user": request.user,
-        "clinica": clinica,
-        "clientes_pendientes": clientes_pendientes[:10],  # Mostrar máximo 10
-        "total_clientes_pendientes": total_clientes_pendientes,
-        "total_veterinarios": total_veterinarios,
-        "total_clientes": total_clientes,
-        "total_mascotas": total_mascotas,
-        "mascotas_activas": mascotas_activas,
-        "mascotas_inactivas": mascotas_inactivas,
-    }
+        context.update(
+            {
+                "user": user,
+                "clinica": clinica,
+                "clientes_pendientes": clientes_pendientes[:10],  # Máximo 10
+                "total_clientes_pendientes": total_clientes_pendientes,
+                "total_veterinarios": total_veterinarios,
+                "total_clientes": total_clientes,
+                "total_mascotas": total_mascotas,
+                "mascotas_activas": mascotas_activas,
+                "mascotas_inactivas": mascotas_inactivas,
+            }
+        )
 
-    return render(request, "core/dashboard_admin.html", context)
+        return context
 
 
-@login_required
-def dashboard_veterinario_view(request):
+# ==================== DASHBOARD VETERINARIO ====================
+
+
+class DashboardVeterinarioView(
+    LoginRequiredMixin, VeterinarioRequiredMixin, TemplateView
+):
     """Dashboard para veterinarios"""
-    if not request.user.is_veterinario:
-        messages.error(request, "No tienes permisos de veterinario")
-        return redirect("core:home")
 
-    # Obtener clínica
-    clinica = request.user.clinica
+    template_name = "core/dashboard_veterinario.html"
 
-    if not clinica:
-        messages.error(request, "No tienes una clínica asignada")
-        return redirect("core:home")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        clinica = user.clinica
 
-    # Obtener perfil del veterinario (si existe)
-    perfil = None
-    if hasattr(request.user, "perfilveterinario"):
-        perfil = request.user.perfilveterinario
+        if not clinica:
+            messages.error(self.request, "No tienes una clínica asignada")
+            return context
 
-    # Estadísticas
-    total_mascotas = Mascota.objects.filter(dueno__clinica=clinica, activo=True).count()
+        # Obtener perfil del veterinario (si existe)
+        perfil = getattr(user, "perfilveterinario", None)
 
-    # Obtener las últimas 6 mascotas activas
-    mascotas_recientes = (
-        Mascota.objects.filter(dueno__clinica=clinica, activo=True)
-        .select_related("especie", "raza", "dueno")
-        .order_by("-fecha_registro")[:6]
-    )
+        # Estadísticas
+        total_mascotas = Mascota.objects.filter(
+            dueno__clinica=clinica, activo=True
+        ).count()
 
-    hoy = timezone.localdate()
-    turnos_hoy = Turno.objects.filter(
-        veterinario=request.user, reservado=True, cliente__isnull=False, fecha=hoy
-    ).count()
+        # Últimas 6 mascotas activas
+        mascotas_recientes = (
+            Mascota.objects.filter(dueno__clinica=clinica, activo=True)
+            .select_related("especie", "raza", "dueno")
+            .order_by("-fecha_registro")[:6]
+        )
 
-    context = {
-        "user": request.user,
-        "clinica": clinica,
-        "perfil": perfil,
-        "total_mascotas": total_mascotas,
-        "mascotas_recientes": mascotas_recientes,
-        "turnos_hoy": turnos_hoy,
-    }
+        # Turnos de hoy
+        hoy = timezone.localdate()
+        turnos_hoy = Turno.objects.filter(
+            veterinario=user, reservado=True, cliente__isnull=False, fecha=hoy
+        ).count()
 
-    return render(request, "core/dashboard_veterinario.html", context)
+        context.update(
+            {
+                "user": user,
+                "clinica": clinica,
+                "perfil": perfil,
+                "total_mascotas": total_mascotas,
+                "mascotas_recientes": mascotas_recientes,
+                "turnos_hoy": turnos_hoy,
+            }
+        )
+
+        return context
 
 
-# Cliente
-@login_required
-def dashboard_cliente_view(request):
+# ==================== DASHBOARD CLIENTE ====================
+
+
+class DashboardClienteView(LoginRequiredMixin, ClienteRequiredMixin, TemplateView):
     """Dashboard para clientes"""
-    if not request.user.is_cliente:
-        messages.error(request, "No tienes permisos de cliente")
-        return redirect("core:home")
 
-    # Obtener clínica
-    clinica = request.user.clinica
+    template_name = "core/dashboard_cliente.html"
 
-    if not clinica:
-        messages.error(request, "No tienes una clínica asignada")
-        return redirect("core:home")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        clinica = user.clinica
 
-    # Obtener perfil del cliente (si existe)
-    perfil = None
-    if hasattr(request.user, "perfilcliente"):
-        perfil = request.user.perfilcliente
+        if not clinica:
+            messages.error(self.request, "No tienes una clínica asignada")
+            return context
 
-    # Estadísticas del cliente
-    total_mascotas = Mascota.objects.filter(dueno=request.user).count()
-    hoy = timezone.now().date()
+        # Obtener perfil del cliente (si existe)
+        perfil = getattr(user, "perfilcliente", None)
 
-    # Contar turnos pendientes (por venir)
-    turnos_pendientes = Turno.objects.filter(
-        cliente=request.user,
-        fecha__gte=hoy,
-        estado__codigo__in=["pendiente", "confirmado"],
-    ).count()
+        # Estadísticas del cliente
+        total_mascotas = Mascota.objects.filter(dueno=user).count()
+        hoy = timezone.now().date()
 
-    # Obtener las últimas 3 mascotas para mostrar en el dashboard
-    mascotas_recientes = (
-        Mascota.objects.filter(dueno=request.user, activo=True)
-        .select_related("especie", "raza")
-        .order_by("-fecha_registro")[:3]
-    )
+        # Turnos pendientes (por venir)
+        turnos_pendientes = Turno.objects.filter(
+            cliente=user,
+            fecha__gte=hoy,
+            estado__codigo__in=["pendiente", "confirmado"],
+        ).count()
 
-    context = {
-        "user": request.user,
-        "clinica": clinica,
-        "perfil": perfil,
-        "total_mascotas": total_mascotas,
-        "mascotas_recientes": mascotas_recientes,
-        "turnos_pendientes": turnos_pendientes,
-    }
+        # Últimas 3 mascotas
+        mascotas_recientes = (
+            Mascota.objects.filter(dueno=user, activo=True)
+            .select_related("especie", "raza")
+            .order_by("-fecha_registro")[:3]
+        )
 
-    return render(request, "core/dashboard_cliente.html", context)
+        context.update(
+            {
+                "user": user,
+                "clinica": clinica,
+                "perfil": perfil,
+                "total_mascotas": total_mascotas,
+                "mascotas_recientes": mascotas_recientes,
+                "turnos_pendientes": turnos_pendientes,
+            }
+        )
+
+        return context
 
 
-class PerfilClienteView(LoginRequiredMixin, TemplateView):
+# ==================== PERFIL CLIENTE ====================
+
+
+class PerfilClienteView(LoginRequiredMixin, ClienteRequiredMixin, TemplateView):
+    """Vista de perfil del cliente (solo lectura)"""
+
     template_name = "core/perfil_cliente.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        # Verifica permisos de cliente antes de continuar
-        if not request.user.is_cliente:
-            messages.error(request, "No tienes permisos de cliente.")
-            return redirect("core:home")
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -228,18 +283,23 @@ class PerfilClienteView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class PerfilClienteUpdateView(LoginRequiredMixin, UpdateView):
+class PerfilClienteUpdateView(LoginRequiredMixin, ClienteRequiredMixin, UpdateView):
+    """Vista para editar perfil del cliente"""
+
     model = CustomUser
     form_class = PerfilClienteForm
     template_name = "core/perfil_cliente_editar.html"
     success_url = reverse_lazy("core:perfil_cliente")
 
     def get_object(self):
+        """El objeto a editar siempre es el usuario actual"""
         return self.request.user
 
     def form_valid(self, form):
+        """Preservar fecha de nacimiento si no se modificó"""
         if not form.cleaned_data.get("fecha_nacimiento"):
             form.instance.fecha_nacimiento = self.request.user.fecha_nacimiento
+
         messages.success(self.request, "Tu perfil se actualizó correctamente")
         return super().form_valid(form)
 
