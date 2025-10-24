@@ -1,11 +1,10 @@
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.shortcuts import redirect, render, get_object_or_404
-from django.core.paginator import Paginator, EmptyPage # <-- agrego paginacion
-
+from django.shortcuts import redirect, get_object_or_404
+from django.views import View
 from django.contrib.auth.views import LoginView
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, ListView
 
 from .forms import (
     CustomAuthenticationForm,
@@ -15,6 +14,8 @@ from apps.clinicas.models import Clinica
 
 
 class CustomLoginView(LoginView):
+    """Vista de login con redirección según rol"""
+
     form_class = CustomAuthenticationForm
     template_name = "accounts/login.html"
 
@@ -32,6 +33,8 @@ class CustomLoginView(LoginView):
 
 
 class ClientePreRegistroView(CreateView):
+    """Vista de pre-registro de clientes con clínica opcional"""
+
     form_class = ClientePreRegistroForm
     template_name = "accounts/pre_registro_cliente.html"
     success_url = reverse_lazy("accounts:registro_exitoso")
@@ -92,51 +95,61 @@ class RegistroExitosoView(TemplateView):
         return context
 
 
-def registro_view(request):
-    """Vista que muestra las opciones de registro con paginación de clínicas"""
-    todas_las_clinicas = Clinica.objects.filter(
-        is_active=True, acepta_nuevos_clientes=True
-    ).order_by('nombre')
-    
-    paginator = Paginator(todas_las_clinicas, 2)
-    page_number = request.GET.get('page')
-    
-    try:
-        clinicas_disponibles_paginadas = paginator.get_page(page_number)
-    except EmptyPage:
-        # En caso de página vacía (ej: URL manipulada), ir a la última página
-        clinicas_disponibles_paginadas = paginator.get_page(paginator.num_pages)
-        
-    # --- LÓGICA DE PAGINACIÓN TRUNCADA (2 páginas alrededor) ---
-    rango_a_mostrar = 2
-    current_page = clinicas_disponibles_paginadas.number
-    total_pages = paginator.num_pages
-    
-    start_index = max(1, current_page - rango_a_mostrar)
-    end_index = min(total_pages, current_page + rango_a_mostrar) + 1
-    
-    # Asegurar que el rango sea de 5 números si es posible (cerca de los bordes)
-    if end_index - start_index < (2 * rango_a_mostrar + 1):
-        if current_page <= rango_a_mostrar:
-            end_index = min(total_pages + 1, (2 * rango_a_mostrar) + 2)
-        elif current_page >= total_pages - rango_a_mostrar:
-            start_index = max(1, total_pages - (2 * rango_a_mostrar))
+class RegistroOpcionesView(ListView):
+    """Vista que muestra opciones de registro con clínicas paginadas"""
 
-    page_range_custom = range(start_index, end_index)
+    model = Clinica
+    template_name = "accounts/registro_opciones.html"
+    context_object_name = "clinicas_disponibles"
+    paginate_by = 2
 
-    context = {
-        "clinicas_disponibles": clinicas_disponibles_paginadas,
-        "total_clinicas": paginator.count,
-        "page_range_custom": page_range_custom, 
-        "show_ellipsis_start": start_index > 1, 
-        "show_ellipsis_end": end_index <= total_pages, 
-    }
+    def get_queryset(self):
+        """Filtrar solo clínicas activas que aceptan nuevos clientes"""
+        return Clinica.objects.filter(
+            is_active=True, acepta_nuevos_clientes=True
+        ).order_by("nombre")
 
-    return render(request, "accounts/registro_opciones.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Total de clínicas
+        context["total_clinicas"] = self.get_queryset().count()
+
+        # Obtener el objeto paginator y page_obj del contexto
+        page_obj = context.get("page_obj")
+        paginator = context.get("paginator")
+
+        if page_obj and paginator:
+            # Lógica de paginación truncada (2 páginas alrededor)
+            rango_a_mostrar = 2
+            current_page = page_obj.number
+            total_pages = paginator.num_pages
+
+            start_index = max(1, current_page - rango_a_mostrar)
+            end_index = min(total_pages, current_page + rango_a_mostrar) + 1
+
+            # Asegurar que el rango sea de 5 números si es posible (cerca de los bordes)
+            if end_index - start_index < (2 * rango_a_mostrar + 1):
+                if current_page <= rango_a_mostrar:
+                    end_index = min(total_pages + 1, (2 * rango_a_mostrar) + 2)
+                elif current_page >= total_pages - rango_a_mostrar:
+                    start_index = max(1, total_pages - (2 * rango_a_mostrar))
+
+            context["page_range_custom"] = range(start_index, end_index)
+            context["show_ellipsis_start"] = start_index > 1
+            context["show_ellipsis_end"] = end_index <= total_pages
+
+        return context
 
 
-def logout_view(request):
+class CustomLogoutView(View):
     """Vista personalizada de logout que acepta GET"""
-    logout(request)
-    messages.success(request, "Has cerrado sesión exitosamente")
-    return redirect("core:home")
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        messages.success(request, "Has cerrado sesión exitosamente")
+        return redirect("core:home")
+
+    def post(self, request, *args, **kwargs):
+        """También soporta POST para mayor seguridad"""
+        return self.get(request, *args, **kwargs)

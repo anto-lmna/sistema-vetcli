@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-    registro_view,
-    logout_view,
+    RegistroOpcionesView,
+    CustomLogoutView,
     RegistroExitosoView,
     CustomLoginView,
     ClientePreRegistroView,
@@ -11,12 +11,17 @@ app_name = "accounts"
 
 urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("registro/", registro_view, name="registro_opciones"),
-    path("registro-exitoso/", RegistroExitosoView.as_view(), name="registro_exitoso"),
+    path("logout/", CustomLogoutView.as_view(), name="logout"),
+    path("registro/", RegistroOpcionesView.as_view(), name="registro_opciones"),
     path(
-        "pre-registro/<slug:clinica_slug>/",
+        "registro/cliente/",
         ClientePreRegistroView.as_view(),
         name="pre_registro_cliente",
     ),
+    path(
+        "registro/cliente/<slug:clinica_slug>/",
+        ClientePreRegistroView.as_view(),
+        name="pre_registro_cliente",
+    ),
+    path("registro/exitoso/", RegistroExitosoView.as_view(), name="registro_exitoso"),
 ]
