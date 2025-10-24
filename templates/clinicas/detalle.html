@@ -3,107 +3,149 @@
 {% block title %}{{ clinica.nombre }} - Veterinaria SaaS{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title">🏥 {{ clinica.nombre }}</h1>
-                
-                {% if clinica.descripcion %}
-                    <p class="card-text lead">{{ clinica.descripcion }}</p>
-                {% endif %}
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-12 col-lg-10 col-xl-9">
 
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <h6>📍 Ubicación</h6>
-                        <p>{{ clinica.direccion }}</p>
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold text-primary-dark">🏥 {{ clinica.nombre }}</h1>
+            <p class="lead text-muted">Detalles y Opciones de Registro</p>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-lg-7 mb-4">
+                <div class="card h-100 p-4 shadow-lg border-0 rounded-4">
+                    <div class="card-body">
                         
-                        <h6>📞 Contacto</h6>
-                        <p>
-                            <strong>Teléfono:</strong> {{ clinica.telefono }}<br>
-                            <strong>Email:</strong> {{ clinica.email }}
-                        </p>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <h6>🕒 Horarios de Atención</h6>
-                        <p>
-                            <strong>Horario:</strong> {{ clinica.hora_apertura }} - {{ clinica.hora_cierre }}<br>
-                            {% if clinica.dias_atencion %}
-                                <strong>Días:</strong> 
-                                {% for dia in clinica.dias_atencion %}
-                                    {{ dia|capfirst }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        </p>
+                        {% if clinica.descripcion %}
+                            <p class="card-text text-muted border-bottom pb-3 mb-4">{{ clinica.descripcion }}</p>
+                        {% endif %}
 
-                        <h6>👨‍⚕️ Equipo</h6>
-                        <p><strong>Veterinarios activos:</strong> {{ clinica.total_veterinarios }}</p>
+                        <div class="row">
+                            
+                            <div class="col-12 col-md-5 mb-4 mb-md-0">
+                                
+                                <h5 class="fw-bold text-primary-dark mb-2">
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">📍</span>Ubicación
+                                </h5>
+                                
+                                <p class="mb-4 small">
+                                    {{ clinica.direccion }}
+                                </p>
+                                
+                                <h5 class="fw-bold text-primary-dark mb-2">
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">📞</span>Contacto
+                                </h5>
+                                
+                                <p class="mb-1 small">
+                                    <strong class="text-dark">Teléfono:</strong> {{ clinica.telefono }}
+                                </p>
+                                <p class="mb-0 small">
+                                    <strong class="text-dark">Email:</strong> {{ clinica.email }}
+                                </p>
+                            </div>
+                            
+                            <div class="col-12 col-md-7">
+                                
+                                <h5 class="fw-bold text-primary-dark mb-2" style="white-space: nowrap;">
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">🕒</span>Horarios de Atención
+                                </h5>
+                                
+                                <p class="mb-1 small">
+                                    <strong class="text-dark">Horario:</strong> {{ clinica.hora_apertura }} - {{ clinica.hora_cierre }}
+                                </p>
+                                
+                                {% if clinica.dias_atencion %}
+                                    <p class="mb-4 small">
+                                        <strong class="text-dark">Días:</strong> 
+                                        {% for dia in clinica.dias_atencion %}
+                                            {{ dia|capfirst }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
+
+                                <h5 class="fw-bold text-primary-dark mb-2">
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">👨‍⚕️</span>Equipo
+                                </h5>
+                                
+                                <p class="mb-0 small">
+                                    <strong class="text-dark">Veterinarios activos:</strong> {{ clinica.total_veterinarios }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                
+                <div class="card shadow-lg border-0 rounded-4 mb-4">
+                    <div class="card-header bg-light border-0 pt-3 pb-0 rounded-top-4">
+                        <h5 class="mb-0 fw-bold text-primary-dark text-center">
+                             <span class="d-inline-block me-2">🚀</span> Acciones
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        
+                        {% if clinica.acepta_nuevos_clientes %}
+                            <div class="alert alert-success fw-bold text-center rounded-3 p-2 small" role="alert">
+                                ✅ Acepta nuevos clientes
+                            </div>
+                            
+                            <div class="d-grid gap-2 mb-3">
+                                <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
+                                   class="btn btn-primary btn-md rounded-pill fw-bold">
+                                    🐕 Registrarme como Cliente
+                                </a>
+                                
+                                <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-md rounded-pill fw-bold">
+                                    👨‍⚕️ Soy Veterinario/Admin
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center rounded-3 p-3">
+                                <h5 class="fw-bold">⏸️ No acepta nuevos clientes</h5>
+                                <p class="mb-0 small">Esta veterinaria no está aceptando nuevos clientes en este momento.</p>
+                            </div>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+                                👨‍⚕️ Iniciar Sesión
+                            </a>
+                        {% endif %}
+
+                        <hr class="mt-4 mb-3">
+                        
+                        <div class="alert alert-info p-2 rounded-3 small text-start mb-0" role="alert">
+                            <ul class="list-unstyled mb-0">
+                                <li><strong class="text-primary-dark">Aviso Cliente:</strong> Tu pre-registro requiere activación por parte del administrador de la veterinaria.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-light border-0 pt-3 pb-0 rounded-top-4">
+                        <h6 class="mb-0 fw-bold text-primary-dark text-center">
+                            <span class="d-inline-block me-2">📋</span> ¿Qué puedes hacer como Cliente?
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0 small">
+                            <li class="mb-2">📅 Pedir citas online</li>
+                            <li class="mb-2">🐾 Gestionar tus mascotas</li>
+                            <li class="mb-2">📋 Ver historiales médicos</li>
+                            <li class="mb-2">📄 Descargar recetas y documentos</li>
+                            <li>🔔 Recibir recordatorios</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">🚀 Acciones</h5>
-            </div>
-            <div class="card-body">
-                {% if clinica.acepta_nuevos_clientes %}
-                    <div class="alert alert-success">
-                        <strong>✅ Acepta nuevos clientes</strong>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
-                           class="btn btn-primary btn-md">
-                            🐕 Registrarme como Cliente
-                        </a>
-                        
-                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-md">
-                            👨‍⚕️ Soy Veterinario/Admin
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="alert alert-warning">
-                        <strong>⏸️ No acepta nuevos clientes</strong>
-                        <p class="mb-0">Esta veterinaria no está aceptando nuevos clientes en este momento.</p>
-                    </div>
-                {% endif %}
-
-                <hr>
-                
-                <h6>ℹ️ Información</h6>
-                <small class="text-muted">
-                    Tu registro quedará pendiente hasta que la veterinaria apruebe tu solicitud.
-                    Normalmente esto toma entre 1-24 horas.
-                </small>
-            </div>
-        </div>
-
-        <!-- Información adicional -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <h6 class="mb-0">📋 ¿Qué puedes hacer?</h6>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2">📅 Pedir citas online</li>
-                    <li class="mb-2">🐾 Gestionar tus mascotas</li>
-                    <li class="mb-2">📋 Ver historiales médicos</li>
-                    <li class="mb-2">📄 Descargar recetas</li>
-                    <li>🔔 Recibir recordatorios</li>
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="row mt-4 mb-5">
     <div class="col-12 text-center">
-        <a href="{% url 'core:home' %}" class="btn btn-outline-primary">
+        <a href="{% url 'core:home' %}" class="btn btn-outline-primary rounded-pill fw-bold px-4">
             ← Ver Todas las Veterinarias
         </a>
     </div>
