@@ -1,88 +1,118 @@
+# turnos/urls.py
 from django.urls import path
-from . import views
+from .views import (
+    # Veterinario - Disponibilidad
+    DisponibilidadListView,
+    DisponibilidadCreateView,
+    DisponibilidadDeleteView,
+    # Veterinario - Agenda
+    AgendaVeterinarioView,
+    TurnoDetalleVeterinarioView,
+    TurnoIniciarAtencionView,
+    TurnoCompletarView,
+    TurnoNoAsistioView,
+    TurnosJSONView,
+    # Cliente
+    TurnosDisponiblesListView,
+    TurnoReservarView,
+    MisTurnosListView,
+    TurnoDetalleClienteView,
+    TurnoCancelarClienteView,
+    # Administrador
+    AgendaClinicaView,
+    TurnoDetalleAdminView,
+    TurnoCancelarAdminView,
+    TurnoCrearAdminView,
+    TurnosClinicaJSONView,
+    # APIs
+    BuscarClientesAPIView,
+    MascotasPorClienteAPIView,
+)
 
 app_name = "turnos"
 
 urlpatterns = [
-    # Veterinario
+    # ==================== VETERINARIO ====================
+    # Disponibilidad
     path(
-        "disponibilidades/",
-        views.DisponibilidadListView.as_view(),
-        name="disponibilidades",
+        "disponibilidades/", DisponibilidadListView.as_view(), name="disponibilidades"
     ),
     path(
-        "disponibilidades/nueva/",
-        views.DisponibilidadCreateView.as_view(),
-        name="nueva_disponibilidad",
+        "disponibilidad/crear/",
+        DisponibilidadCreateView.as_view(),
+        name="crear_disponibilidad",
     ),
     path(
-        "disponibilidades/<int:pk>/eliminar/",
-        views.DisponibilidadDeleteView.as_view(),
+        "disponibilidad/eliminar/<int:pk>/",
+        DisponibilidadDeleteView.as_view(),
         name="eliminar_disponibilidad",
     ),
-    path("agenda/", views.AgendaVeterinarioView.as_view(), name="agenda_vet"),
-    path("agenda/datos/", views.TurnosJSONView.as_view(), name="turnos_json"),
+    # Agenda
+    path("agenda/", AgendaVeterinarioView.as_view(), name="agenda_vet"),
     path(
-        "turno/<int:pk>/detalle-vet/",
-        views.TurnoDetalleVeterinarioView.as_view(),
+        "turno/<int:pk>/detalle/",
+        TurnoDetalleVeterinarioView.as_view(),
         name="turno_detalle_vet",
     ),
     path(
         "turno/<int:pk>/iniciar/",
-        views.TurnoIniciarAtencionView.as_view(),
+        TurnoIniciarAtencionView.as_view(),
         name="turno_iniciar",
     ),
     path(
         "turno/<int:pk>/completar/",
-        views.TurnoCompletarView.as_view(),
+        TurnoCompletarView.as_view(),
         name="turno_completar",
     ),
     path(
         "turno/<int:pk>/no-asistio/",
-        views.TurnoNoAsistioView.as_view(),
+        TurnoNoAsistioView.as_view(),
         name="turno_no_asistio",
     ),
-    # Cliente
-    path("disponibles/", views.TurnosDisponiblesListView.as_view(), name="disponibles"),
-    path("mis-turnos/", views.MisTurnosListView.as_view(), name="mis_turnos"),
-    path("<int:pk>/reservar/", views.TurnoReservarView.as_view(), name="reservar"),
+    # JSON para calendario
+    path("api/turnos-json/", TurnosJSONView.as_view(), name="turnos_json"),
+    # ==================== CLIENTE ====================
     path(
-        "turno/<int:pk>/detalle-cliente/",
-        views.TurnoDetalleClienteView.as_view(),
+        "disponibles/", TurnosDisponiblesListView.as_view(), name="turnos_disponibles"
+    ),
+    path("reservar/<int:pk>/", TurnoReservarView.as_view(), name="reservar_turno"),
+    path("mis-turnos/", MisTurnosListView.as_view(), name="mis_turnos"),
+    path(
+        "mis-turnos/<int:pk>/",
+        TurnoDetalleClienteView.as_view(),
         name="turno_detalle_cliente",
     ),
     path(
-        "turno/<int:pk>/cancelar-cliente/",
-        views.TurnoCancelarClienteView.as_view(),
-        name="turno_cancelar_cliente",
+        "mis-turnos/<int:pk>/cancelar/",
+        TurnoCancelarClienteView.as_view(),
+        name="cancelar_turno_cliente",
     ),
-    # Administrador
-    path("agenda-clinica/", views.AgendaClinicaView.as_view(), name="agenda_clinica"),
+    # ==================== ADMINISTRADOR ====================
+    path("agenda-clinica/", AgendaClinicaView.as_view(), name="agenda_clinica"),
     path(
-        "agenda-clinica/datos/",
-        views.TurnosClinicaJSONView.as_view(),
-        name="turnos_clinica_json",
-    ),
-    path(
-        "turno/<int:pk>/detalle-admin/",
-        views.TurnoDetalleAdminView.as_view(),
+        "admin/turno/<int:pk>/",
+        TurnoDetalleAdminView.as_view(),
         name="turno_detalle_admin",
     ),
     path(
-        "turno/<int:pk>/cancelar-admin/",
-        views.TurnoCancelarAdminView.as_view(),
-        name="turno_cancelar_admin",
+        "admin/turno/<int:pk>/cancelar/",
+        TurnoCancelarAdminView.as_view(),
+        name="cancelar_turno_admin",
     ),
-    path("turno/crear/", views.TurnoCrearAdminView.as_view(), name="turno_crear_admin"),
-    # APIs para admin
+    path("admin/turno/crear/", TurnoCrearAdminView.as_view(), name="crear_turno_admin"),
+    # JSON para calendario clínica
     path(
-        "api/buscar-clientes/",
-        views.BuscarClientesAPIView.as_view(),
-        name="api_buscar_clientes",
+        "api/turnos-clinica-json/",
+        TurnosClinicaJSONView.as_view(),
+        name="turnos_clinica_json",
+    ),
+    # ==================== APIs ====================
+    path(
+        "api/buscar-clientes/", BuscarClientesAPIView.as_view(), name="buscar_clientes"
     ),
     path(
-        "api/mascotas/<int:cliente_id>/",
-        views.MascotasPorClienteAPIView.as_view(),
-        name="api_mascotas_cliente",
+        "api/cliente/<int:cliente_id>/mascotas/",
+        MascotasPorClienteAPIView.as_view(),
+        name="mascotas_por_cliente",
     ),
 ]

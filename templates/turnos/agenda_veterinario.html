@@ -12,7 +12,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-calendar-check"></i> Mi Agenda</h2>
         <div>
-            <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-dispo">
+            <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-dispo">
                 <i class="bi bi-plus-circle"></i> Nueva Disponibilidad
             </a>
             <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-outline-secondary btn-sec">
@@ -108,7 +108,7 @@
                 <div class="text-center py-5">
                     <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
                     <p class="text-muted mt-3">No tienes turnos reservados próximamente</p>
-                    <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-primary">
+                    <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-primary">
                         Crear Disponibilidad
                     </a>
                 </div>

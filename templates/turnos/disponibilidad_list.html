@@ -7,7 +7,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2 class="fw-bold mb-0">🩺 Mis Disponibilidades</h2>
-        <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-primary">
+        <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-primary">
             ➕ Nueva Disponibilidad
         </a>
     </div>
@@ -90,7 +90,7 @@
                 No hay disponibilidades futuras registradas.
             {% endif %}
         </p>
-        <a href="{% url 'turnos:nueva_disponibilidad' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-outline-primary btn-sm">
             ➕ Crear una nueva disponibilidad
         </a>
     </div>

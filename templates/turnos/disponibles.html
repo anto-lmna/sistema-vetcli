@@ -124,7 +124,7 @@
                                             <h5 class="modal-title"><i class="bi bi-calendar-check"></i> Reservar Turno</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
-                                        <form method="post" action="{% url 'turnos:reservar' turno.pk %}">
+                                        <form method="post" action="{% url 'turnos:reservar_turno' turno.pk %}">
                                             {% csrf_token %}
                                             <div class="modal-body">
                                                 <div class="alert alert-info small">

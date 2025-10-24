@@ -13,7 +13,7 @@
             <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Volver al Panel
             </a>
-            <a href="{% url 'turnos:disponibles' %}" class="btn btn-primary">
+            <a href="{% url 'turnos:turnos_disponibles' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Reservar Nuevo Turno
             </a>
         </div>
@@ -96,7 +96,7 @@
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
-                                <form method="post" action="{% url 'turnos:turno_cancelar_cliente' turno.pk %}">
+                                <form method="post" action="{% url 'turnos:cancelar_turno_cliente' turno.pk %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <div class="alert alert-warning">
@@ -185,7 +185,7 @@
         <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
         <h4 class="mt-3">No tienes turnos reservados</h4>
         <p class="mb-3">Reserva tu primer turno para la atención de tu mascota.</p>
-        <a href="{% url 'turnos:disponibles' %}" class="btn btn-primary">
+        <a href="{% url 'turnos:turnos_disponibles' %}" class="btn btn-primary">
             <i class="bi bi-calendar-plus"></i> Ver Turnos Disponibles
         </a>
     </div>

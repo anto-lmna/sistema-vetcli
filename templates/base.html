@@ -49,7 +49,7 @@
                                     {{ user.get_full_name|default:user.username }} ({{ user.get_rol_display }})
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{% url 'core:dashboard' %}">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'core:dashboard' %}">Panel</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Cerrar Sesión</a></li>
                                 </ul>

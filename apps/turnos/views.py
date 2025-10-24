@@ -15,16 +15,71 @@ from .forms import TurnoCrearAdminForm
 from .models import Turno, DisponibilidadVeterinario, EstadoTurno
 
 
-# ==================== VETERINARIO ====================
+# ==================== MIXINS PERSONALIZADOS ====================
 
 
-class DisponibilidadListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class VeterinarioRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea veterinario"""
+
+    def test_func(self):
+        return (
+            self.request.user.is_authenticated
+            and self.request.user.rol == "veterinario"
+        )
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para acceder a esta página.")
+        return redirect("core:dashboard")
+
+
+class AdminVeterinariaRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea admin de veterinaria"""
+
+    def test_func(self):
+        return (
+            self.request.user.is_authenticated
+            and self.request.user.rol == "admin_veterinaria"
+        )
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para acceder a esta página.")
+        return redirect("core:dashboard")
+
+
+class ClienteRequiredMixin(UserPassesTestMixin):
+    """Mixin que verifica que el usuario sea cliente"""
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.rol == "cliente"
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para acceder a esta página.")
+        return redirect("core:dashboard")
+
+
+class VetOrAdminMixin(UserPassesTestMixin):
+    """Mixin que permite acceso a veterinarios y admins"""
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.rol in [
+            "veterinario",
+            "admin_veterinaria",
+        ]
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para acceder a esta página.")
+        return redirect("core:dashboard")
+
+
+# ==================== VETERINARIO - DISPONIBILIDAD ====================
+
+
+class DisponibilidadListView(LoginRequiredMixin, VetOrAdminMixin, ListView):
+    """Lista de disponibilidades del veterinario"""
+
     model = DisponibilidadVeterinario
     template_name = "turnos/disponibilidad_list.html"
     context_object_name = "disponibilidades"
-
-    def test_func(self):
-        return self.request.user.rol in ["veterinario", "admin_veterinaria"]
 
     def get_queryset(self):
         if hasattr(self, "_queryset_cache"):
@@ -34,13 +89,16 @@ class DisponibilidadListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             veterinario=self.request.user
         ).order_by("-fecha_inicio")
 
+        # Filtro por estado (futuras/pasadas)
         filtro = self.request.GET.get("filtro", "futuras")
         hoy = timezone.now().date()
+
         if filtro == "pasadas":
             qs = qs.filter(fecha_fin__lt=hoy)
         else:
             qs = qs.filter(fecha_fin__gte=hoy)
 
+        # Filtro por fecha específica
         fecha_busqueda = self.request.GET.get("buscar_fecha")
         if fecha_busqueda:
             qs = qs.filter(
@@ -57,14 +115,15 @@ class DisponibilidadListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
-class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class DisponibilidadCreateView(
+    LoginRequiredMixin, VeterinarioRequiredMixin, CreateView
+):
+    """Crear nueva disponibilidad y generar turnos"""
+
     model = DisponibilidadVeterinario
     fields = ["fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin", "duracion_turno"]
     template_name = "turnos/disponibilidad_form.html"
     success_url = reverse_lazy("turnos:disponibilidades")
-
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
 
     def form_valid(self, form):
         user = self.request.user
@@ -72,6 +131,8 @@ class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateVi
 
         inicio = form.cleaned_data["hora_inicio"]
         fin = form.cleaned_data["hora_fin"]
+
+        # Validar horario dentro del horario de la clínica
         if inicio < clinica.hora_apertura or fin > clinica.hora_cierre:
             messages.error(
                 self.request,
@@ -80,8 +141,10 @@ class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateVi
             )
             return self.form_invalid(form)
 
+        # Validar fechas
         fecha_inicio = form.cleaned_data["fecha_inicio"]
         fecha_fin = form.cleaned_data["fecha_fin"]
+
         if fecha_fin < fecha_inicio:
             messages.error(
                 self.request,
@@ -89,10 +152,12 @@ class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateVi
             )
             return self.form_invalid(form)
 
+        # Asignar veterinario y clínica
         form.instance.veterinario = user
         form.instance.clinica = clinica
         response = super().form_valid(form)
 
+        # Generar turnos automáticamente
         form.instance.generar_turnos_rango()
 
         messages.success(
@@ -101,7 +166,7 @@ class DisponibilidadCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateVi
         return response
 
 
-class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class DisponibilidadDeleteView(LoginRequiredMixin, DeleteView):
     """Eliminar disponibilidad (y sus turnos no reservados)"""
 
     model = DisponibilidadVeterinario
@@ -155,13 +220,15 @@ class DisponibilidadDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
         return super().delete(request, *args, **kwargs)
 
 
-class AgendaVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+# ==================== VETERINARIO - AGENDA ====================
+
+
+class AgendaVeterinarioView(LoginRequiredMixin, VeterinarioRequiredMixin, ListView):
+    """Agenda del veterinario con sus turnos reservados"""
+
     model = Turno
     template_name = "turnos/agenda_veterinario.html"
     context_object_name = "turnos"
-
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
 
     def get_queryset(self):
         return (
@@ -178,7 +245,7 @@ class AgendaVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Estadísticas
+        # Estadísticas de turnos de hoy
         turnos_hoy = self.get_queryset().filter(fecha=timezone.now().date())
         context["turnos_hoy"] = turnos_hoy
         context["total_turnos_hoy"] = turnos_hoy.count()
@@ -186,7 +253,9 @@ class AgendaVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
-class TurnoDetalleVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class TurnoDetalleVeterinarioView(LoginRequiredMixin, DetailView):
+    """Ver detalle de un turno (veterinario)"""
+
     model = Turno
     template_name = "turnos/turno_detalle_veterinario.html"
     context_object_name = "turno"
@@ -196,14 +265,22 @@ class TurnoDetalleVeterinarioView(LoginRequiredMixin, UserPassesTestMixin, Detai
         return self.request.user == turno.veterinario
 
 
-class TurnoIniciarAtencionView(LoginRequiredMixin, UserPassesTestMixin, View):
+# ==================== VETERINARIO - ACCIONES DE TURNO ====================
+
+
+class BaseTurnoAccionView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
+    """Clase base para acciones de turnos del veterinario"""
+
+    def get_turno(self, pk):
+        """Obtiene el turno y verifica que sea del veterinario"""
+        return get_object_or_404(Turno, pk=pk, veterinario=self.request.user)
+
+
+class TurnoIniciarAtencionView(BaseTurnoAccionView):
     """Marcar turno como 'En curso'"""
 
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
-
     def post(self, request, pk):
-        turno = get_object_or_404(Turno, pk=pk, veterinario=request.user)
+        turno = self.get_turno(pk)
 
         if not turno.reservado:
             messages.error(request, "No se puede iniciar un turno no reservado.")
@@ -223,14 +300,11 @@ class TurnoIniciarAtencionView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:turno_detalle_vet", pk=pk)
 
 
-class TurnoCompletarView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnoCompletarView(BaseTurnoAccionView):
     """Marcar turno como completado"""
 
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
-
     def post(self, request, pk):
-        turno = get_object_or_404(Turno, pk=pk, veterinario=request.user)
+        turno = self.get_turno(pk)
 
         if not turno.reservado:
             messages.error(request, "No se puede completar un turno no reservado.")
@@ -246,14 +320,11 @@ class TurnoCompletarView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:agenda_vet")
 
 
-class TurnoNoAsistioView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnoNoAsistioView(BaseTurnoAccionView):
     """Marcar que el cliente no asistió"""
 
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
-
     def post(self, request, pk):
-        turno = get_object_or_404(Turno, pk=pk, veterinario=request.user)
+        turno = self.get_turno(pk)
 
         if not turno.reservado:
             messages.error(
@@ -271,18 +342,15 @@ class TurnoNoAsistioView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:agenda_vet")
 
 
-class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
     """Endpoint JSON para calendario del veterinario"""
 
-    def test_func(self):
-        return self.request.user.rol == "veterinario"
-
     def get(self, request, *args, **kwargs):
-        # ✅ FILTRAR solo turnos RESERVADOS
+        # Filtrar solo turnos reservados
         turnos = Turno.objects.filter(
             veterinario=request.user,
-            reservado=True,  # Solo reservados
-            cliente__isnull=False,  # Con cliente
+            reservado=True,
+            cliente__isnull=False,
         ).select_related("estado", "mascota", "cliente")
 
         eventos = []
@@ -290,7 +358,6 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
         for turno in turnos:
             start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
             end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
-
             titulo = f"{turno.mascota.nombre} - {turno.cliente.get_full_name()}"
 
             eventos.append(
@@ -310,21 +377,19 @@ class TurnosJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
                     },
                 }
             )
+
         return JsonResponse(eventos, safe=False)
 
 
-# ==================== CLIENTE ====================
+# ==================== CLIENTE - TURNOS DISPONIBLES ====================
 
 
-class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class TurnosDisponiblesListView(LoginRequiredMixin, ClienteRequiredMixin, ListView):
     """Lista de turnos disponibles para que el cliente reserve"""
 
     model = Turno
     template_name = "turnos/disponibles.html"
     context_object_name = "turnos"
-
-    def test_func(self):
-        return self.request.user.rol == "cliente"
 
     def get_queryset(self):
         queryset = (
@@ -351,7 +416,6 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from apps.accounts.models import CustomUser
 
         # Veterinarios activos en la clínica
         context["veterinarios"] = CustomUser.objects.filter(
@@ -363,6 +427,7 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
             dueno=self.request.user, activo=True
         )
 
+        # Fechas con turnos disponibles
         fechas_queryset = Turno.objects.filter(
             clinica=self.request.user.clinica,
             reservado=False,
@@ -382,14 +447,8 @@ class TurnosDisponiblesListView(LoginRequiredMixin, UserPassesTestMixin, ListVie
         return context
 
 
-class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
-    """
-    Reservar turno - Confirmación AUTOMÁTICA
-    Cliente reserva → Estado CONFIRMADO directamente
-    """
-
-    def test_func(self):
-        return self.request.user.rol == "cliente"
+class TurnoReservarView(LoginRequiredMixin, ClienteRequiredMixin, View):
+    """Reservar turno - Confirmación AUTOMÁTICA"""
 
     def post(self, request, pk):
         mascota_id = request.POST.get("mascota")
@@ -423,15 +482,15 @@ class TurnoReservarView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:mis_turnos")
 
 
-class MisTurnosListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+# ==================== CLIENTE - MIS TURNOS ====================
+
+
+class MisTurnosListView(LoginRequiredMixin, ClienteRequiredMixin, ListView):
     """Lista de turnos del cliente"""
 
     model = Turno
     template_name = "turnos/mis_turnos.html"
     context_object_name = "turnos"
-
-    def test_func(self):
-        return self.request.user.rol == "cliente"
 
     def get_queryset(self):
         return (
@@ -455,7 +514,7 @@ class MisTurnosListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
-class TurnoDetalleClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class TurnoDetalleClienteView(LoginRequiredMixin, DetailView):
     """Ver detalle de un turno (cliente)"""
 
     model = Turno
@@ -472,11 +531,8 @@ class TurnoDetalleClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailVie
         return context
 
 
-class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnoCancelarClienteView(LoginRequiredMixin, ClienteRequiredMixin, View):
     """Cancelar turno (cliente)"""
-
-    def test_func(self):
-        return self.request.user.rol == "cliente"
 
     def post(self, request, pk):
         turno = get_object_or_404(Turno, pk=pk, cliente=request.user)
@@ -486,7 +542,7 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
         ahora = timezone.now()
 
-        # 🔹 Validar tiempo
+        # Validar tiempo mínimo de anticipación
         if fecha_hora_turno - ahora < timedelta(hours=2):
             messages.error(
                 request,
@@ -495,14 +551,14 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
             return redirect("turnos:mis_turnos")
 
-        # 🔹 Validar estado
+        # Validar estado
         if turno.estado.codigo in [EstadoTurno.COMPLETADO, EstadoTurno.EN_CURSO]:
             messages.error(
                 request, f"No se puede cancelar un turno {turno.estado.nombre.lower()}."
             )
             return redirect("turnos:mis_turnos")
 
-        # 🔹 Cancelar con transacción atómica
+        # Cancelar con transacción atómica
         with transaction.atomic():
             estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
             Turno.objects.filter(pk=turno.pk).update(
@@ -520,18 +576,15 @@ class TurnoCancelarClienteView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:mis_turnos")
 
 
-# ==================== ADMINISTRADOR ====================
+# ==================== ADMINISTRADOR - AGENDA CLÍNICA ====================
 
 
-class AgendaClinicaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class AgendaClinicaView(LoginRequiredMixin, AdminVeterinariaRequiredMixin, ListView):
     """Agenda completa de la clínica (admin)"""
 
     model = Turno
     template_name = "turnos/agenda_clinica.html"
     context_object_name = "turnos"
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def get_queryset(self):
         return (
@@ -547,15 +600,13 @@ class AgendaClinicaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["estados"] = EstadoTurno.objects.filter(activo=True)
-        from apps.accounts.models import CustomUser
-
         context["veterinarios"] = CustomUser.objects.filter(
             rol="veterinario", clinica=self.request.user.clinica, is_active=True
         )
         return context
 
 
-class TurnoDetalleAdminView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class TurnoDetalleAdminView(LoginRequiredMixin, DetailView):
     """Ver detalle de un turno (admin)"""
 
     model = Turno
@@ -567,11 +618,8 @@ class TurnoDetalleAdminView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         return self.request.user.clinica == turno.clinica
 
 
-class TurnoCancelarAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnoCancelarAdminView(LoginRequiredMixin, AdminVeterinariaRequiredMixin, View):
     """Cancelar cualquier turno (admin)"""
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def post(self, request, pk):
         turno = get_object_or_404(Turno, pk=pk, clinica=request.user.clinica)
@@ -583,7 +631,7 @@ class TurnoCancelarAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
             turno.motivo_cancelacion = motivo
             turno.save()
             messages.success(
-                request, f"Turno de {turno.cliente.get_full_name} cancelado."
+                request, f"Turno de {turno.cliente.get_full_name()} cancelado."
             )
         else:
             turno.delete()
@@ -592,16 +640,15 @@ class TurnoCancelarAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("turnos:agenda_clinica")
 
 
-class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class TurnoCrearAdminView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, CreateView
+):
     """Crear turno manual (admin) - Con búsqueda de cliente"""
 
     model = Turno
-    form_class = TurnoCrearAdminForm  # Usar el nuevo formulario
+    form_class = TurnoCrearAdminForm
     template_name = "turnos/turno_crear_admin.html"
     success_url = reverse_lazy("turnos:agenda_clinica")
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -609,9 +656,6 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        from apps.accounts.models import CustomUser
-        from apps.mascotas.models import Mascota
-
         # Obtener cliente y mascota de los campos ocultos
         cliente_id = form.cleaned_data["cliente_id"]
         mascota_id = form.cleaned_data["mascota_id"]
@@ -661,21 +705,20 @@ class TurnoCrearAdminView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return super().form_valid(form)
 
 
-class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
+class TurnosClinicaJSONView(LoginRequiredMixin, AdminVeterinariaRequiredMixin, View):
     """Endpoint JSON para calendario de toda la clínica"""
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def get(self, request, *args, **kwargs):
         clinica = request.user.clinica
         veterinario_id = request.GET.get("veterinario")
         estado_codigo = request.GET.get("estado")
 
+        # Base queryset
         turnos = Turno.objects.filter(
             clinica=clinica, reservado=True, fecha__gte=timezone.now().date()
         )
 
+        # Aplicar filtros
         if veterinario_id:
             turnos = turnos.filter(veterinario_id=veterinario_id)
         if estado_codigo:
@@ -683,6 +726,7 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         turnos = turnos.select_related("veterinario", "estado", "mascota", "cliente")
 
+        # Colores por veterinario
         colores = [
             "#007bff",
             "#28a745",
@@ -728,17 +772,15 @@ class TurnosClinicaJSONView(LoginRequiredMixin, UserPassesTestMixin, View):
                     },
                 }
             )
+
         return JsonResponse(eventos, safe=False)
 
 
 # ==================== APIS PARA ADMIN ====================
 
 
-class BuscarClientesAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
+class BuscarClientesAPIView(LoginRequiredMixin, AdminVeterinariaRequiredMixin, View):
     """API para buscar clientes y obtener sus mascotas"""
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def get(self, request):
         query = request.GET.get("q", "").strip()
@@ -765,7 +807,7 @@ class BuscarClientesAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
             resultados.append(
                 {
                     "id": cliente.id,
-                    "nombre_completo": cliente.get_full_name(),  # ✅ con paréntesis
+                    "nombre_completo": cliente.get_full_name(),
                     "email": cliente.email or "No registrado",
                     "telefono": getattr(cliente, "telefono", "No registrado"),
                     "mascotas": [
@@ -773,9 +815,7 @@ class BuscarClientesAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
                             "id": m.id,
                             "nombre": m.nombre,
                             "especie": str(m.especie) if m.especie else "Sin especie",
-                            "raza": (
-                                str(m.raza) if m.raza else "Sin raza"
-                            ),  # ✅ convertido a string
+                            "raza": str(m.raza) if m.raza else "Sin raza",
                         }
                         for m in mascotas
                     ],
@@ -785,11 +825,10 @@ class BuscarClientesAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
         return JsonResponse({"clientes": resultados})
 
 
-class MascotasPorClienteAPIView(LoginRequiredMixin, UserPassesTestMixin, View):
+class MascotasPorClienteAPIView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, View
+):
     """API para obtener mascotas de un cliente específico"""
-
-    def test_func(self):
-        return self.request.user.rol == "admin_veterinaria"
 
     def get(self, request, cliente_id):
         try:

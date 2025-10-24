@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         events: TURNOS_JSON_URL,
         eventClick: function(info) {
-            window.location.href = '/mascotas/turno/' + info.event.id + '/detalle-vet/';
+            window.location.href = '/mascotas/turno/' + info.event.id + '/detalle/';
         },
         eventTimeFormat: {
             hour: '2-digit',
