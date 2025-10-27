@@ -1,31 +1,37 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Formulario de Pre-registro{% endblock %}
+{% block title %}Pre-registro de Cliente - {{ clinica.nombre }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-body">
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-8 col-lg-7 col-xl-6">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
                 <div class="text-center mb-4">
-                    <h3>🐕 Pre-registro de Cliente</h3>
+                    <h3 class="fw-bold text-primary-dark mb-1">🐕 Pre-registro de Cliente</h3>
                     {% if clinica %}
-                        <p class="text-muted">Registrándote en: <strong>{{ clinica.nombre }}</strong></p>
-                        <small class="text-info">📍 {{ clinica.direccion }}</small>
+                        <p class="text-muted lead fw-semibold">
+                            Registrándote en: <strong class="text-primary-dark">{{ clinica.nombre }}</strong>
+                        </p>
+                        <p class="small text-primary-dark mb-0">📍 {{ clinica.direccion }}</p>
                     {% endif %}
                 </div>
 
                 {% if clinica %}
-                    <div class="alert alert-warning">
-                        <strong>Importante:</strong> Tu cuenta quedará pendiente de activación hasta que 
-                        <strong>{{ clinica.nombre }}</strong> apruebe tu registro.
+                    <div class="alert alert-warning text-center rounded-3 p-3 mt-4 mb-4" role="alert">
+                        <h5 class="fw-bold mb-1">⚠️ Activación Requerida</h5>
+                        <p class="mb-0 small">
+                            Tu cuenta quedará pendiente de activación hasta que 
+                            <strong class="text-primary-dark">{{ clinica.nombre }}</strong> apruebe tu registro.
+                        </p>
                     </div>
                 {% endif %}
 
                 <form method="post">
                     {% csrf_token %}
                     
+                    <h6 class="fw-bold text-primary-dark mt-4 mb-3">Información de Cuenta y Personal</h6>
                     <div class="row">
                         <div class="col-md-6">
                             {{ form.first_name|as_crispy_field }}
@@ -56,9 +62,8 @@
                         </div>
                     </div>
 
-                    <!-- Campos específicos de cliente -->
-                    <hr>
-                    <h6>Información de Contacto de Emergencia (Opcional)</h6>
+                    <hr class="mt-4 mb-3">
+                    <h6 class="fw-bold text-primary-dark mb-3">Información de Contacto de Emergencia (Opcional)</h6>
                     
                     <div class="row">
                         <div class="col-md-6">
@@ -69,10 +74,8 @@
                         </div>
                     </div>
 
-                    {{ form.rol }}
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                    {{ form.rol }} <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
                             Enviar Pre-registro
                         </button>
                     </div>
@@ -81,14 +84,14 @@
                 <hr class="my-4">
                 
                 <div class="text-center">
-                    <p class="mb-2">¿Ya tienes cuenta?</p>
-                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">
-                        Iniciar Sesión
+                    <p class="mb-2 text-muted small">¿Ya tienes cuenta en esta veterinaria?</p>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold">
+                        Inicia Sesión Aquí
                     </a>
                 </div>
 
                 <div class="text-center mt-3">
-                    <a href="{% url 'accounts:registro_opciones' %}" class="text-muted">
+                    <a href="{% url 'accounts:registro_opciones' %}" class="text-primary-dark small fw-semibold hover-underline">
                         ← Volver a opciones de registro
                     </a>
                 </div>

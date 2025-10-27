@@ -56,3 +56,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+$(document).ready(function() {
+    // --- Configuración de Selectores ---
+    const $password1Input = $('#id_password1');
+    const $password2Input = $('#id_password2');
+
+    // Los help_text de Crispy Forms tienen el ID con el sufijo "_helptext"
+    const $password1HelpText = $('#id_password1_helptext');
+    const $password2HelpText = $('#id_password2_helptext');
+
+    // --- Lógica de Ocultamiento Inicial ---
+    // Oculta las reglas de la contraseña 1 y el texto de ayuda de la 2 al cargar
+    $password1HelpText.hide();
+    $password2HelpText.hide();
+
+    // --- Lógica de Interacción para Contraseña 1 (Reglas de Complejidad) ---
+
+    // Mostrar reglas al enfocar (focus) el campo
+    $password1Input.on('focus', function() {
+        // Usamos slideDown para una transición suave
+        $password1HelpText.slideDown(200);
+    });
+
+    // Ocultar reglas al desenfocar (blur) si el campo está vacío
+    $password1Input.on('blur', function() {
+        if ($(this).val().trim() === '') {
+            $password1HelpText.slideUp(200);
+        }
+    });
+
+    // --- Lógica de Interacción para Contraseña 2 (Confirmación) ---
+
+    // Mostrar mensaje de confirmación cuando el usuario enfoca
+    $password2Input.on('focus', function() {
+        $password2HelpText.slideDown(200);
+    });
+
+    // Ocultar si el campo de confirmación se desenfoca y está vacío
+    $password2Input.on('blur', function() {
+        if ($(this).val().trim() === '') {
+            $password2HelpText.slideUp(200);
+        }
+    });
+});
