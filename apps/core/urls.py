@@ -7,6 +7,8 @@ from .views import (
     DashboardClienteView,
     PerfilClienteView,
     PerfilClienteUpdateView,
+    AprobarClienteView,
+    RechazarClienteView,
 )
 
 app_name = "core"
@@ -23,10 +25,22 @@ urlpatterns = [
     path(
         "dashboard/cliente/", DashboardClienteView.as_view(), name="dashboard_cliente"
     ),
+    # Perfil Cliente
     path("perfil/cliente/", PerfilClienteView.as_view(), name="perfil_cliente"),
     path(
         "perfil/cliente/editar/",
         PerfilClienteUpdateView.as_view(),
         name="editar_perfil_cliente",
+    ),
+    # Gestión de clientes pendientes
+    path(
+        "cliente/aprobar/<int:cliente_id>/",
+        AprobarClienteView.as_view(),
+        name="aprobar_cliente",
+    ),
+    path(
+        "cliente/rechazar/<int:cliente_id>/",
+        RechazarClienteView.as_view(),
+        name="rechazar_cliente",
     ),
 ]

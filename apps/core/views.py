@@ -306,3 +306,67 @@ class PerfilClienteUpdateView(LoginRequiredMixin, ClienteRequiredMixin, UpdateVi
     def form_invalid(self, form):
         messages.error(self.request, "Ocurrió un error al actualizar tu perfil.")
         return super().form_invalid(form)
+
+
+# ==================== GESTIÓN DE CLIENTES PENDIENTES ====================
+
+
+class AprobarClienteView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, TemplateView
+):
+    """Aprobar un cliente pendiente"""
+
+    def post(self, request, cliente_id):
+        try:
+            clinica = Clinica.objects.get(admin=request.user)
+            cliente = CustomUser.objects.get(
+                id=cliente_id, rol="cliente", clinica=clinica, pendiente_aprobacion=True
+            )
+
+            # Aprobar el cliente
+            cliente.pendiente_aprobacion = False
+            cliente.fecha_aprobacion = timezone.now()
+            cliente.aprobado_por = request.user
+            cliente.is_active = True
+            cliente.save()
+
+            messages.success(
+                request, f"✅ Cliente {cliente.get_full_name()} aprobado exitosamente"
+            )
+
+        except Clinica.DoesNotExist:
+            messages.error(request, "No tienes una clínica asignada")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Cliente no encontrado o ya fue procesado")
+
+        return redirect("core:dashboard_admin")
+
+
+class RechazarClienteView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, TemplateView
+):
+    """Rechazar y eliminar un cliente pendiente"""
+
+    def post(self, request, cliente_id):
+        try:
+            clinica = Clinica.objects.get(admin=request.user)
+            cliente = CustomUser.objects.get(
+                id=cliente_id, rol="cliente", clinica=clinica, pendiente_aprobacion=True
+            )
+
+            # Guardar nombre antes de eliminar
+            nombre_cliente = cliente.get_full_name()
+
+            # Eliminar el cliente
+            cliente.delete()
+
+            messages.warning(
+                request, f"Solicitud de {nombre_cliente} rechazada y eliminada"
+            )
+
+        except Clinica.DoesNotExist:
+            messages.error(request, "No tienes una clínica asignada")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Cliente no encontrado o ya fue procesado")
+
+        return redirect("core:dashboard_admin")

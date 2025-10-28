@@ -68,7 +68,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h3 class="stats-number">{{ total_clientes_pendientes }}</h3>
-                                <p class="stats-label">Clientes Pendientes</p>
+                                <p class="stats-label">Pendientes</p>
                             </div>
                             <div class="stats-icon">👥</div>
                         </div>
@@ -79,7 +79,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h3 class="stats-number">{{ total_veterinarios }}</h3>
-                                <p class="stats-label">Veterinarios Activos</p>
+                                <p class="stats-label">Veterinarios</p>
                             </div>
                             <div class="stats-icon">👨‍⚕️</div>
                         </div>
@@ -169,8 +169,20 @@
                             <td>{{ cliente.telefono|default:"N/A" }}</td>
                             <td>{{ cliente.date_joined|date:"d/m/Y" }}</td>
                             <td>
-                                <button class="action-btn success me-2" onclick="alert('Próximamente')">✅ Aprobar</button>
-                                <button class="action-btn danger" onclick="alert('Próximamente')">❌ Rechazar</button>
+                                <form method="post" action="{% url 'core:aprobar_cliente' cliente.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="action-btn success me-2" 
+                                            onclick="return confirm('¿Aprobar a {{ cliente.get_full_name }}?')">
+                                        ✅ Aprobar
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'core:rechazar_cliente' cliente.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="action-btn danger" 
+                                            onclick="return confirm('¿Rechazar y eliminar la solicitud de {{ cliente.get_full_name }}? Esta acción no se puede deshacer.')">
+                                        ❌ Rechazar
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
@@ -185,7 +197,6 @@
             {% else %}
             <div class="content-section mb-4">
                 <div class="empty-state">
-                    <div class="empty-state-icon">🎉</div>
                     <h6>¡Excelente!</h6>
                     <p class="mb-0">No tienes clientes pendientes de aprobación.</p>
                 </div>
