@@ -9,6 +9,7 @@ from .views import (
     PerfilClienteUpdateView,
     AprobarClienteView,
     RechazarClienteView,
+    VeterinarioCreateView,
 )
 
 app_name = "core"
@@ -42,5 +43,9 @@ urlpatterns = [
         "cliente/rechazar/<int:cliente_id>/",
         RechazarClienteView.as_view(),
         name="rechazar_cliente",
+    ),
+    # Crear Veterinario
+    path(
+        "veterinarios/crear/", VeterinarioCreateView.as_view(), name="crear_veterinario"
     ),
 ]

@@ -2,6 +2,7 @@ from datetime import time, date
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.clinicas.models import Clinica
+from apps.accounts.models import PerfilVeterinario, PerfilCliente
 
 User = get_user_model()
 
@@ -38,7 +39,7 @@ class Command(BaseCommand):
                 direccion="Av. Corrientes 1234, Buenos Aires",
                 telefono="011-4567-8901",
                 email="info@veterinariacentral.com",
-                admin=admin_user,  # Usar el campo admin
+                admin=admin_user,
                 hora_apertura=time(9, 0),
                 hora_cierre=time(18, 0),
                 dias_atencion=[
@@ -64,6 +65,7 @@ class Command(BaseCommand):
 
         # 3. Crear veterinario
         if not User.objects.filter(username="dr_lopez").exists():
+            # Marcar para no crear perfil automáticamente
             vet_user = User.objects.create_user(
                 username="dr_lopez",
                 email="lopez@veterinaria.com",
@@ -79,11 +81,13 @@ class Command(BaseCommand):
                 clinica=clinica,
             )
 
-            # El perfil se crea automáticamente por la señal, solo actualizamos
-            vet_user.perfilveterinario.matricula = "VET-001"
-            vet_user.perfilveterinario.especialidad = "Medicina General"
-            vet_user.perfilveterinario.experiencia_anos = 5
-            vet_user.perfilveterinario.save()
+            # Crear el perfil manualmente con la matrícula
+            PerfilVeterinario.objects.create(
+                user=vet_user,
+                matricula="VET-001",
+                especialidad="Medicina General",
+                experiencia_anos=5,
+            )
 
             self.stdout.write(f"✅ Creado veterinario: {vet_user.username}")
         else:
@@ -107,10 +111,19 @@ class Command(BaseCommand):
                 clinica=clinica,
             )
 
-            # El perfil se crea automáticamente, solo actualizamos
-            cliente_user.perfilcliente.contacto_emergencia = "Pedro García"
-            cliente_user.perfilcliente.telefono_emergencia = "011-3333-4444"
-            cliente_user.perfilcliente.save()
+            # El perfil de cliente SÍ se crea automáticamente
+            # Verificar si existe antes de actualizar
+            if hasattr(cliente_user, "perfilcliente"):
+                cliente_user.perfilcliente.contacto_emergencia = "Pedro García"
+                cliente_user.perfilcliente.telefono_emergencia = "011-3333-4444"
+                cliente_user.perfilcliente.save()
+            else:
+                # Crear manualmente si no se creó automáticamente
+                PerfilCliente.objects.create(
+                    user=cliente_user,
+                    contacto_emergencia="Pedro García",
+                    telefono_emergencia="011-3333-4444",
+                )
 
             self.stdout.write(f"✅ Creado cliente activo: {cliente_user.username}")
         else:
@@ -134,10 +147,19 @@ class Command(BaseCommand):
                 clinica=clinica,
             )
 
-            # El perfil se crea automáticamente, solo actualizamos
-            cliente_pendiente.perfilcliente.contacto_emergencia = "Luis Rodríguez"
-            cliente_pendiente.perfilcliente.telefono_emergencia = "011-7777-8888"
-            cliente_pendiente.perfilcliente.save()
+            # El perfil de cliente SÍ se crea automáticamente
+            # Verificar si existe antes de actualizar
+            if hasattr(cliente_pendiente, "perfilcliente"):
+                cliente_pendiente.perfilcliente.contacto_emergencia = "Luis Rodríguez"
+                cliente_pendiente.perfilcliente.telefono_emergencia = "011-7777-8888"
+                cliente_pendiente.perfilcliente.save()
+            else:
+                # Crear manualmente si no se creó automáticamente
+                PerfilCliente.objects.create(
+                    user=cliente_pendiente,
+                    contacto_emergencia="Luis Rodríguez",
+                    telefono_emergencia="011-7777-8888",
+                )
 
             self.stdout.write(
                 f"✅ Creado cliente pendiente: {cliente_pendiente.username}"

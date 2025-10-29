@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear Veterinario - {{ request.user.clinica.nombre }}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2">Crear Nuevo Veterinario</h2>
+                <p class="mb-0 opacity-75">Registra un nuevo profesional en tu clínica</p>
+            </div>
+            <div class="text-end">
+                <div class="fs-5 fw-bold">{{ request.user.clinica.nombre }}</div>
+                <small class="opacity-75">{% now "d F Y" %}</small>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-4">
+            <strong>⚠️ Error:</strong> {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <!-- Datos Personales -->
+        <div class="form-section">
+            <h6 class="form-section-title">Información Personal</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.first_name.label }}</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <span class="error-message">{{ form.first_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.last_name.label }}</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <span class="error-message">{{ form.last_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.dni.label }}</label>
+                    {{ form.dni }}
+                    {% if form.dni.errors %}
+                        <span class="error-message">{{ form.dni.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.fecha_nacimiento.label }}</label>
+                    {{ form.fecha_nacimiento }}
+                    {% if form.fecha_nacimiento.errors %}
+                        <span class="error-message">{{ form.fecha_nacimiento.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.telefono.label }}</label>
+                    {{ form.telefono }}
+                    {% if form.telefono.errors %}
+                        <span class="error-message">{{ form.telefono.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.direccion.label }}</label>
+                    {{ form.direccion }}
+                    {% if form.direccion.errors %}
+                        <span class="error-message">{{ form.direccion.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Credenciales de Acceso -->
+        <div class="form-section">
+            <h6 class="form-section-title">Credenciales de Acceso</h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    <span class="help-text">{{ form.username.help_text }}</span>
+                    {% if form.username.errors %}
+                        <span class="error-message">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    <span class="help-text">El veterinario podrá iniciar sesión con su email o username</span>
+                    {% if form.email.errors %}
+                        <span class="error-message">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                    <span class="help-text">{{ form.password1.help_text }}</span>
+                    {% if form.password1.errors %}
+                        <span class="error-message">{{ form.password1.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-field">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <span class="error-message">{{ form.password2.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Información Profesional -->
+        <div class="form-section">
+            <h6 class="form-section-title">Información Profesional</h6>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label required-field">{{ form.matricula.label }}</label>
+                    {{ form.matricula }}
+                    {% if form.matricula.errors %}
+                        <span class="error-message">{{ form.matricula.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.especialidad.label }}</label>
+                    {{ form.especialidad }}
+                    {% if form.especialidad.errors %}
+                        <span class="error-message">{{ form.especialidad.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.experiencia_anos.label }}</label>
+                    {{ form.experiencia_anos }}
+                    {% if form.experiencia_anos.errors %}
+                        <span class="error-message">{{ form.experiencia_anos.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div> 
+        <!-- Botones -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <a href="{% url 'core:dashboard_admin' %}" class="btn btn-secondary btn-lg">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-purple btn-lg" onclick="this.disabled=true; this.form.submit();">
+                Crear Veterinario
+            </button>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -86,11 +86,21 @@ class PerfilCliente(models.Model):
 # Señales para crear perfiles automáticamente
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
+    """
+    Crea perfiles automáticamente cuando se crea un usuario.
+    Para veterinarios creados desde el formulario admin, NO crear perfil aquí.
+    """
     if created:
-        if instance.rol == "veterinario":
-            PerfilVeterinario.objects.create(user=instance)
-        elif instance.rol == "cliente":
+        if (
+            hasattr(instance, "_skip_perfil_creation")
+            and instance._skip_perfil_creation
+        ):
+            return
+
+        if instance.rol == "cliente":
             PerfilCliente.objects.create(user=instance)
+        elif instance.rol == "veterinario":
+            pass
 
 
 @receiver(post_save, sender=CustomUser)

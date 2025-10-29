@@ -2,10 +2,11 @@ from django.utils import timezone
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
+from django.views.generic import CreateView
 from django.views.generic import ListView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import PerfilClienteForm
+from .forms import PerfilClienteForm, CrearVeterinarioForm
 from apps.turnos.models import Turno
 from apps.clinicas.models import Clinica
 from apps.mascotas.models import Mascota
@@ -370,3 +371,27 @@ class RechazarClienteView(
             messages.error(request, "Cliente no encontrado o ya fue procesado")
 
         return redirect("core:dashboard_admin")
+
+
+# ==================== CREAR VETERINARIO ====================
+
+
+class VeterinarioCreateView(
+    LoginRequiredMixin, AdminVeterinariaRequiredMixin, CreateView
+):
+    """Vista para crear veterinarios desde el dashboard del administrador"""
+
+    model = CustomUser
+    form_class = CrearVeterinarioForm
+    template_name = "core/veterinario_crear.html"
+    success_url = reverse_lazy("core:dashboard_admin")
+
+    def form_valid(self, form):
+        clinica = self.request.user.clinica
+        form.save(clinica=clinica)
+        messages.success(self.request, "✅ Veterinario creado exitosamente.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "❌ Ocurrió un error al crear el veterinario.")
+        return super().form_invalid(form)

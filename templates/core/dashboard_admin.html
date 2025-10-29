@@ -117,9 +117,11 @@
                 <div class="p-4">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <button class="action-btn success w-100" onclick="alert('Próximamente')">
+
+                            <a href="{% url 'core:crear_veterinario' %}" 
+                            class="action-btn success w-100 text-center text-decoration-none d-block">
                                 ➕ Crear Veterinario
-                            </button>
+                            </a>
                         </div>
                         <div class="col-md-3 mb-3">
                             <button class="action-btn w-100" onclick="alert('Próximamente')">
