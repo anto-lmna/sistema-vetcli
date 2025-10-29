@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser, PerfilVeterinario, PerfilCliente
+from .models import CustomUser, PerfilVeterinario
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -187,3 +187,48 @@ class CustomAuthenticationForm(AuthenticationForm):
                 self.confirm_login_allowed(self.user_cache)
 
         return self.cleaned_data
+
+
+class ClienteFiltroForm(forms.Form):
+    """Formulario para filtrar clientes"""
+
+    buscar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Buscar por nombre, email o teléfono...",
+            }
+        ),
+    )
+
+    estado = forms.ChoiceField(
+        required=False,
+        choices=[
+            ("", "Todos"),
+            ("activo", "Activos"),
+            ("inactivo", "Inactivos"),
+            ("pendiente", "Pendientes de aprobación"),
+        ],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+
+
+class VeterinarioFiltroForm(forms.Form):
+    """Formulario para filtrar veterinarios"""
+
+    buscar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Buscar por nombre, email o matrícula...",
+            }
+        ),
+    )
+
+    estado = forms.ChoiceField(
+        required=False,
+        choices=[("", "Todos"), ("activo", "Activos"), ("inactivo", "Inactivos")],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )

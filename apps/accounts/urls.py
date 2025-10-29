@@ -5,6 +5,8 @@ from .views import (
     RegistroExitosoView,
     CustomLoginView,
     ClientePreRegistroView,
+    ListaClientesView,
+    ListaVeterinariosView,
 )
 
 app_name = "accounts"
@@ -24,4 +26,6 @@ urlpatterns = [
         name="pre_registro_cliente",
     ),
     path("registro/exitoso/", RegistroExitosoView.as_view(), name="registro_exitoso"),
+    path("clientes/", ListaClientesView.as_view(), name="lista_clientes"),
+    path("veterinarios/", ListaVeterinariosView.as_view(), name="lista_veterinarios"),
 ]
