@@ -76,7 +76,7 @@
                         {% if turno.estado.codigo == 'confirmado' %}
                         <form method="post" action="{% url 'turnos:turno_iniciar' turno.pk %}" class="flex-grow-1">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-info w-100">
+                            <button type="submit" class="btn btn-success w-100">
                                 <i class="bi bi-play-circle"></i> Iniciar Atención
                             </button>
                         </form>
@@ -96,7 +96,7 @@
                               onsubmit="return confirm('¿Confirmar que el cliente no asistió?');"
                               class="flex-grow-1">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-warning w-100">
+                            <button type="submit" class="btn btn-danger w-100">
                                 <i class="bi bi-x-circle"></i> No Asistió
                             </button>
                         </form>
@@ -111,7 +111,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-secondary">
+                        <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-secondary btn-sm">
                             <i class="bi bi-arrow-left"></i> Volver a Mi Agenda
                         </a>
                     </div>
