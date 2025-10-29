@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal_aprobacion.css' %}">
 {% endblock %}
 
 {% block title %}Panel Principal - {{ clinica.nombre }}{% endblock %}
@@ -12,8 +13,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
-        <img src="{% static 'img/logo2.png' %}" alt="VetCli Logo" height="80"  class="d-inline-block align-text-top rounded
-        " >
+            <img src="{% static 'img/logo2.png' %}" alt="VetCli Logo" height="80" class="d-inline-block align-text-top rounded">
         </div>
         
         <nav class="sidebar-nav">
@@ -117,7 +117,6 @@
                 <div class="p-4">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-
                             <a href="{% url 'core:crear_veterinario' %}" 
                             class="action-btn success w-100 text-center text-decoration-none d-block">
                                 ➕ Crear Veterinario
@@ -171,20 +170,14 @@
                             <td>{{ cliente.telefono|default:"N/A" }}</td>
                             <td>{{ cliente.date_joined|date:"d/m/Y" }}</td>
                             <td>
-                                <form method="post" action="{% url 'core:aprobar_cliente' cliente.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="action-btn success me-2" 
-                                            onclick="return confirm('¿Aprobar a {{ cliente.get_full_name }}?')">
-                                        ✅ Aprobar
-                                    </button>
-                                </form>
-                                <form method="post" action="{% url 'core:rechazar_cliente' cliente.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="action-btn danger" 
-                                            onclick="return confirm('¿Rechazar y eliminar la solicitud de {{ cliente.get_full_name }}? Esta acción no se puede deshacer.')">
-                                        ❌ Rechazar
-                                    </button>
-                                </form>
+                                <button type="button" class="action-btn success me-2" 
+                                        onclick="showApproveModal('{{ cliente.id }}', '{{ cliente.get_full_name }}')">
+                                    ✅ Aprobar
+                                </button>
+                                <button type="button" class="action-btn danger" 
+                                        onclick="showRejectModal('{{ cliente.id }}', '{{ cliente.get_full_name }}')">
+                                    ❌ Rechazar
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -204,8 +197,80 @@
                 </div>
             </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Aprobar Cliente -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header success">
+                <h5 class="modal-title">✅ Aprobar Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="modal-icon">✅</div>
+                <h5 class="mb-3">¿Confirmar aprobación?</h5>
+                <p class="text-muted mb-0">
+                    Estás a punto de aprobar a <strong id="approveClientName"></strong>.<br>
+                    El cliente podrá acceder al sistema y gestionar sus mascotas.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" id="approveForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-modal-confirm success">
+                        Aprobar Cliente
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Rechazar Cliente -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header danger">
+                <h5 class="modal-title">❌ Rechazar Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="modal-icon">⚠️</div>
+                <h5 class="mb-3">¿Estás seguro?</h5>
+                <p class="text-muted mb-0">
+                    Vas a rechazar y eliminar la solicitud de <strong id="rejectClientName"></strong>.<br>
+                    <span class="text-danger fw-bold">Esta acción no se puede deshacer.</span>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" id="rejectForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-modal-confirm danger">
+                        Rechazar y Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+    function showApproveModal(clientId, clientName) {
+        document.getElementById('approveClientName').textContent = clientName;
+        document.getElementById('approveForm').action = "{% url 'core:aprobar_cliente' 0 %}".replace('0', clientId);
+        new bootstrap.Modal(document.getElementById('approveModal')).show();
+    }
+    
+    function showRejectModal(clientId, clientName) {
+        document.getElementById('rejectClientName').textContent = clientName;
+        document.getElementById('rejectForm').action = "{% url 'core:rechazar_cliente' 0 %}".replace('0', clientId);
+        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    }
+</script>
+{% endblock %}
 {% endblock %}
