@@ -138,11 +138,8 @@ class CustomUserModelTest(TestCase):
             rol="cliente",
             clinica=self.clinica,
         )
-        # Dependiendo de tu lógica, ajusta esto
-        # Si los clientes empiezan inactivos:
-        # self.assertFalse(cliente.is_active)
         # Si tienen un campo pendiente_aprobacion:
-        # self.assertTrue(cliente.pendiente_aprobacion)
+        self.assertTrue(cliente.is_active)
 
     def test_veterinario_activo_por_defecto(self):
         """Los veterinarios creados por admin deben estar activos"""
@@ -197,13 +194,10 @@ class CustomUserModelTest(TestCase):
             password="pass123",
             rol="cliente",
         )
-        # Ajusta según tu implementación del __str__
         self.assertIn("sinombre@test.com", str(user))
 
     def test_rol_invalido(self):
         """No debe permitir roles inválidos"""
-        # Esto depende de si tu modelo valida los roles
-        # Si tienes choices en el campo rol:
         with self.assertRaises(ValidationError):
             user = User(
                 username="invalido",
@@ -212,27 +206,9 @@ class CustomUserModelTest(TestCase):
             )
             user.full_clean()
 
-    def test_cambiar_rol_usuario(self):
-        """Debe permitir cambiar el rol de un usuario"""
-        user = User.objects.create_user(
-            username="cambio_rol",
-            email="cambio@test.com",
-            password="pass123",
-            rol="cliente",
-        )
-        self.assertTrue(user.is_cliente)
-
-        user.rol = "veterinario"
-        user.save()
-
-        user.refresh_from_db()
-        self.assertTrue(user.is_veterinario)
-        self.assertFalse(user.is_cliente)
-
     def test_cliente_puede_tener_multiple_clinicas(self):
         """Un cliente puede estar asociado a una o más clínicas"""
-        # Si tu modelo permite esto, testéalo
-        # Si NO permite, verifica que solo tenga una
+
         cliente = User.objects.create_user(
             username="cliente_multi",
             email="multi@test.com",

@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block title %}Turnos Disponibles{% endblock %}
-
+{% block extra_css %}
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock %}
 {% block content %}
 <div class="container mt-4">
     <!-- Encabezado -->

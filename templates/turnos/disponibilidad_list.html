@@ -1,12 +1,15 @@
 {% extends 'base_dashboard_veterinario.html' %}
+{% load static %}
 {% load django_bootstrap5 %}
-
+{% block extra_css %}
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock %}
 {% block title %}Mis Disponibilidades{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="fw-bold mb-0">🩺 Mis Disponibilidades</h2>
+        <h2 class="fw-bold mb-0">Mis Disponibilidades</h2>
         <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-primary">
             ➕ Nueva Disponibilidad
         </a>

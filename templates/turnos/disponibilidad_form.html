@@ -1,5 +1,9 @@
 {% extends 'base_dashboard_veterinario.html' %}
 {% load static %}
+{% load django_bootstrap5 %}
+{% block extra_css %}
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock %}
 {% load crispy_forms_tags %} 
 {% block title %}Nueva Disponibilidad{% endblock %}
 

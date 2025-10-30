@@ -34,7 +34,7 @@ class CustomUser(AbstractUser):
         related_name="usuarios",
     )
 
-    # Estados de usuario (solo para clientes principalmente)
+    # Estados de usuario
     pendiente_aprobacion = models.BooleanField(default=False)
     fecha_aprobacion = models.DateTimeField(null=True, blank=True)
     aprobado_por = models.ForeignKey(

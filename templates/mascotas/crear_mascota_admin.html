@@ -1,6 +1,5 @@
 {% extends 'base_dashboard_admin.html' %}
 {% load static %}
-
 {% block title %}Crear Nueva Mascota - {{ request.user.clinica.nombre }}{% endblock %}
 
 {% block extra_css %}
@@ -186,4 +185,5 @@
         </div>
     </form>
 </div>
+{% block extra_js %}<script src="{% static 'js/mascotas.js' %}"></script>{% endblock %}
 {% endblock %}
