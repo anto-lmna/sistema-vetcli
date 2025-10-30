@@ -6,6 +6,7 @@ from django.views import View
 from django.contrib.auth.views import LoginView
 from django.views.generic import CreateView, TemplateView, ListView
 
+
 from .forms import (
     CustomAuthenticationForm,
     ClientePreRegistroForm,

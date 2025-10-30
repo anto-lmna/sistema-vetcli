@@ -230,3 +230,16 @@ class Turno(models.Model):
         self.reservado = True
         self.estado = EstadoTurno.objects.get(codigo=EstadoTurno.CONFIRMADO)
         self.save()
+
+    def cancelar(self):
+        """Cancela una reserva de turno"""
+        if not self.reservado:
+            raise ValueError("El turno no está reservado.")
+
+        # Restaurar el turno a disponible
+        self.cliente = None
+        self.mascota = None
+        self.motivo = ""
+        self.reservado = False
+        self.estado = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
+        self.save()

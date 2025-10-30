@@ -10,6 +10,8 @@ from .views import (
     AprobarClienteView,
     RechazarClienteView,
     VeterinarioCreateView,
+    ListaClientesView,
+    ListaVeterinariosView,
 )
 
 app_name = "core"
@@ -26,6 +28,8 @@ urlpatterns = [
     path(
         "dashboard/cliente/", DashboardClienteView.as_view(), name="dashboard_cliente"
     ),
+    path("clientes/", ListaClientesView.as_view(), name="lista_clientes"),
+    path("veterinarios/", ListaVeterinariosView.as_view(), name="lista_veterinarios"),
     # Perfil Cliente
     path("perfil/cliente/", PerfilClienteView.as_view(), name="perfil_cliente"),
     path(

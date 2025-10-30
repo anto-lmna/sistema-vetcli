@@ -145,6 +145,26 @@ Después de cargar los datos de prueba, se pueden usar estas credenciales:
    - **Email**: pendiente@gmail.com
    - **Password**: pendiente123
 
+## Ejecución de Unit Test
+### Gestión turnos
+```bash
+python manage.py test apps.turnos
+```
+### Accounts
+
+```bash
+python manage.py test apps.accounts
+```
+### General
+```bash
+python manage.py test
+```
+
+Revisá la salida en la terminal:
+
+- . → test pasó
+- F → test falló
+- E → error durante el test
 
 ## Archivos Importantes
 
@@ -320,9 +340,6 @@ python manage.py cargar_estados_turnos
 
 ---
 
-
-
-
 ## Capturas actuales
 
 ### Principal
@@ -403,15 +420,6 @@ python manage.py cargar_estados_turnos
 <img width="1366" height="671" alt="detalle_turno" src="https://github.com/user-attachments/assets/6f707be8-3a6f-443e-ac53-ef4fc37384e4" />
 
 <img width="1366" height="680" alt="cancelar_turno" src="https://github.com/user-attachments/assets/0a83834b-ed03-4a95-b75a-34d1b783c6a1" />
-
-
-
-
-
-
-
-
-
 
 ## Documentación Adicional
 
