@@ -31,11 +31,11 @@
     background: var(--bg-light);
     min-height: 100vh;
     padding: 0;
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
 /* ==================================== */
-/* 2. TOPBAR  */
+/* 2. TOPBAR */
 /* ==================================== */
 .top-header-purple-bar {
     background: var(--header-purple);
@@ -46,10 +46,11 @@
     padding: 1.2rem 1.5rem;
     border-radius: var(--main-radius);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    margin: 1rem 1rem 2rem 1rem; /* menos margen lateral */
-    width: calc(100% - 2rem);    /* ocupa todo el ancho menos márgenes */
+    margin: 1rem 1rem 2rem 1rem;
+    /* menos margen lateral */
+    width: calc(100% - 2rem);
+    /* ocupa todo el ancho menos márgenes */
 }
-
 
 /* ==================================== */
 /* 3. SIDEBAR */
@@ -119,7 +120,8 @@
 }
 
 .sidebar-bottom {
-    margin-top: auto; /* lo empuja al final */
+    margin-top: auto;
+    /* lo empuja al final */
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -141,6 +143,7 @@
     background-color: var(--dark-hover);
     border-radius: 12px;
 }
+
 /* ==================================== */
 /* 4. BOTÓN HAMBURGUESA Y TOGGLE */
 /* ==================================== */
@@ -164,7 +167,8 @@
 /* ==================================== */
 @media (max-width: 768px) {
     .hamburger-btn {
-        display: block; /* visible en móvil */
+        display: block;
+        /* visible en móvil */
     }
 
     .sidebar {
@@ -186,14 +190,17 @@
     .sidebar-minimal {
         overflow-y: auto;
     }
+
     .top-header-purple-bar {
         padding: 0.7rem 1rem;
+        /* un poco más de altura también en móvil */
     }
 }
 
 @media (max-width: 768px) {
     .nav-link-item {
         height: 60px;
+        /* antes era 85px */
         padding: 10px 5px;
     }
 
@@ -204,15 +211,18 @@
     .nav-link-item span {
         font-size: 0.65rem;
     }
-
     .top-header-date {
-        display: none;
+        display: none; /* Oculta la fecha en pantallas chicas */
     }
+    .top-header-date {
+        display: none; /* Oculta la fecha */
+    }
+
     .top-header-purple-bar {
         justify-content: flex-start; /* Alinea todo a la izquierda */
     }
 
     .top-header-greeting {
-        margin-left: 0.5rem; /* margen para que no quede pegado al botón */
+        margin-left: 0.5rem; /* Un pequeño margen para que no quede pegado al botón */
     }
 }

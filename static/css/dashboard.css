@@ -1,99 +1,18 @@
-:root {
-    --primary-dark: #5B3A63; 
-    --dark-hover: #7f5f8f;
-    --light-hover: #F0E6F8;
-    /* Colores Base */
-    --bg-light: #F8FAFC;
-    --text-dark: #1F2937;
-    --border-light: #E5E7EB;
-}
-
-.sidebar {
-    background: var(--primary-dark);
-    border-radius: 5px;
-    justify-content: center;
-    min-height: 100vh;
-    width: 220px;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1000;
-    padding: 0;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-}
-
-.main-content {
-    flex: 1;
-    margin-left: 250px;
-    background: var(--bg-light);
-    min-height: 100vh;
-    padding: 0;
-    
-}
-
-.top-header {
-    background: white;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border-light);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.sidebar-logo {
-    padding: 1.5rem;
-    color: white;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.sidebar-nav {
-    padding: 1rem 0;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.nav-item {
-    margin: 0.25rem 0;
-    align-self: center;
-}
-
-.nav-link {
-    color: rgba(255,255,255,0.8);
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    border: none;
-    background: none;
-    width: 100%;
-}
-
-.nav-link:hover, .nav-link.active {
-    background: rgba(255,255,255,0.1);
-    color: white;
-    transform: translateX(5px);
-}
-
-.nav-link i {
-    width: 24px;
-    margin-right: 12px;
-    font-size: 1.2rem;
-}
-
+/* ==================================== */
+/* 1. TARJETAS Y ESTADÍSTICAS */
+/* ==================================== */
 .stats-card {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-light);
     transition: transform 0.3s ease;
 }
 
 .stats-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stats-number {
@@ -106,12 +25,11 @@
 .stats-label {
     color: #6B7280;
     font-size: 0.9rem;
-    margin: 0;
     margin-top: 0.5rem;
 }
 
 .stats-icon {
-    background: linear-gradient(135deg, var(--primary-dark), var(--light-purple));
+    background: linear-gradient(135deg, var(--primary-dark), var(--dark-hover));
     width: 60px;
     height: 60px;
     border-radius: 12px;
@@ -122,10 +40,13 @@
     color: white;
 }
 
+/* ==================================== */
+/* 2. SECCIONES DE CONTENIDO */
+/* ==================================== */
 .content-section {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-light);
     overflow: hidden;
 }
@@ -146,21 +67,28 @@
     margin: 0;
 }
 
+/* ==================================== */
+/* 3. BOTONES Y ACCIONES */
+/* ==================================== */
 .action-btn {
     background: var(--primary-dark);
     border: none;
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.3s ease;
     cursor: pointer;
+    text-decoration: none;
+    display: block;
+    text-align: center;
 }
 
 .action-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
+    background: var(--dark-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .action-btn.success {
@@ -179,6 +107,9 @@
     background: #DC2626;
 }
 
+/* ==================================== */
+/* 4. TABLAS */
+/* ==================================== */
 .custom-table {
     margin: 0;
 }
@@ -205,25 +136,9 @@
     background: #F9FAFB;
 }
 
-.filter-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-light);
-    margin-bottom: 1.5rem;
-}
-
-.user-info {
-    color: #6B7280;
-    font-size: 0.9rem;
-}
-
-.date-info {
-    color: var(--text-dark);
-    font-weight: 500;
-}
-
+/* ==================================== */
+/* 5. ESTADOS VACÍOS */
+/* ==================================== */
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
@@ -235,44 +150,3 @@
     color: var(--primary-dark);
     margin-bottom: 1rem;
 }
-
-@media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-    
-    .sidebar.show {
-        transform: translateX(0);
-    }
-    
-    .main-content {
-        margin-left: 0;
-    }
-}
-
-/* Botones que parecen action-btn pero son enlaces */
-a.action-btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-a.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.action-btn.success {
-    background: var(--primary-dark);
-    color: white;
-}
-
-.action-btn.success:hover {
-    background: var(--dark-hover);
-    color: white;
-}
-
