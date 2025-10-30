@@ -1,276 +1,143 @@
-{% extends 'base_dashboard.html' %}
+{% extends 'base_dashboard_admin.html' %}
 {% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/modal_aprobacion.css' %}">
-{% endblock %}
 
 {% block title %}Panel Principal - {{ clinica.nombre }}{% endblock %}
 
 {% block content %}
-<div class="d-flex">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-logo">
-            <img src="{% static 'img/logo2.png' %}" alt="VetCli Logo" height="80" class="d-inline-block align-text-top rounded">
+<div class="p-5">
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">{{ total_clientes_pendientes }}</h3>
+                        <p class="stats-label">Clientes Pendientes</p>
+                    </div>
+                    <div class="stats-icon">👥</div>
+                </div>
+            </div>
         </div>
-        
-        <nav class="sidebar-nav">
-            <div class="nav-item">
-               <a href="{% url 'core:lista_clientes' %}" class="nav-link">Clientes</a>
+
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">{{ total_veterinarios }}</h3>
+                        <p class="stats-label">Veterinarios Activos</p>
+                    </div>
+                    <div class="stats-icon">👨‍⚕️</div>
+                </div>
             </div>
-            <div class="nav-item">
-                <a href="{% url 'core:lista_veterinarios' %}" class="nav-link">Veterinarios</a>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">{{ total_mascotas }}</h3>
+                        <p class="stats-label">Mascotas</p>
+                    </div>
+                    <div class="stats-icon">🐾</div>
+                </div>
             </div>
-            <div class="nav-item">
-                <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link">Mascotas</a>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">--</h3>
+                        <p class="stats-label">Turnos Hoy</p>
+                    </div>
+                    <div class="stats-icon">📅</div>
+                </div>
             </div>
-            <div class="nav-item">
-                <a href="{% url 'turnos:agenda_clinica' %}" class="nav-link">Agenda</a>
-            </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link">Configuración</a>
-            </div>
-            <div class="nav-item mt-4" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem;">
-                <form method="post" action="{% url 'accounts:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-link" style="border: none; background: none; width: 100%; text-align: left;">
-                        Salir
+        </div>
+
+    </div>
+
+    <div class="content-section mb-4">
+        <div class="section-header">
+            <h6 class="section-title">🚀 Gestión Rápida</h6>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <button class="action-btn success w-100" onclick="alert('Próximamente')">
+                        ➕ Crear Veterinario
                     </button>
-                </form>
-            </div>
-        </nav>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Header -->
-        <div class="top-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">Panel Principal</h5>
-                    <p class="user-info mb-0">Hola, {{ user.get_full_name }} - Administrador</p>
-                </div>
-                <div class="text-end">
-                    <div class="date-info">{{ clinica.nombre }}</div>
-                    <small class="user-info">{% now "d F Y" %}</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Content Area -->
-        <div class="p-5">
-            <!-- Stats Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">{{ total_clientes_pendientes }}</h3>
-                                <p class="stats-label">Pendientes</p>
-                            </div>
-                            <div class="stats-icon">👥</div>
-                        </div>
-                    </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">{{ total_veterinarios }}</h3>
-                                <p class="stats-label">Veterinarios</p>
-                            </div>
-                            <div class="stats-icon">👨‍⚕️</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">{{ total_mascotas }}</h3>
-                                <p class="stats-label">Mascotas</p>
-                            </div>
-                            <div class="stats-icon">🐾</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">--</h3>
-                                <p class="stats-label">Turnos Hoy</p>
-                            </div>
-                            <div class="stats-icon">📅</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Acciones Rápidas -->
-            <div class="content-section mb-4">
-                <div class="section-header">
-                    <h6 class="section-title">🚀 Gestión Rápida</h6>
-                </div>
-                <div class="p-4">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <a href="{% url 'core:crear_veterinario' %}" 
-                            class="action-btn success w-100 text-center text-decoration-none d-block">
-                                ➕ Crear Veterinario
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
-                                ✅ Activar Clientes
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a href="{% url 'mascotas:crear_mascota_admin' %}" class="action-btn w-100 text-center text-decoration-none d-block">
-                                🐾 Crear Mascota
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a href="{% url 'turnos:agenda_clinica' %}" class="action-btn w-100 text-center text-decoration-none d-block">
-                                📅 Ver Agenda
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabla de Clientes Pendientes -->
-            {% if clientes_pendientes %}
-            <div class="content-section mb-4">
-                <div class="section-header">
-                    <h6 class="section-title">Clientes Pendientes de Aprobación</h6>
-                    <span class="badge bg-warning">{{ total_clientes_pendientes }}</span>
-                </div>
-                
-                <table class="table custom-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Dni</th>
-                            <th>Telefono</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cliente in clientes_pendientes %}
-                        <tr>
-                            <td>
-                                <strong>{{ cliente.get_full_name }}</strong><br>
-                                <small class="text-muted">{{ cliente.email }}</small>
-                            </td>
-                            <td>{{ cliente.dni|default:"N/A" }}</td>
-                            <td>{{ cliente.telefono|default:"N/A" }}</td>
-                            <td>{{ cliente.date_joined|date:"d/m/Y" }}</td>
-                            <td>
-                                <button type="button" class="action-btn success me-2" 
-                                        onclick="showApproveModal('{{ cliente.id }}', '{{ cliente.get_full_name }}')">
-                                    ✅ Aprobar
-                                </button>
-                                <button type="button" class="action-btn danger" 
-                                        onclick="showRejectModal('{{ cliente.id }}', '{{ cliente.get_full_name }}')">
-                                    ❌ Rechazar
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                
-                <!-- Paginacion -->
-                <div class="d-flex justify-content-between align-items-center p-3">
-                    <span class="text-muted">Mostrando {{ clientes_pendientes|length }} de {{ total_clientes_pendientes }}</span>
-                </div>
-            </div>
-            {% else %}
-            <div class="content-section mb-4">
-                <div class="empty-state">
-                    <h6>¡Excelente!</h6>
-                    <p class="mb-0">No tienes clientes pendientes de aprobación.</p>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Modal Aprobar Cliente -->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header success">
-                <h5 class="modal-title">✅ Aprobar Cliente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="modal-icon">✅</div>
-                <h5 class="mb-3">¿Confirmar aprobación?</h5>
-                <p class="text-muted mb-0">
-                    Estás a punto de aprobar a <strong id="approveClientName"></strong>.<br>
-                    El cliente podrá acceder al sistema y gestionar sus mascotas.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
-                <form method="post" id="approveForm" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-modal-confirm success">
-                        Aprobar Cliente
+                    <button class="action-btn w-100" onclick="alert('Próximamente')">
+                        ✅ Activar Clientes
                     </button>
-                </form>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'mascotas:crear_mascota_admin' %}"
+                        class="action-btn w-100 text-center text-decoration-none d-block">
+                        🐾 Crear Mascota
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'turnos:agenda_clinica' %}"
+                        class="action-btn w-100 text-center text-decoration-none d-block">
+                        📅 Ver Agenda
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Rechazar Cliente -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header danger">
-                <h5 class="modal-title">❌ Rechazar Cliente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="modal-icon">⚠️</div>
-                <h5 class="mb-3">¿Estás seguro?</h5>
-                <p class="text-muted mb-0">
-                    Vas a rechazar y eliminar la solicitud de <strong id="rejectClientName"></strong>.<br>
-                    <span class="text-danger fw-bold">Esta acción no se puede deshacer.</span>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
-                <form method="post" id="rejectForm" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-modal-confirm danger">
-                        Rechazar y Eliminar
-                    </button>
-                </form>
-            </div>
+    {% if clientes_pendientes %}
+    <div class="content-section mb-4">
+        <div class="section-header">
+            <h6 class="section-title">Clientes Pendientes de Aprobación</h6>
+            <span class="badge bg-warning">{{ total_clientes_pendientes }}</span>
+        </div>
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes_pendientes %}
+                <tr>
+                    <td>
+                        <strong>{{ cliente.get_full_name }}</strong><br>
+                        <small class="text-muted">{{ cliente.email }}</small>
+                    </td>
+                    <td>{{ cliente.dni|default:"N/A" }}</td>
+                    <td>{{ cliente.telefono|default:"N/A" }}</td>
+                    <td>{{ cliente.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        <button class="action-btn success me-2" onclick="alert('Próximamente')">✅ Aprobar</button>
+                        <button class="action-btn danger" onclick="alert('Próximamente')">❌ Rechazar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center p-3">
+            <span class="text-muted">
+                Mostrando {{ clientes_pendientes|length }} de {{ total_clientes_pendientes }}
+            </span>
         </div>
     </div>
+    {% else %}
+    <div class="content-section mb-4">
+        <div class="empty-state">
+            <div class="empty-state-icon">🎉</div>
+            <h6>¡Excelente!</h6>
+            <p class="mb-0">No tienes clientes pendientes de aprobación.</p>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
-{% block extra_js %}
-<script>
-    function showApproveModal(clientId, clientName) {
-        document.getElementById('approveClientName').textContent = clientName;
-        document.getElementById('approveForm').action = "{% url 'core:aprobar_cliente' 0 %}".replace('0', clientId);
-        new bootstrap.Modal(document.getElementById('approveModal')).show();
-    }
-    
-    function showRejectModal(clientId, clientName) {
-        document.getElementById('rejectClientName').textContent = clientName;
-        document.getElementById('rejectForm').action = "{% url 'core:rechazar_cliente' 0 %}".replace('0', clientId);
-        new bootstrap.Modal(document.getElementById('rejectModal')).show();
-    }
-</script>
-{% endblock %}
 {% endblock %}

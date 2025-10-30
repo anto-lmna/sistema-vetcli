@@ -1,4 +1,4 @@
-{% extends 'base_dashboard.html' %}
+{% extends 'base_dashboard_cliente.html' %}
 {% load static %}
 
 {% block title %}Panel Principal - {{ clinica.nombre }}{% endblock %}
@@ -8,201 +8,135 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-logo">
-        <img src="{% static 'img/logo2.png' %}" alt="VetCli Logo" height="80"  class="d-inline-block align-text-top rounded
-        " >
+<div class="p-5">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">{{ total_mascotas }}</h3>
+                        <p class="stats-label">Mis Mascotas</p>
+                    </div>
+                    <div class="stats-icon">🐾</div>
+                </div>
+            </div>
         </div>
-        
-        <nav class="sidebar-nav">
-            <div class="nav-item">
-                <a href="{% url 'mascotas:mis_mascotas' %}" class="nav-link">Mis Mascotas</a>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">{{turnos_pendientes}}</h3>
+                        <p class="stats-label">Turnos Pendientes</p>
+                    </div>
+                    <div class="stats-icon">📅</div>
+                </div>
             </div>
-            <div class="nav-item">
-                <a href="{% url 'turnos:mis_turnos' %}" class="nav-link">Mis Turnos</a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3 class="stats-number">--</h3>
+                        <p class="stats-label">Historiales</p>
+                    </div>
+                    <div class="stats-icon">📋</div>
+                </div>
             </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link">Historiales</a>
-            </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link">Recetas</a>
-            </div>
-            <div class="nav-item">
-                <a href="{% url 'core:perfil_cliente' %}" class="nav-link">Mi Perfil</a>
-            </div>
-            
-            <div class="nav-item mt-4 border-top pt-4">
-                <form method="post" action="{% url 'accounts:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-link w-100 text-start" style="border: none; background: none;">
-                        Salir
-                    </button>
-                </form>
-            </div>
-        </nav>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Header -->
-        <div class="top-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="mb-1">Panel Principal</h5>
-                    <p class="user-info mb-0">Hola, {{ user.get_full_name }}</p>
+    <!-- Información del cliente -->
+    <div class="content-section mb-4">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <h6 class="section-title">👤 Mi Información</h6>
+            <a href="{% url 'core:editar_perfil_cliente' %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Nombre:</strong> {{ user.get_full_name }}</p>
+                    <p><strong>DNI:</strong> {{ user.dni|default:"No especificado" }}</p>
+                    <p><strong>Fecha de Nacimiento:</strong> {{ user.fecha_nacimiento }}</p>
                 </div>
-                <div class="text-end">
-                    <div class="date-info">{{ clinica.nombre }}</div>
-                    <small class="user-info">{% now "d F Y" %}</small>
+                <div class="col-md-4">
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
+                    <p><strong>Dirección:</strong> {{ user.direccion }}</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Content Area -->
-        <div class="p-5">
-            <!-- Stats Cards -->
-            <div class="row mb-4">
+    <!-- Acciones rápidas -->
+    <div class="content-section mb-5">
+        <div class="section-header">
+            <h6 class="section-title">🚀 Acciones Rápidas</h6>
+        </div>
+        <div class="p-4">
+            <div class="row">
                 <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">{{ total_mascotas }}</h3>
-                                <p class="stats-label">Mis Mascotas</p>
-                            </div>
-                            <div class="stats-icon">🐾</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">{{turnos_pendientes}}</h3>
-                                <p class="stats-label">Turnos Pendientes</p>
-                            </div>
-                            <div class="stats-icon">📅</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h3 class="stats-number">--</h3>
-                                <p class="stats-label">Historiales</p>
-                            </div>
-                            <div class="stats-icon">📋</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Información del cliente -->
-            <div class="content-section mb-4">
-                <div class="section-header">
-                    <h6 class="section-title">👤 Mi Información</h6>
-                    <a href="{% url 'core:editar_perfil_cliente' %}" class="btn  btn-outline-secondary btn-sm">
-                                 Editar
+                    <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn success w-100 text-center d-block">
+                        🐾 Agregar Mascota
                     </a>
                 </div>
-                <div class="p-4">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p class="mb-2"><strong>Nombre:</strong> {{ user.get_full_name }}</p>
-                            <p class="mb-2"><strong>DNI:</strong> {{ user.dni|default:"No especificado" }}</p>
-                            <p class="mb-2"><strong>Fecha de Nacimiento:</strong> {{ user.fecha_nacimiento }}</p>
-
-                        </div>
-                        <div class="col-md-4">
-                            <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
-                            <p class="mb-2"><strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
-                            <p class="mb-2"><strong>Direccion</strong> {{ user.direccion }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Acciones rápidas -->
-            <div class="content-section mb-5">
-                <div class="section-header">
-                    <h6 class="section-title">🚀 Acciones Rápidas</h6>
-                </div>
-                <div class="p-4">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn success w-100 text-center text-decoration-none d-block">
-                                🐾 Agregar Mascota
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'turnos:turnos_disponibles' %}" class="action-btn success w-100 text-center text-decoration-none d-block">
-                                📅 Pedir Turno
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="#" class="action-btn success w-100 text-center text-decoration-none d-block" onclick="alert('Próximamente')" >
-                                📋 Ver Historiales
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mis mascotas -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h6 class="section-title">🐾 Mis Mascotas</h6>
-                    <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn text-decoration-none">➕ Agregar Mascota</a>
-                </div>
-                
-                {% if mascotas_recientes %}
-                <div class="p-3">
-                    <div class="row">
-                        {% for mascota in mascotas_recientes %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                {% if mascota.foto %}
-                                <img src="{{ mascota.foto.url }}" class="card-img-top" alt="{{ mascota.nombre }}" style="height: 150px; object-fit: cover;">
-                                {% else %}
-                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
-                                    <span style="font-size: 3rem;">🐕</span>
-                                </div>
-                                {% endif %}
-                                <div class="card-body">
-                                    <h6 class="card-title">{{ mascota.nombre }}</h6>
-                                    <p class="card-text mb-2">
-                                        <small class="text-muted">
-                                            {{ mascota.especie }} - {{ mascota.edad_texto }}
-                                        </small>
-                                    </p>
-                                    <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-dark">
-                                        Ver Detalle
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="{% url 'mascotas:mis_mascotas' %}" class="btn  btn-outline-dark">
-                            Ver Todas Mis Mascotas ({{ total_mascotas }})
-                        </a>
-                    </div>
-                </div>
-                {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">🐕</div>
-                    <h6>¡Agrega tu primera mascota!</h6>
-                    <p class="mb-3">Aquí verás todas tus mascotas y podrás gestionar sus citas e historiales médicos.</p>
-                    <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn">
-                        ➕ Agregar Mi Primera Mascota
+                <div class="col-md-4 mb-3">
+                    <a href="{% url 'turnos:turnos_disponibles' %}" class="action-btn success w-100 text-center d-block">
+                        📅 Pedir Turno
                     </a>
                 </div>
-                {% endif %}
+                <div class="col-md-4 mb-3">
+                    <a href="#" class="action-btn success w-100 text-center d-block" onclick="alert('Próximamente')">
+                        📋 Ver Historiales
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Mis mascotas -->
+    <div class="content-section">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <h6 class="section-title">🐾 Mis Mascotas</h6>
+            <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn">➕ Agregar Mascota</a>
+        </div>
+        
+        {% if mascotas_recientes %}
+        <div class="p-3">
+            <div class="row">
+                {% for mascota in mascotas_recientes %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        {% if mascota.foto %}
+                        <img src="{{ mascota.foto.url }}" class="card-img-top" alt="{{ mascota.nombre }}" style="height:150px; object-fit:cover;">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height:150px;">
+                            <span style="font-size:3rem;">🐕</span>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ mascota.nombre }}</h6>
+                            <p class="card-text mb-2"><small class="text-muted">{{ mascota.especie }} - {{ mascota.edad_texto }}</small></p>
+                            <a href="{% url 'mascotas:detalle_mascota' mascota.pk %}" class="btn btn-sm btn-dark">Ver Detalle</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'mascotas:mis_mascotas' %}" class="btn btn-outline-dark">
+                    Ver Todas Mis Mascotas ({{ total_mascotas }})
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <div class="empty-state-icon" style="font-size:3rem;">🐕</div>
+            <h6>¡Agrega tu primera mascota!</h6>
+            <p>Aquí verás todas tus mascotas y podrás gestionar sus citas e historiales médicos.</p>
+            <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn">➕ Agregar Mi Primera Mascota</a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
