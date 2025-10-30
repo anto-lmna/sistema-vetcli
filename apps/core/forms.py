@@ -214,3 +214,48 @@ class CrearVeterinarioForm(forms.ModelForm):
             )
 
         return user
+
+
+class ClienteFiltroForm(forms.Form):
+    """Formulario para filtrar clientes"""
+
+    buscar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Buscar por nombre, email o teléfono...",
+            }
+        ),
+    )
+
+    estado = forms.ChoiceField(
+        required=False,
+        choices=[
+            ("", "Todos"),
+            ("activo", "Activos"),
+            ("inactivo", "Inactivos"),
+            ("pendiente", "Pendientes de aprobación"),
+        ],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+
+
+class VeterinarioFiltroForm(forms.Form):
+    """Formulario para filtrar veterinarios"""
+
+    buscar = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Buscar por nombre, email o matrícula...",
+            }
+        ),
+    )
+
+    estado = forms.ChoiceField(
+        required=False,
+        choices=[("", "Todos"), ("activo", "Activos"), ("inactivo", "Inactivos")],
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )

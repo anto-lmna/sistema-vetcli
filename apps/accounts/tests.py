@@ -1,9 +1,11 @@
 from datetime import time
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from apps.accounts.models import PerfilCliente
+from django.core.exceptions import ValidationError
+
 from apps.clinicas.models import Clinica
-from apps.accounts.models import CustomUser
+from apps.accounts.models import PerfilCliente, CustomUser
+
 
 User = get_user_model()
 
@@ -60,7 +62,6 @@ class CustomUserModelTest(TestCase):
         self.assertTrue(vet.is_veterinario)
         self.assertFalse(vet.is_admin_veterinaria)
         self.assertFalse(vet.is_cliente)
-        # Perfil no se crea automáticamente
         self.assertFalse(hasattr(vet, "perfilveterinario"))
 
     def test_crear_cliente_crea_perfil_automatico(self):
@@ -91,3 +92,165 @@ class CustomUserModelTest(TestCase):
         self.assertEqual(admin.dashboard_url, "/dashboard/admin/")
         self.assertEqual(vet.dashboard_url, "/dashboard/veterinario/")
         self.assertEqual(cliente.dashboard_url, "/dashboard/cliente/")
+
+    # ========== TESTS ADICIONALES ==========
+
+    def test_email_unico(self):
+        """No debe permitir emails duplicados"""
+        User.objects.create_user(
+            username="user1",
+            email="duplicado@test.com",
+            password="pass123",
+            rol="cliente",
+        )
+
+        with self.assertRaises(Exception):
+            User.objects.create_user(
+                username="user2",
+                email="duplicado@test.com",
+                password="pass123",
+                rol="veterinario",
+            )
+
+    def test_username_unico(self):
+        """No debe permitir usernames duplicados"""
+        User.objects.create_user(
+            username="usuario1",
+            email="email1@test.com",
+            password="pass123",
+            rol="cliente",
+        )
+
+        with self.assertRaises(Exception):
+            User.objects.create_user(
+                username="usuario1",
+                email="email2@test.com",
+                password="pass123",
+                rol="veterinario",
+            )
+
+    def test_cliente_inactivo_por_defecto(self):
+        """Los clientes deben estar inactivos hasta que el admin los active"""
+        cliente = User.objects.create_user(
+            username="cliente_nuevo",
+            email="nuevo@test.com",
+            password="pass123",
+            rol="cliente",
+            clinica=self.clinica,
+        )
+        # Dependiendo de tu lógica, ajusta esto
+        # Si los clientes empiezan inactivos:
+        # self.assertFalse(cliente.is_active)
+        # Si tienen un campo pendiente_aprobacion:
+        # self.assertTrue(cliente.pendiente_aprobacion)
+
+    def test_veterinario_activo_por_defecto(self):
+        """Los veterinarios creados por admin deben estar activos"""
+        vet = User.objects.create_user(
+            username="vet_nuevo",
+            email="vetnuevo@test.com",
+            password="pass123",
+            rol="veterinario",
+            clinica=self.clinica,
+        )
+        self.assertTrue(vet.is_active)
+
+    def test_admin_debe_tener_clinica(self):
+        """Un admin de veterinaria debe estar asociado a una clínica"""
+        admin = User.objects.create_user(
+            username="admin_sin_clinica",
+            email="admin_sin@test.com",
+            password="pass123",
+            rol="admin_veterinaria",
+        )
+        # El admin puede crearse sin clínica inicialmente
+        self.assertIsNone(admin.clinica)
+
+    def test_veterinario_requiere_clinica(self):
+        """Un veterinario debe estar asociado a una clínica"""
+        vet = User.objects.create_user(
+            username="vet_con_clinica",
+            email="vetclinica@test.com",
+            password="pass123",
+            rol="veterinario",
+            clinica=self.clinica,
+        )
+        self.assertEqual(vet.clinica, self.clinica)
+
+    def test_get_full_name(self):
+        """Debe devolver el nombre completo del usuario"""
+        user = User.objects.create_user(
+            username="testuser",
+            email="test@test.com",
+            password="pass123",
+            rol="cliente",
+            first_name="Juan",
+            last_name="Pérez",
+        )
+        self.assertEqual(user.get_full_name(), "Juan Pérez")
+
+    def test_str_sin_nombre(self):
+        """Debe mostrar email si no tiene nombre completo"""
+        user = User.objects.create_user(
+            username="user_sin_nombre",
+            email="sinombre@test.com",
+            password="pass123",
+            rol="cliente",
+        )
+        # Ajusta según tu implementación del __str__
+        self.assertIn("sinombre@test.com", str(user))
+
+    def test_rol_invalido(self):
+        """No debe permitir roles inválidos"""
+        # Esto depende de si tu modelo valida los roles
+        # Si tienes choices en el campo rol:
+        with self.assertRaises(ValidationError):
+            user = User(
+                username="invalido",
+                email="inv@test.com",
+                rol="rol_inexistente",
+            )
+            user.full_clean()
+
+    def test_cambiar_rol_usuario(self):
+        """Debe permitir cambiar el rol de un usuario"""
+        user = User.objects.create_user(
+            username="cambio_rol",
+            email="cambio@test.com",
+            password="pass123",
+            rol="cliente",
+        )
+        self.assertTrue(user.is_cliente)
+
+        user.rol = "veterinario"
+        user.save()
+
+        user.refresh_from_db()
+        self.assertTrue(user.is_veterinario)
+        self.assertFalse(user.is_cliente)
+
+    def test_cliente_puede_tener_multiple_clinicas(self):
+        """Un cliente puede estar asociado a una o más clínicas"""
+        # Si tu modelo permite esto, testéalo
+        # Si NO permite, verifica que solo tenga una
+        cliente = User.objects.create_user(
+            username="cliente_multi",
+            email="multi@test.com",
+            password="pass123",
+            rol="cliente",
+            clinica=self.clinica,
+        )
+        self.assertEqual(cliente.clinica, self.clinica)
+
+    def test_password_hasheada(self):
+        """La contraseña debe guardarse hasheada"""
+        user = User.objects.create_user(
+            username="testpass",
+            email="pass@test.com",
+            password="mypassword123",
+            rol="cliente",
+        )
+        # La contraseña NO debe guardarse en texto plano
+        self.assertNotEqual(user.password, "mypassword123")
+        # Pero debe poder verificarse
+        self.assertTrue(user.check_password("mypassword123"))

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db import transaction
-from datetime import timedelta
+from datetime import datetime
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, DetailView, View, DeleteView
@@ -532,47 +532,35 @@ class TurnoDetalleClienteView(LoginRequiredMixin, DetailView):
 
 
 class TurnoCancelarClienteView(LoginRequiredMixin, ClienteRequiredMixin, View):
-    """Cancelar turno (cliente)"""
+    """Cancelar turno por cliente"""
 
     def post(self, request, pk):
         turno = get_object_or_404(Turno, pk=pk, cliente=request.user)
 
-        fecha_hora_turno = timezone.make_aware(
-            timezone.datetime.combine(turno.fecha, turno.hora_inicio)
-        )
-        ahora = timezone.now()
+        # Obtener la hora actual en la zona horaria local
+        ahora = timezone.localtime(timezone.now())
 
-        # Validar tiempo mínimo de anticipación
-        if fecha_hora_turno - ahora < timedelta(hours=2):
+        # Crear datetime del turno en la zona horaria local
+        datetime_turno_naive = datetime.combine(turno.fecha, turno.hora_inicio)
+        datetime_turno = timezone.make_aware(datetime_turno_naive)
+        datetime_turno_local = timezone.localtime(datetime_turno)
+
+        horas_diferencia = (datetime_turno_local - ahora).total_seconds() / 3600
+
+        if horas_diferencia < 2:
             messages.error(
                 request,
-                "No se puede cancelar con menos de 2 horas de anticipación. "
-                "Por favor, contacta a la clínica.",
+                "No puedes cancelar turnos con menos de 2 horas de anticipación.",
             )
             return redirect("turnos:mis_turnos")
 
-        # Validar estado
-        if turno.estado.codigo in [EstadoTurno.COMPLETADO, EstadoTurno.EN_CURSO]:
-            messages.error(
-                request, f"No se puede cancelar un turno {turno.estado.nombre.lower()}."
-            )
+        if turno.estado.codigo == EstadoTurno.COMPLETADO:
+            messages.error(request, "No puedes cancelar un turno completado.")
             return redirect("turnos:mis_turnos")
 
-        # Cancelar con transacción atómica
-        with transaction.atomic():
-            estado_pendiente = EstadoTurno.objects.get(codigo=EstadoTurno.PENDIENTE)
-            Turno.objects.filter(pk=turno.pk).update(
-                estado=estado_pendiente,
-                reservado=False,
-                cliente=None,
-                mascota=None,
-                motivo="",
-            )
+        turno.cancelar()
+        messages.success(request, "Turno cancelado exitosamente.")
 
-        messages.success(
-            request,
-            "Tu turno fue cancelado correctamente. El horario queda disponible nuevamente.",
-        )
         return redirect("turnos:mis_turnos")
 
 

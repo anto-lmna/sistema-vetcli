@@ -6,6 +6,13 @@ from django.urls import reverse
 
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(
+        unique=True,
+        error_messages={
+            "unique": "Ya existe un usuario con este email.",
+        },
+    )
+
     OPCIONES_ROL = [
         ("admin_veterinaria", "Administrador Veterinaria"),
         ("veterinario", "Veterinario"),
@@ -34,8 +41,20 @@ class CustomUser(AbstractUser):
         "self", on_delete=models.SET_NULL, null=True, blank=True
     )
 
+    # Configurar email como campo de autenticación
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
+
     def __str__(self):
-        return f"{self.get_full_name()} ({self.get_rol_display()})"
+        nombre_completo = self.get_full_name()
+        rol_display = self.get_rol_display()
+
+        if nombre_completo.strip():
+            return f"{nombre_completo} ({rol_display})"
+        elif self.email:
+            return f"{self.email} ({rol_display})"
+        else:
+            return f"{self.username} ({rol_display})"
 
     @property
     def is_admin_veterinaria(self):

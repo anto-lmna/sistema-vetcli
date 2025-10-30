@@ -1,12 +1,17 @@
 from django.utils import timezone
+from django.db.models import Q
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
-from django.views.generic import CreateView
-from django.views.generic import ListView, TemplateView, UpdateView
+from django.views.generic import ListView, TemplateView, UpdateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import PerfilClienteForm, CrearVeterinarioForm
+from .forms import (
+    PerfilClienteForm,
+    CrearVeterinarioForm,
+    VeterinarioFiltroForm,
+    ClienteFiltroForm,
+)
 from apps.turnos.models import Turno
 from apps.clinicas.models import Clinica
 from apps.mascotas.models import Mascota
@@ -395,3 +400,122 @@ class VeterinarioCreateView(
     def form_invalid(self, form):
         messages.error(self.request, "❌ Ocurrió un error al crear el veterinario.")
         return super().form_invalid(form)
+
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Mixin para verificar que el usuario sea administrador de veterinaria"""
+
+    def test_func(self):
+        return self.request.user.is_admin_veterinaria
+
+
+# ==================== LISTAR CLIENTES Y VETERINARIOS ====================
+
+
+class ListaClientesView(AdminRequiredMixin, ListView):
+    """Vista para listar clientes (solo para admin)"""
+
+    model = CustomUser
+    template_name = "core/lista_clientes.html"
+    context_object_name = "clientes"
+    paginate_by = 15
+
+    def get_queryset(self):
+        queryset = (
+            CustomUser.objects.filter(rol="cliente", clinica=self.request.user.clinica)
+            .select_related("clinica")
+            .order_by("-date_joined")
+        )
+
+        # Aplicar filtros del formulario
+        buscar = self.request.GET.get("buscar", "")
+        estado = self.request.GET.get("estado", "")
+
+        if buscar:
+            queryset = queryset.filter(
+                Q(first_name__icontains=buscar)
+                | Q(last_name__icontains=buscar)
+                | Q(email__icontains=buscar)
+                | Q(telefono__icontains=buscar)
+            )
+
+        if estado == "activo":
+            queryset = queryset.filter(is_active=True, aprobado_por=True)
+        elif estado == "inactivo":
+            queryset = queryset.filter(is_active=False)
+        elif estado == "pendiente":
+            queryset = queryset.filter(aprobado_por=False)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Agregar formulario de filtro
+        context["form_filtro"] = ClienteFiltroForm(self.request.GET or None)
+
+        # Estadísticas
+        all_clientes = CustomUser.objects.filter(
+            rol="cliente", clinica=self.request.user.clinica
+        )
+        context["total_clientes"] = all_clientes.count()
+        context["activos"] = all_clientes.filter(
+            is_active=True, aprobado_por=True
+        ).count()
+        context["inactivos"] = all_clientes.filter(is_active=False).count()
+        context["pendientes"] = all_clientes.filter(aprobado_por=False).count()
+
+        return context
+
+
+class ListaVeterinariosView(AdminRequiredMixin, ListView):
+    """Vista para listar veterinarios (solo para admin)"""
+
+    model = CustomUser
+    template_name = "core/lista_veterinarios.html"
+    context_object_name = "veterinarios"
+    paginate_by = 15
+
+    def get_queryset(self):
+        # Filtrar solo veterinarios de la clínica del admin
+        queryset = (
+            CustomUser.objects.filter(
+                rol="veterinario", clinica=self.request.user.clinica
+            )
+            .select_related("clinica")
+            .order_by("last_name", "first_name")
+        )
+
+        # Aplicar filtros del formulario
+        buscar = self.request.GET.get("buscar", "")
+        estado = self.request.GET.get("estado", "")
+
+        if buscar:
+            queryset = queryset.filter(
+                Q(first_name__icontains=buscar)
+                | Q(last_name__icontains=buscar)
+                | Q(email__icontains=buscar)
+            )
+
+        if estado == "activo":
+            queryset = queryset.filter(is_active=True)
+        elif estado == "inactivo":
+            queryset = queryset.filter(is_active=False)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Agregar formulario de filtro
+        context["form_filtro"] = VeterinarioFiltroForm(self.request.GET or None)
+
+        # Estadísticas
+        all_veterinarios = CustomUser.objects.filter(
+            rol="veterinario", clinica=self.request.user.clinica
+        )
+        context["total_veterinarios"] = all_veterinarios.count()
+        context["activos"] = all_veterinarios.filter(is_active=True).count()
+        context["inactivos"] = all_veterinarios.filter(is_active=False).count()
+
+        return context
