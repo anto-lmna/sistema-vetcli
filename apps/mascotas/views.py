@@ -115,7 +115,7 @@ class FiltroMascotasMixin:
                     queryset = queryset.filter(nombre__icontains=buscar)
 
             if especie:
-                queryset = queryset.filter(especie__iexact=especie)
+                queryset = queryset.filter(especie=especie)
 
             if sexo:
                 queryset = queryset.filter(sexo=sexo)
@@ -304,7 +304,7 @@ class ListaMascotasAdminView(
                     | Q(dueno__email__icontains=buscar)
                 )
             if especie:
-                queryset = queryset.filter(especie__iexact=especie)
+                queryset = queryset.filter(especie=especie)
             if sexo:
                 queryset = queryset.filter(sexo=sexo)
             if estado == "activo":
