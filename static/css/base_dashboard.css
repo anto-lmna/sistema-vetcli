@@ -1,0 +1,218 @@
+:root {
+    --primary-dark: #5B3A63;
+    --dark-hover: #7f5f8f;
+    --light-hover: #F0E6F8;
+    --bg-light: #F8FAFC;
+    --text-dark: #1F2937;
+    --border-light: #E5E7EB;
+    --active-bg: #FFFFFF;
+    --active-shadow: rgba(0, 0, 0, 0.1);
+    --header-purple: #5B3A63;
+    --header-text-light: #F8F8F8;
+    --main-radius: 12px;
+}
+
+/* ==================================== */
+/* 1. ESTRUCTURA BASE */
+/* ==================================== */
+.sidebar {
+    background: var(--primary-dark);
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 130px;
+    background: var(--bg-light);
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden; 
+}
+
+/* ==================================== */
+/* 2. TOPBAR  */
+/* ==================================== */
+.top-header-purple-bar {
+    background: var(--header-purple);
+    color: var(--header-text-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-radius: var(--main-radius);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    margin: 1rem 1rem 2rem 1rem; /* menos margen lateral */
+    width: calc(100% - 2rem);    /* ocupa todo el ancho menos márgenes */
+}
+
+
+/* ==================================== */
+/* 3. SIDEBAR */
+/* ==================================== */
+.sidebar-minimal {
+    width: 100px;
+    padding: 20px 0;
+    height: 100vh;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar-logo {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.nav-item {
+    width: 100%;
+    margin: 0;
+}
+
+.nav-link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 15px 5px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    height: 85px;
+    justify-content: center;
+    border: none;
+    background: none;
+    width: 100%;
+    margin: 4px 0;
+}
+
+.nav-link-item i {
+    font-size: 1.8rem;
+    margin-bottom: 3px;
+}
+
+.nav-link-item span {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.nav-link-item:hover {
+    color: white;
+    background-color: var(--dark-hover);
+    border-radius: 12px;
+}
+
+.sidebar-bottom {
+    margin-top: auto; /* lo empuja al final */
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-bottom form {
+    width: 100%;
+}
+
+.sidebar-bottom button.nav-link-item {
+    color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: center;
+}
+
+.sidebar-bottom button.nav-link-item:hover {
+    color: #fff;
+    background-color: var(--dark-hover);
+    border-radius: 12px;
+}
+/* ==================================== */
+/* 4. BOTÓN HAMBURGUESA Y TOGGLE */
+/* ==================================== */
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    display: none;
+    margin-right: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.hamburger-btn:active {
+    transform: scale(0.9);
+}
+
+/* ==================================== */
+/* 5. RESPONSIVE */
+/* ==================================== */
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: block; /* visible en móvil */
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        position: fixed;
+        width: 70px;
+        z-index: 2000;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar-minimal {
+        overflow-y: auto;
+    }
+    .top-header-purple-bar {
+        padding: 0.7rem 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-link-item {
+        height: 60px;
+        padding: 10px 5px;
+    }
+
+    .nav-link-item i {
+        font-size: 1.4rem;
+    }
+
+    .nav-link-item span {
+        font-size: 0.65rem;
+    }
+
+    .top-header-date {
+        display: none;
+    }
+    .top-header-purple-bar {
+        justify-content: flex-start; /* Alinea todo a la izquierda */
+    }
+
+    .top-header-greeting {
+        margin-left: 0.5rem; /* margen para que no quede pegado al botón */
+    }
+}
