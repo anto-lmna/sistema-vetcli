@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    {% load django_bootstrap5 %}
+    {% load static %}
+
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Mensajes flash -->
+    <div class="position-fixed top-0 end-0 p-3 message-container" style="z-index: 1050;">
+        {% bootstrap_messages %}
+    </div>
+
+    <div class="d-flex main-container">
+        <!-- SIDEBAR DINÁMICO -->
+        <div class="sidebar sidebar-minimal">
+            <div class="sidebar-logo text-center my-3">
+                <img src="{% static 'img/logo2.png' %}" alt="VetCli Logo" height="60" class="rounded">
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- MENÚ SEGÚN ROL -->
+                {% if user.is_admin_veterinaria %}
+                    <!-- Menú Admin -->
+                    <div class="nav-item">
+                        <a href="{% url 'core:dashboard_admin' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}">
+                            <i class="fas fa-home"></i> <span>Inicio</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'core:lista_clientes' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'lista_clientes' %}active{% endif %}">
+                            <i class="fas fa-users"></i> <span>Clientes</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'core:lista_veterinarios' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'lista_veterinarios' %}active{% endif %}">
+                            <i class="fas fa-user-md"></i> <span>Veterinarios</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'mascotas:lista_mascotas_admin' %}" class="nav-link nav-link-item {% if 'mascotas' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-paw"></i> <span>Mascotas</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'turnos:agenda_clinica' %}" class="nav-link nav-link-item {% if 'turnos' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> <span>Agenda</span>
+                        </a>
+                    </div>
+
+                {% elif user.is_veterinario %}
+                    <!-- Menú Veterinario -->
+                    <div class="nav-item">
+                        <a href="{% url 'core:dashboard_veterinario' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'dashboard_veterinario' %}active{% endif %}">
+                            <i class="fas fa-home"></i> <span>Inicio</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'turnos:agenda_vet' %}" class="nav-link nav-link-item {% if 'turnos' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> <span>Agenda</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="nav-link nav-link-item {% if 'mascotas' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-paw"></i> <span>Pacientes</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link nav-link-item">
+                            <i class="fas fa-file-medical-alt"></i> <span>Historiales</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link nav-link-item">
+                            <i class="fas fa-cog"></i> <span>Configuración</span>
+                        </a>
+                    </div>
+
+                {% elif user.is_cliente %}
+                    <!-- Menú Cliente -->
+                    <div class="nav-item">
+                        <a href="{% url 'core:dashboard_cliente' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'dashboard_cliente' %}active{% endif %}">
+                            <i class="fas fa-home"></i> <span>Inicio</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'mascotas:mis_mascotas' %}" class="nav-link nav-link-item {% if 'mascotas' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-paw"></i> <span>Mis Mascotas</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'turnos:mis_turnos' %}" class="nav-link nav-link-item {% if 'turnos' in request.resolver_match.namespace %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i> <span>Mis Turnos</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link nav-link-item">
+                            <i class="fas fa-file-alt"></i> <span>Historiales</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'core:perfil_cliente' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'perfil_cliente' %}active{% endif %}">
+                            <i class="fas fa-user"></i> <span>Mi Perfil</span>
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- SEPARADOR -->
+                <div class="nav-separator"></div>
+
+                <!-- LOGOUT (común para todos) -->
+                <div class="nav-item sidebar-bottom mt-4 border-top pt-3">
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link nav-link-item w-100 text-start" style="border: none; background: none;">
+                            <i class="fas fa-sign-out-alt"></i> <span>Salir</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="main-content">
+            <!-- BARRA SUPERIOR DINÁMICA -->
+            <div class="top-header-purple-bar">
+                <button id="sidebarToggle" class="hamburger-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="top-header-greeting">
+                    Hola, 
+                    {% if user.is_veterinario %}
+                        Dr(a). {{ user.get_full_name }}
+                    {% else %}
+                        {{ user.get_full_name }}
+                    {% endif %}
+                    <span class="d-none d-sm-inline">
+                        {% if user.is_admin_veterinaria %}
+                            - Administrador
+                        {% elif user.is_veterinario %}
+                            - Veterinario
+                        {% elif user.is_cliente %}
+                            - Cliente
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="top-header-date">
+                    {% now "d F Y" %}
+                </div>
+            </div>
+
+            <!-- CONTENIDO ESPECÍFICO -->
+            {% block content %}
+            {% endblock %}
+
+            <!-- FOOTER -->
+            <footer class="bg-light py-4 mt-5">
+                <div class="container text-center">
+                    <p class="mb-0">&copy; 2025 VetCli - Sistema de Gestión Veterinaria</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="{% static 'js/sidebar-toggle.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

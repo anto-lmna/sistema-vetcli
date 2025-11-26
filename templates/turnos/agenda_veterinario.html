@@ -1,4 +1,4 @@
-{% extends 'base_dashboard_veterinario.html' %}
+{% extends 'base_dashboard.html' %}
 {% load static %}
 
 {% block title %}Mi Agenda{% endblock %}
@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/agenda.css' %}">
 {% endblock %}
 {% block content %}
+<div class='m-5'>
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-calendar-check"></i> Mi Agenda</h2>
@@ -129,9 +130,7 @@
             </div>
         </div>
     </div>
-    <a href="{% url 'core:dashboard_veterinario' %}" class="btn btn-outline-secondary mt-3 btn-sm">
-    <i class="bi bi-arrow-left"></i> Volver al Panel 
-</a>
+</div>
 </div>
 {% endblock %}
 {% block extra_js %}

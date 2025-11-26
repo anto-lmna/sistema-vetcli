@@ -1,4 +1,4 @@
-{% extends "base_dashboard_cliente.html" %}
+{% extends "base_dashboard.html" %}
 {% load static %}
 
 {% block title %}Turnos Disponibles{% endblock %}
@@ -14,9 +14,6 @@
             <p class="text-muted mb-0">Selecciona un veterinario y un día para reservar un turno 🐾</p>
         </div>
         <div>
-            <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left"></i> Volver al Panel
-            </a>
             <a href="{% url 'turnos:mis_turnos' %}" class="btn btn-primary">
                 <i class="bi bi-calendar-check"></i> Mis Turnos
             </a>

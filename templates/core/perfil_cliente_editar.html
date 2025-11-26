@@ -1,4 +1,4 @@
-{% extends "base_dashboard_cliente.html" %}
+{% extends "base_dashboard.html" %}
 {% load static %}
 
 {% block title %}Editar Perfil{% endblock %}
@@ -10,9 +10,6 @@
             <h5 class="mb-0">
                 <i class="bi bi-pencil-square me-2"></i> Editar Perfil
             </h5>
-            <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
         </div>
         <div class="card-body">
             <form method="post">

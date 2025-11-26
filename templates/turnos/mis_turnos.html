@@ -1,4 +1,4 @@
-{% extends 'base_dashboard_cliente.html' %}
+{% extends 'base_dashboard.html' %}
 {% load static %}
 {% block extra_css %}
         <link rel="stylesheet" href="{% static 'css/base.css' %}">
@@ -13,9 +13,6 @@
             <p class="text-muted mb-0">Consulta tus turnos próximos y pasados 🐾</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'core:dashboard_cliente' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Volver al Panel
-            </a>
             <a href="{% url 'turnos:turnos_disponibles' %}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Reservar Nuevo Turno
             </a>

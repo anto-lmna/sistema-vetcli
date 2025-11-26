@@ -1,4 +1,4 @@
-{% extends 'base_dashboard_cliente.html' %}
+{% extends 'base_dashboard.html' %}
 {% load static %}
 
 {% block title %}{{ mascota.nombre }} - Detalle{% endblock %}
@@ -63,7 +63,7 @@
                 </div>
             {% elif user.rol == 'veterinario' %}
                 <div class="d-grid gap-2">
-                    <a href="{% url 'core:dashboard_veterinario' %}" class="btn btn-secondary">
+                    <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Volver
                     </a>
                 </div>

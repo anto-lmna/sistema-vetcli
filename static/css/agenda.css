@@ -78,7 +78,7 @@
    ========================= */
 #calendar {
     width: 100%;
-    min-height: 520px; /* base */
+    min-height: 400px; /* base */
 }
 
 /* make toolbar responsive */
