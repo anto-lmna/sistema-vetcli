@@ -19,7 +19,7 @@
                                 <h3 class="stats-number">{{ turnos_hoy }}</h3>
                                 <p class="stats-label">Turnos Hoy</p>
                             </div>
-                            <div class="stats-icon">📅</div>
+                            <div class="stats-icon"><i class="fa-solid fa-calendar"></i></div>
                         </div>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
                                 <h3 class="stats-number">{{ total_mascotas }}</h3>
                                 <p class="stats-label">Pacientes</p>
                             </div>
-                            <div class="stats-icon">🐕</div>
+                            <div class="stats-icon"><i class="fa-solid fa-paw"></i></div>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                                 <h3 class="stats-number">--</h3>
                                 <p class="stats-label">Historiales</p>
                             </div>
-                            <div class="stats-icon">📋</div>
+                            <div class="stats-icon"><i class="fa-solid fa-clipboard-list"></i></div>
                         </div>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
             {% if perfil %}
             <div class="content-section mb-4">
                 <div class="section-header">
-                    <h6 class="section-title">👤 Mi Información</h6>
+                    <h6 class="section-title"><i class="fa-solid fa-user"></i> Mi Información</h6>
                 </div>
                 <div class="p-4">
                     <div class="row">
@@ -72,23 +72,23 @@
             <!-- Acciones rápidas -->
             <div class="content-section mb-5">
                 <div class="section-header">
-                    <h6 class="section-title">🚀 Acciones Rápidas</h6>
+                    <h6 class="section-title"><i class="fa-solid fa-gauge-high"></i> Acciones Rápidas</h6>
                 </div>
                 <div class="p-4">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                                 <a href="{% url 'turnos:agenda_vet' %}?filtro=hoy" class="action-btn w-100 text-center text-decoration-none d-block">
-                                    📅 Ver Turnos del día
+                                    <i class="fa-regular fa-calendar"></i> <span class='m-2'>Ver Turnos del Día</span>
                                 </a>
                         </div>
                         <div class="col-md-4 mb-3">
                             <button class="action-btn w-100" onclick="alert('Próximamente')">
-                                📋 Crear Historial
+                                <i class="fa-solid fa-clipboard-list"></i> <span class='m-2'>Crear Historial</span>
                             </button>
                         </div>
                         <div class="col-md-4 mb-3">
                             <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn w-100 text-center text-decoration-none d-block">
-                                🐕 Buscar Pacientes
+                                <i class="fa-solid fa-paw"></i><span class='m-2'>Buscar Pacientes</span></a>
                             </a>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
             <!-- Mascotas Recientes -->
             <div class="content-section mb-4">
                 <div class="section-header">
-                    <h6 class="section-title">🐾 Pacientes Recientes</h6>
+                    <h6 class="section-title"><i class="fa-solid fa-paw"></i> Pacientes Recientes</h6>
                     <a href="{% url 'mascotas:lista_mascotas_veterinario' %}" class="action-btn text-decoration-none">Ver Todos</a>
                 </div>
                 {% if mascotas_recientes %}
@@ -111,7 +111,7 @@
                                 <img src="{{ mascota.foto.url }}" class="card-img-top" alt="{{ mascota.nombre }}" style="height: 150px; object-fit: cover;">
                                 {% else %}
                                 <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
-                                    <span style="font-size: 3rem;">🐕</span>
+                                    <span style="font-size: 3rem;"><i class="fa-solid fa-dog" style="color: #B197FC;"></i></span>
                                 </div>
                                 {% endif %}
                                 <div class="card-body">
@@ -135,7 +135,7 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <div class="empty-state-icon">🐕</div>
+                    <div class="empty-state-icon"><i class="fa-solid fa-dog" style="color: #B197FC;"></i></div>
                     <h6>No hay pacientes registrados</h6>
                     <p class="mb-0">Aquí verás los pacientes de la clínica.</p>
                 </div>

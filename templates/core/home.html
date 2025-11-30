@@ -9,7 +9,7 @@
         <div class="text-center mt-0 p-4 rounded shadow-sm bg-white">
             <!-- Título principal -->
             <h1 class="display-5 fw-bold text-primary-dark">¡Te damos la Bienvenida a VetCli!</h1>
-            <p class="lead text-muted fw-semibold">Encuentra la mejor atención veterinaria para tus mascotas🐾</p>
+            <p class="lead text-muted fw-semibold">Encuentra la mejor atención veterinaria para tus mascotas<i class="fa-solid fa-paw m-2"></i></p>
         </div>
 
         {% if veterinarias %}
@@ -28,13 +28,13 @@
                                 <!-- Información de Contacto -->
                                 <div class="info-contacto small mt-3">
                                     <p class="mb-1 text-dark">
-                                        <span class="fw-semibold">📍 Dirección:</span> {{ veterinaria.direccion|truncatewords:5 }}
+                                        <i class="fa-solid fa-map-pin" style="color: #B197FC;"></i><span class="fw-semibold m-2">Dirección:</span> {{ veterinaria.direccion|truncatewords:5 }}
                                     </p>
                                     <p class="mb-1 text-dark">
-                                        <span class="fw-semibold">📞 Teléfono:</span> {{ veterinaria.telefono }}
+                                        <i class="fa-solid fa-phone" style="color: #B197FC;"></i><span class="fw-semibold m-1"> Teléfono:</span> {{ veterinaria.telefono }}
                                     </p>
                                     <p class="mb-0 text-dark">
-                                        <span class="fw-semibold">✉️ Email:</span> {{ veterinaria.email }}
+                                        <i class="fa-solid fa-envelope" style="color: #B197FC;"></i><span class="fw-semibold m-2"> Email:</span> {{ veterinaria.email }}
                                     </p>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                 <!-- APLICADO: shadow-lg, border-0, rounded-4 -->
                 <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
                     <div class="card-body">
-                        <span class="display-6 mb-2 d-block">👨‍⚕️</span>
+                        <span class="display-6 mb-2 d-block"><i class="fa-solid fa-user-doctor" style="color: #B197FC;"></i></span>
                         <h6 class="card-title fw-bold text-primary-dark">Para Veterinarios</h6>
                         <p class="card-text text-muted small">
                             Si trabajas en una veterinaria, tu administrador te dará acceso.
@@ -87,7 +87,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card p-3 shadow-lg border-0 rounded-4 text-center"> 
                     <div class="card-body">
-                        <span class="display-5 mb-2 d-block">🏥</span>
+                        <span class="display-5 mb-2 d-block"><i class="fa-solid fa-user-gear fa-sm" style="color: #B197FC;"></i></span>
                         <h6 class="card-title fw-bold text-primary-dark">Para Administradores</h6>
                         <p class="card-text text-muted small mb-0">
                             ¿Tienes una veterinaria? Inicia sesión para gestionar tu clínica.
@@ -103,7 +103,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 p-3 shadow-lg border-0 rounded-4 text-center">
                     <div class="card-body">
-                        <span class="display-6 mb-2 d-block">🐕</span>
+                        <span class="display-6 mb-2 d-block"><i class="fa-solid fa-dog" style="color: #B197FC;"></i></span>
                         <h6 class="card-title fw-bold text-primary-dark">Para Clientes</h6>
                         <p class="card-text text-muted small">
                             Regístrate en tu veterinaria preferida para gestionar las citas de tu mascota.

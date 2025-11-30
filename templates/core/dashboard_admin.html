@@ -20,7 +20,7 @@
                                 <h3 class="stats-number">{{ total_clientes_pendientes }}</h3>
                                 <p class="stats-label">Pendientes</p>
                             </div>
-                            <div class="stats-icon">👥</div>
+                            <div class="stats-icon"><i class="fa-solid fa-user-group"></i></div>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                                 <h3 class="stats-number">{{ total_veterinarios }}</h3>
                                 <p class="stats-label">Veterinarios</p>
                             </div>
-                            <div class="stats-icon">👨‍⚕️</div>
+                            <div class="stats-icon"><i class="fa-solid fa-user-doctor"></i></div>
                         </div>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                                 <h3 class="stats-number">{{ total_mascotas }}</h3>
                                 <p class="stats-label">Mascotas</p>
                             </div>
-                            <div class="stats-icon">🐾</div>
+                            <div class="stats-icon"><i class="fa-solid fa-paw"></i></div>
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                                 <h3 class="stats-number">--</h3>
                                 <p class="stats-label">Turnos Hoy</p>
                             </div>
-                            <div class="stats-icon">📅</div>
+                            <div class="stats-icon"><i class="fa-solid fa-calendar"></i></div>
                         </div>
                     </div>
                 </div>
@@ -62,29 +62,23 @@
             <!-- Acciones Rápidas -->
             <div class="content-section mb-4">
                 <div class="section-header">
-                    <h6 class="section-title">🚀 Gestión Rápida</h6>
+                    <h6 class="section-title"><i class="fa-solid fa-gauge-high"></i> Acciones Rápidas</h6>
                 </div>
                 <div class="p-4">
                     <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <a href="{% url 'core:crear_veterinario' %}" 
-                            class="action-btn success w-100 text-center text-decoration-none d-block">
-                                ➕ Crear Veterinario
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'core:crear_veterinario' %}" class="action-btn w-100 text-center text-decoration-none d-block">
+                                <i class="fa-solid fa-user-plus"></i> Crear Veterinario</span>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <button class="action-btn w-100" onclick="alert('Próximamente')">
-                                ✅ Activar Clientes
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-4 mb-3">
                             <a href="{% url 'mascotas:crear_mascota_admin' %}" class="action-btn w-100 text-center text-decoration-none d-block">
-                                🐾 Crear Mascota
+                                <i class="fa-solid fa-dog"></i><span class='m-2'> Crear Mascota</span>
                             </a>
                         </div>
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-4 mb-3">
                             <a href="{% url 'turnos:agenda_clinica' %}" class="action-btn w-100 text-center text-decoration-none d-block">
-                                📅 Ver Agenda
+                               <i class="fa-regular fa-calendar"></i> <span class='m-2'>Ver Agenda</span>
                             </a>
                         </div>
                     </div>

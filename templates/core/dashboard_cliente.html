@@ -18,7 +18,7 @@
                         <h3 class="stats-number">{{ total_mascotas }}</h3>
                         <p class="stats-label">Mis Mascotas</p>
                     </div>
-                    <div class="stats-icon">🐾</div>
+                    <div class="stats-icon"><i class="fa-solid fa-paw"></i></div>
                 </div>
             </div>
         </div>
@@ -29,7 +29,7 @@
                         <h3 class="stats-number">{{turnos_pendientes}}</h3>
                         <p class="stats-label">Turnos Pendientes</p>
                     </div>
-                    <div class="stats-icon">📅</div>
+                    <div class="stats-icon"><i class="fa-solid fa-calendar"></i></div>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
                         <h3 class="stats-number">--</h3>
                         <p class="stats-label">Historiales</p>
                     </div>
-                    <div class="stats-icon">📋</div>
+                    <div class="stats-icon"><i class="fa-solid fa-file-medical"></i></div>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
     <!-- Información del cliente -->
     <div class="content-section mb-4">
         <div class="section-header d-flex justify-content-between align-items-center">
-            <h6 class="section-title">👤 Mi Información</h6>
+            <h6 class="section-title"><i class="fa-solid fa-user"></i> Mi Información</h6>
             <a href="{% url 'core:editar_perfil_cliente' %}" class="btn btn-outline-secondary btn-sm">Editar</a>
         </div>
         <div class="p-4">
@@ -71,23 +71,23 @@
     <!-- Acciones rápidas -->
     <div class="content-section mb-5">
         <div class="section-header">
-            <h6 class="section-title">🚀 Acciones Rápidas</h6>
+            <h6 class="section-title"><i class="fa-solid fa-gauge-high"></i> Acciones Rápidas</h6>
         </div>
         <div class="p-4">
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn success w-100 text-center d-block">
-                        🐾 Agregar Mascota
+                        <i class="fa-solid fa-dog"></i><span class='m-2'> Agregar Mascota</span>
                     </a>
                 </div>
                 <div class="col-md-4 mb-3">
                     <a href="{% url 'turnos:turnos_disponibles' %}" class="action-btn success w-100 text-center d-block">
-                        📅 Pedir Turno
+                        <i class="fa-regular fa-calendar"></i> <span class='m-2'>Pedir Turno</span>
                     </a>
                 </div>
                 <div class="col-md-4 mb-3">
                     <a href="#" class="action-btn success w-100 text-center d-block" onclick="alert('Próximamente')">
-                        📋 Ver Historiales
+                        <i class="fa-solid fa-notes-medical"></i> <span class='m-2'>Ver Historiales</span>
                     </a>
                 </div>
             </div>
@@ -97,8 +97,8 @@
     <!-- Mis mascotas -->
     <div class="content-section">
         <div class="section-header d-flex justify-content-between align-items-center">
-            <h6 class="section-title">🐾 Mis Mascotas</h6>
-            <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn">➕ Agregar Mascota</a>
+            <h6 class="section-title"><i class="fa-solid fa-paw"></i> Mis Mascotas</h6>
+            <a href="{% url 'mascotas:agregar_mascota' %}" class="action-btn"><i class="fa-solid fa-plus"></i><span class='m-2'>Agregar Mascota</span></a>
         </div>
         
         {% if mascotas_recientes %}

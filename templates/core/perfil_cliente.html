@@ -5,17 +5,17 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-person-circle"></i> Mi Perfil</h2>
+        <h2><i class="fa-solid fa-user"></i> Mi Perfil</h2>
     </div>
 
 <!-- Información del cliente -->
 <div class="card mb-4 shadow-sm border-0">
     <div class="card-header bg-dark text-light d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="bi bi-person-lines-fill me-2"></i> Información Personal
+             Información Personal
         </h5>
         <a href="{% url 'core:editar_perfil_cliente' %}" class="btn btn-light btn-sm">
-            <i class="bi bi-pencil-square"></i> Editar
+            <i class="fa-solid fa-user-pen" style="color: #B197FC;"></i> Editar
         </a>
     </div>
 
@@ -66,7 +66,7 @@
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-heart-fill"></i> Mis Mascotas</h5>
             <a href="{% url 'mascotas:agregar_mascota' %}" class="btn btn-light btn-sm">
-                <i class="bi bi-plus-circle"></i> Nueva Mascota
+                 Nueva Mascota
             </a>
         </div>
         <div class="card-body">

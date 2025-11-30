@@ -9,9 +9,9 @@
 {% block content %}
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="fw-bold mb-0">Mis Disponibilidades</h2>
+        <h2 class="fw-bold mb-0"><i class="fa-solid fa-calendar-day"></i><span class='m-2'>Mis Disponibilidades</span></h2>
         <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-primary">
-            ➕ Nueva Disponibilidad
+            <i class="fa-regular fa-square-plus"></i> Nueva Disponibilidad
         </a>
     </div>
 
@@ -21,11 +21,11 @@
             <div class="btn-group" role="group">
                 <a href="?filtro=futuras" 
                    class="btn {% if filtro_actual == 'futuras' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
-                    📅 Futuras
+                   <i class="fa-solid fa-calendar"></i> Futuras
                 </a>
                 <a href="?filtro=pasadas" 
                    class="btn {% if filtro_actual == 'pasadas' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
-                    🕓 Pasadas
+                    <i class="fa-solid fa-clock-rotate-left"></i> Pasadas
                 </a>
             </div>
             <form method="get" class="d-flex align-items-center gap-2">
@@ -40,21 +40,21 @@
 
     {% if disponibilidades %}
     <div class="card shadow-sm">
-        <div class="card-body p-0">
+        <div class="card-body p-0 m-3">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>📅 Rango de Fechas</th>
-                        <th>🕒 Horario</th>
-                        <th>⏱️ Duración</th>
-                        <th>📋 Turnos generados</th>
-                        <th>✅ Reservados</th>
-                        <th>⚙️ Acciones</th>
+                        <th><i class="fa-regular fa-calendar-days m-2"></i>Rango de Fechas</th>
+                        <th><i class="fa-solid fa-clock m-2"></i> Horario</th>
+                        <th><i class="fa-solid fa-spinner m-2"></i> Duración</th>
+                        <th><i class="fa-regular fa-calendar-days"></i> Turnos generados</th>
+                        <th><i class="fa-solid fa-calendar-check"></i> Reservados</th>
+                        <th><i class="fa-solid fa-gear"></i> Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for disp in disponibilidades %}
-                    <tr>
+                    <tr >
                         <td>
                             <span class="fw-semibold">{{ disp.fecha_inicio|date:"d/m/Y" }}</span> → 
                             <span class="fw-semibold">{{ disp.fecha_fin|date:"d/m/Y" }}</span>
@@ -71,7 +71,7 @@
                             {% if disp.turnos_reservados.count == 0 %}
                                 <a href="{% url 'turnos:eliminar_disponibilidad' disp.id %}"
                                    class="btn btn-outline-danger btn-sm">
-                                   🗑️ Eliminar
+                                   <i class="fa-solid fa-trash-can"></i> Eliminar
                                 </a>
                             {% else %}
                                 <span class="badge bg-secondary">Bloqueada</span>
@@ -94,7 +94,7 @@
             {% endif %}
         </p>
         <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-outline-primary btn-sm">
-            ➕ Crear una nueva disponibilidad
+            <i class="fa-solid fa-plus"></i> Crear una nueva disponibilidad
         </a>
     </div>
     {% endif %}

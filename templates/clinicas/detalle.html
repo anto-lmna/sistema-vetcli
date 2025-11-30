@@ -7,7 +7,7 @@
     <div class="col-12 col-lg-10 col-xl-9">
 
         <div class="text-center mb-4">
-            <h1 class="display-5 fw-bold text-primary-dark">🏥 {{ clinica.nombre }}</h1>
+            <h1 class="display-5 fw-bold text-primary-dark"><i class="fa-solid fa-house-medical"></i> {{ clinica.nombre }}</h1>
             <p class="lead text-muted">Detalles y Opciones de Registro</p>
         </div>
 
@@ -25,7 +25,7 @@
                             <div class="col-12 col-md-5 mb-4 mb-md-0">
                                 
                                 <h5 class="fw-bold text-primary-dark mb-2">
-                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">📍</span>Ubicación
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;"><i class="fa-solid fa-location-dot"></i></span>Ubicación
                                 </h5>
                                 
                                 <p class="mb-4 small">
@@ -33,7 +33,7 @@
                                 </p>
                                 
                                 <h5 class="fw-bold text-primary-dark mb-2">
-                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">📞</span>Contacto
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;"><i class="fa-solid fa-phone"></i></span>Contacto
                                 </h5>
                                 
                                 <p class="mb-1 small">
@@ -47,7 +47,7 @@
                             <div class="col-12 col-md-7">
                                 
                                 <h5 class="fw-bold text-primary-dark mb-2" style="white-space: nowrap;">
-                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">🕒</span>Horarios de Atención
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;"><i class="fa-solid fa-clock"></i></span>Horarios de Atención
                                 </h5>
                                 
                                 <p class="mb-1 small">
@@ -64,7 +64,7 @@
                                 {% endif %}
 
                                 <h5 class="fw-bold text-primary-dark mb-2">
-                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;">👨‍⚕️</span>Equipo
+                                    <span class="d-inline-block me-2" style="font-size: 1.25rem;"><i class="fa-solid fa-users"></i></span>Equipo
                                 </h5>
                                 
                                 <p class="mb-0 small">
@@ -81,24 +81,24 @@
                 <div class="card shadow-lg border-0 rounded-4 mb-4">
                     <div class="card-header bg-light border-0 pt-3 pb-0 rounded-top-4">
                         <h5 class="mb-0 fw-bold text-primary-dark text-center">
-                             <span class="d-inline-block me-2">🚀</span> Acciones
+                             <span class="d-inline-block me-2"><i class="fa-solid fa-house-medical-circle-exclamation"></i></span> Acciones
                         </h5>
                     </div>
                     <div class="card-body p-4">
                         
                         {% if clinica.acepta_nuevos_clientes %}
                             <div class="alert alert-success fw-bold text-center rounded-3 p-2 small" role="alert">
-                                ✅ Acepta nuevos clientes
+                                <i class="fa-solid fa-check"></i> Acepta nuevos clientes
                             </div>
                             
                             <div class="d-grid gap-2 mb-3">
                                 <a href="{% url 'accounts:pre_registro_cliente' clinica_slug=clinica.slug %}" 
                                    class="btn btn-primary btn-md rounded-pill fw-bold">
-                                    🐕 Registrarme como Cliente
+                                    <i class="fa-solid fa-dog" style="color: #B197FC;"></i> Registrarme como Cliente
                                 </a>
                                 
                                 <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-md rounded-pill fw-bold">
-                                    👨‍⚕️ Soy Veterinario/Admin
+                                    <i class="fa-solid fa-user-doctor" style="color: #B197FC;"></i> Soy Veterinario/Admin
                                 </a>
                             </div>
                         {% else %}
@@ -124,7 +124,7 @@
                 <div class="card shadow-lg border-0 rounded-4">
                     <div class="card-header bg-light border-0 pt-3 pb-0 rounded-top-4">
                         <h6 class="mb-0 fw-bold text-primary-dark text-center">
-                            <span class="d-inline-block me-2">📋</span> ¿Qué puedes hacer como Cliente?
+                            ¿Qué puedes hacer como Cliente?
                         </h6>
                     </div>
                     <div class="card-body p-4">
