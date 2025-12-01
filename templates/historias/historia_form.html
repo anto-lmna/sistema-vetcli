@@ -1,0 +1,233 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Nueva Consulta - {{ mascota.nombre }}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+<style>
+    /* Estilo para separar cada fila de vacuna/archivo */
+    .formset-row {
+        background-color: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    /* Pequeño ajuste para el checkbox de eliminar */
+    .delete-checkbox {
+        color: #EF4444;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2">Nueva Consulta Clínica</h2>
+                <p class="mb-0 opacity-75">Paciente: <strong>{{ mascota.nombre }}</strong> ({{ mascota.especie }})</p>
+            </div>
+            <div class="text-end">
+                <div class="fs-5 fw-bold">{{ request.user.clinica.nombre }}</div>
+                <small class="opacity-75">{% now "d F Y" %}</small>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-4 shadow-sm">
+            <strong>⚠️ Error:</strong> {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+            <h6 class="form-section-title">
+                <i class="fas fa-heartbeat me-2"></i>Signos Vitales y Estado
+            </h6>
+            
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label required-field">{{ form.peso_actual.label }}</label>
+                    {{ form.peso_actual }} 
+                    <span class="help-text">Kg</span>
+                    {% if form.peso_actual.errors %}<span class="error-message">{{ form.peso_actual.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.temperatura.label }}</label>
+                    {{ form.temperatura }}
+                    <span class="help-text">°C</span>
+                    {% if form.temperatura.errors %}<span class="error-message">{{ form.temperatura.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">{{ form.frecuencia_cardiaca.label }}</label>
+                    {{ form.frecuencia_cardiaca }}
+                    <span class="help-text">LPM</span>
+                    {% if form.frecuencia_cardiaca.errors %}<span class="error-message">{{ form.frecuencia_cardiaca.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="col-md-3 mb-3 d-flex align-items-center">
+                    <div class="form-check mt-4">
+                        {{ form.es_borrador }}
+                        <label class="form-check-label fw-bold text-warning" for="{{ form.es_borrador.id_for_label }}">
+                            {{ form.es_borrador.label }}
+                        </label>
+                        <span class="help-text d-block">Guardar sin finalizar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h6 class="form-section-title">
+                <i class="fas fa-user-md me-2"></i>Evaluación Médica
+            </h6>
+            
+            <div class="mb-4">
+                <label class="form-label required-field">{{ form.motivo_consulta.label }}</label>
+                {{ form.motivo_consulta }}
+                <span class="help-text">Título breve de la visita (Ej: Vacunación anual, Gastroenteritis)</span>
+                {% if form.motivo_consulta.errors %}<span class="error-message">{{ form.motivo_consulta.errors.0 }}</span>{% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.anamnesis.label }}</label>
+                    {{ form.anamnesis }}
+                    <span class="help-text">Historia previa y síntomas descritos</span>
+                    {% if form.anamnesis.errors %}<span class="error-message">{{ form.anamnesis.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.hallazgos_fisicos.label }}</label>
+                    {{ form.hallazgos_fisicos }}
+                    <span class="help-text">Lo observado en la exploración física</span>
+                    {% if form.hallazgos_fisicos.errors %}<span class="error-message">{{ form.hallazgos_fisicos.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.diagnostico.label }}</label>
+                {{ form.diagnostico }}
+                {% if form.diagnostico.errors %}<span class="error-message">{{ form.diagnostico.errors.0 }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h6 class="form-section-title">
+                <i class="fas fa-pills me-2"></i>Plan y Tratamiento
+            </h6>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.tratamiento_realizado.label }}</label>
+                    {{ form.tratamiento_realizado }}
+                    <span class="help-text">Procedimientos realizados HOY en clínica</span>
+                    {% if form.tratamiento_realizado.errors %}<span class="error-message">{{ form.tratamiento_realizado.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">{{ form.indicaciones_dueno.label }}</label>
+                    {{ form.indicaciones_dueno }}
+                    <span class="help-text text-primary">Receta e instrucciones para el dueño</span>
+                    {% if form.indicaciones_dueno.errors %}<span class="error-message">{{ form.indicaciones_dueno.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h6 class="form-section-title d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-syringe me-2"></i>Aplicación de Vacunas</span>
+            </h6>
+            <p class="text-muted small mb-3">Si aplicas vacunas hoy, regístralas aquí.</p>
+            
+            {{ vacunas.management_form }}
+            
+            {% for form in vacunas %}
+                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                
+                <div class="formset-row">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label small">Nombre Vacuna</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}<span class="error-message">{{ form.nombre.errors.0 }}</span>{% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label small">Lote</label>
+                            {{ form.lote }}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label small">Próx. Refuerzo</label>
+                            {{ form.fecha_proxima_aplicacion }}
+                        </div>
+                        
+                        <div class="col-md-2 mb-2 d-flex align-items-end justify-content-end">
+                            {% if vacunas.can_delete %}
+                                <div class="form-check">
+                                    {{ form.DELETE }}
+                                    <label class="form-check-label text-danger small" for="{{ form.DELETE.id_for_label }}">
+                                        No guardar / Borrar
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h6 class="form-section-title">
+                <i class="fas fa-paperclip me-2"></i>Archivos Adjuntos (Labs, Rayos X)
+            </h6>
+            
+            {{ archivos.management_form }}
+            
+            {% for form in archivos %}
+                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                
+                <div class="formset-row bg-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label small">Seleccionar Archivo</label>
+                            {{ form.archivo }}
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="form-label small">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        <div class="col-md-2 mb-2 text-end">
+                            {% if archivos.can_delete %}
+                                <div class="form-check d-inline-block">
+                                    {{ form.DELETE }}
+                                    <label class="form-check-label text-danger small">Borrar</label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <a href="{% url 'mascotas:detalle_mascota' mascota.id %}" class="btn btn-secondary btn-lg">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-purple btn-lg shadow">
+                Guardar Historia Clínica
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
