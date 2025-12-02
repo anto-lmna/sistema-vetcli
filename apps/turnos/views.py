@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.utils import timezone
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from django.db import transaction
 from datetime import datetime
@@ -240,6 +240,7 @@ class AgendaVeterinarioView(LoginRequiredMixin, VeterinarioRequiredMixin, ListVi
             )
             .select_related("estado", "cliente", "mascota")
             .order_by("fecha", "hora_inicio")
+            .exclude(estado__codigo__in=["completado", "cancelado", "no_asistio"])
         )
 
     def get_context_data(self, **kwargs):
@@ -276,8 +277,32 @@ class BaseTurnoAccionView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
         return get_object_or_404(Turno, pk=pk, veterinario=self.request.user)
 
 
+# class TurnoIniciarAtencionView(BaseTurnoAccionView):
+#     """Marcar turno como 'En curso'"""
+
+#     def post(self, request, pk):
+#         turno = self.get_turno(pk)
+
+#         if not turno.reservado:
+#             messages.error(request, "No se puede iniciar un turno no reservado.")
+#             return redirect("turnos:agenda_vet")
+
+#         if turno.estado.codigo != EstadoTurno.CONFIRMADO:
+#             messages.warning(
+#                 request, f"El turno ya está en estado {turno.estado.nombre}."
+#             )
+#             return redirect("turnos:agenda_vet")
+
+#         estado_en_curso = EstadoTurno.objects.get(codigo=EstadoTurno.EN_CURSO)
+#         turno.estado = estado_en_curso
+#         turno.save()
+
+#         messages.info(request, f"Atención de {turno.mascota.nombre} iniciada.")
+#         return redirect("turnos:turno_detalle_vet", pk=pk)
+
+
 class TurnoIniciarAtencionView(BaseTurnoAccionView):
-    """Marcar turno como 'En curso'"""
+    """Marcar turno como 'En curso' y redirigir a Historia Clínica"""
 
     def post(self, request, pk):
         turno = self.get_turno(pk)
@@ -286,18 +311,16 @@ class TurnoIniciarAtencionView(BaseTurnoAccionView):
             messages.error(request, "No se puede iniciar un turno no reservado.")
             return redirect("turnos:agenda_vet")
 
-        if turno.estado.codigo != EstadoTurno.CONFIRMADO:
-            messages.warning(
-                request, f"El turno ya está en estado {turno.estado.nombre}."
-            )
-            return redirect("turnos:agenda_vet")
+        if turno.estado.codigo == EstadoTurno.CONFIRMADO:
+            estado_en_curso = EstadoTurno.objects.get(codigo=EstadoTurno.EN_CURSO)
+            turno.estado = estado_en_curso
+            turno.save()
 
-        estado_en_curso = EstadoTurno.objects.get(codigo=EstadoTurno.EN_CURSO)
-        turno.estado = estado_en_curso
-        turno.save()
+        url_historia = reverse(
+            "historias:crear_historia", kwargs={"mascota_id": turno.mascota.id}
+        )
 
-        messages.info(request, f"Atención de {turno.mascota.nombre} iniciada.")
-        return redirect("turnos:turno_detalle_vet", pk=pk)
+        return redirect(f"{url_historia}?turno_id={turno.pk}")
 
 
 class TurnoCompletarView(BaseTurnoAccionView):

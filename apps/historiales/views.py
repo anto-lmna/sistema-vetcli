@@ -2,6 +2,7 @@ from django.db import transaction
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, DetailView
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import HistoriaClinica
@@ -17,8 +18,7 @@ class HistoriaClinicaCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
 
-        # Recuperamos la mascota de la URL (ej: /mascotas/5/historia/nueva/)
-        # Esto asume que pasas el ID de la mascota en la URL
+        # Recuperamos la mascota de la URL
         if self.request.POST:
             data["vacunas"] = VacunaFormSet(self.request.POST)
             data["archivos"] = ArchivoAdjuntoFormSet(
@@ -32,8 +32,6 @@ class HistoriaClinicaCreateView(LoginRequiredMixin, CreateView):
         data["mascota"] = get_object_or_404(Mascota, pk=self.kwargs["mascota_id"])
         return data
 
-    # apps/historiales/views.py
-
     def form_valid(self, form):
         context = self.get_context_data()
         vacunas = context["vacunas"]
@@ -42,28 +40,47 @@ class HistoriaClinicaCreateView(LoginRequiredMixin, CreateView):
         mascota = get_object_or_404(Mascota, pk=self.kwargs["mascota_id"])
 
         with transaction.atomic():
-            # 1. Configurar y guardar la Historia Clínica (Padre)
             form.instance.mascota = mascota
             form.instance.clinica = self.request.user.clinica
             form.instance.veterinario = self.request.user
             self.object = form.save()
 
-            # 2. Guardar VACUNAS (Aquí estaba el error)
+            turno_id = self.request.GET.get("turno_id")
+            if turno_id:
+                try:
+                    # Importamos aquí para evitar referencias circulares
+                    from apps.turnos.models import Turno, EstadoTurno
+
+                    turno = Turno.objects.get(
+                        pk=turno_id, veterinario=self.request.user
+                    )
+
+                    # Opcional: Vincular historia con turno en BD si tienes el campo
+                    form.instance.turno = turno
+                    form.instance.save()
+
+                    # COMPLETAR EL TURNO AUTOMÁTICAMENTE
+                    estado_completado = EstadoTurno.objects.get(
+                        codigo=EstadoTurno.COMPLETADO
+                    )
+                    turno.estado = estado_completado
+                    turno.save()
+
+                    messages.success(
+                        self.request,
+                        "Consulta guardada y turno marcado como COMPLETADO.",
+                    )
+                except Turno.DoesNotExist:
+                    pass
             if vacunas.is_valid():
                 vacunas.instance = self.object
 
-                # TRUCO: Usamos commit=False para no guardar todavía en la BD
                 vacunas_instances = vacunas.save(commit=False)
 
                 for vacuna in vacunas_instances:
-                    # Asignamos la mascota manualmente a cada vacuna
                     vacuna.mascota = mascota
-                    vacuna.save()  # Ahora sí guardamos
+                    vacuna.save()
 
-                # Esto es necesario para guardar relaciones ManyToMany si las hubiera (no es tu caso, pero es buena práctica)
-                # vacunas.save_m2m()
-
-            # 3. Guardar ARCHIVOS
             if archivos.is_valid():
                 archivos.instance = self.object
                 archivos.save()

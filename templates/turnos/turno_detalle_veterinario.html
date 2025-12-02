@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %}
 {% load static %}
 
 {% block title %}Detalle del Turno{% endblock %}
@@ -71,49 +71,23 @@
                     </div>
                     {% endif %}
 
-                    <!-- Acciones según el estado -->
                     <div class="d-flex gap-2 flex-wrap">
+                    
                         {% if turno.estado.codigo == 'confirmado' %}
-                        <form method="post" action="{% url 'turnos:turno_iniciar' turno.pk %}" class="flex-grow-1">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-play-circle"></i> Iniciar Atención
-                            </button>
-                        </form>
-                        {% endif %}
+                            <form method="post" action="{% url 'turnos:turno_iniciar' turno.pk %}" class="flex-grow-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success w-100 btn-lg shadow-sm">
+                                    <i class="bi bi-play-circle-fill me-2"></i> Iniciar Atención
+                                </button>
+                            </form>
+                            {% endif %}
 
-                        {% if turno.estado.codigo == 'en_curso' %}
-                        <form method="post" action="{% url 'turnos:turno_completar' turno.pk %}" class="flex-grow-1">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-check-circle"></i> Marcar como Completado
-                            </button>
-                        </form>
-                        {% endif %}
-
-                        {% if turno.estado.codigo == 'confirmado' or turno.estado.codigo == 'en_curso' %}
-                        <form method="post" action="{% url 'turnos:turno_no_asistio' turno.pk %}" 
-                              onsubmit="return confirm('¿Confirmar que el cliente no asistió?');"
-                              class="flex-grow-1">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger w-100">
-                                <i class="bi bi-x-circle"></i> No Asistió
-                            </button>
-                        </form>
-                        {% endif %}
-
-                        {% if turno.mascota.pk %}
-                        <a href="{% url 'mascotas:detalle_mascota' turno.mascota.pk %}" 
-                           class="btn btn-outline-primary flex-grow-1">
-                            <i class="bi bi-file-medical"></i> Ver Historial
-                        </a>
-                        {% endif %}
-                    </div>
-
-                    <div class="mt-4">
-                        <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left"></i> Volver a Mi Agenda
-                        </a>
+                            {% if turno.estado.codigo == 'en_curso' %}
+                            <a href="{% url 'historias:crear_historia' turno.mascota.pk %}?turno_id={{ turno.pk }}" 
+                            class="btn btn-warning w-100 btn-lg text-dark shadow-sm">
+                                <i class="bi bi-pencil-square me-2"></i> Continuar Historia Clínica
+                            </a>
+                            {% endif %}
                     </div>
                 </div>
             </div>

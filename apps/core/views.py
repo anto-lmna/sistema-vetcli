@@ -170,40 +170,69 @@ class DashboardVeterinarioView(
         context = super().get_context_data(**kwargs)
         user = self.request.user
         clinica = user.clinica
+        hoy = timezone.localdate()  # Mejor que timezone.now().date()
 
-        if not clinica:
-            messages.error(self.request, "No tienes una clínica asignada")
-            return context
-
-        # Obtener perfil del veterinario (si existe)
-        perfil = getattr(user, "perfilveterinario", None)
-
-        # Estadísticas
-        total_mascotas = Mascota.objects.filter(
-            dueno__clinica=clinica, activo=True
-        ).count()
-
-        # Últimas 6 mascotas activas
-        mascotas_recientes = (
-            Mascota.objects.filter(dueno__clinica=clinica, activo=True)
-            .select_related("especie", "raza", "dueno")
-            .order_by("-fecha_registro")[:6]
+        # ---------------------------------------------------------
+        # 1. DATOS DE TURNOS (QUERYSETS)
+        # ---------------------------------------------------------
+        # Esta es la LISTA completa para la tabla de "Agenda Hoy"
+        turnos_hoy_qs = (
+            Turno.objects.filter(veterinario=user, fecha=hoy, reservado=True)
+            .select_related("mascota", "estado", "cliente")
+            .order_by("hora_inicio")
         )
 
-        # Turnos de hoy
-        hoy = timezone.localdate()
-        turnos_hoy = Turno.objects.filter(
-            veterinario=user, reservado=True, cliente__isnull=False, fecha=hoy
+        # ---------------------------------------------------------
+        # 2. MÉTRICAS (CONTADORES)
+        # ---------------------------------------------------------
+        # Total citas hoy
+        count_turnos_hoy = turnos_hoy_qs.count()
+
+        # Completados hoy (Éxito)
+        count_completados = turnos_hoy_qs.filter(estado__codigo="completado").count()
+
+        # Pendientes hoy (Sala de Espera: Confirmados + En Curso)
+        # ESTO ES LO QUE PREGUNTABAS DE LA LISTA DE ESPERA
+        count_pendientes = turnos_hoy_qs.filter(
+            estado__codigo__in=["confirmado", "en_curso"]
         ).count()
 
+        # ---------------------------------------------------------
+        # 3. MASCOTAS RECIENTES (LOGICA MIXTA)
+        # ---------------------------------------------------------
+        # Preferimos mostrar mascotas que el vet atendió recientemente (completados)
+        ultimos_turnos = (
+            Turno.objects.filter(veterinario=user, estado__codigo="completado")
+            .select_related("mascota__dueno")
+            .order_by("-fecha", "-hora_inicio")[:5]
+        )
+
+        mascotas_vistas_recientemente = [t.mascota for t in ultimos_turnos]
+
+        # Si no ha atendido a nadie, mostramos las últimas registradas en la clínica como fallback
+        if not mascotas_vistas_recientemente:
+            mascotas_vistas_recientemente = Mascota.objects.filter(
+                dueno__clinica=clinica, activo=True
+            ).order_by("-fecha_registro")[:5]
+
+        # ---------------------------------------------------------
+        # 4. ARMADO DEL CONTEXTO
+        # ---------------------------------------------------------
         context.update(
             {
                 "user": user,
                 "clinica": clinica,
-                "perfil": perfil,
-                "total_mascotas": total_mascotas,
-                "mascotas_recientes": mascotas_recientes,
-                "turnos_hoy": turnos_hoy,
+                "perfil": getattr(user, "perfilveterinario", None),
+                # Listas
+                "turnos_hoy": turnos_hoy_qs,  # Para la TABLA (QuerySet)
+                "mascotas_recientes": mascotas_vistas_recientemente,  # Para el sidebar
+                # Contadores (Números)
+                "turnos_hoy_count": count_turnos_hoy,  # Para la Card Info
+                "turnos_completados_hoy": count_completados,  # Para la Card Success
+                "turnos_pendientes_hoy": count_pendientes,  # Para la Card Warning (Sala de Espera)
+                "total_mascotas": Mascota.objects.filter(
+                    dueno__clinica=clinica, activo=True
+                ).count(),
             }
         )
 

@@ -1,280 +1,106 @@
+/* =========================================
+   OVERRIDE FULLCALENDAR (ESTILO VIOLETA)
+   ========================================= */
+
+/* Variables de color personalizadas */
 :root {
-    --primary-dark: #5B3A63; 
-    --dark-hover: #7f5f8f;
-    --light-hover: #F0E6F8;
-    --secondary-dark: #4eb96f;
-    --secondary-hover: #268844;
-    --bg-light: #F8FAFC;
-    --text-dark: #1F2937;
-    --border-light: #E5E7EB;
-    --card-radius: 12px;
-    --gap: 1rem;
+    --fc-button-bg-color: #5B3A63;
+    --fc-button-border-color: #5B3A63;
+    --fc-button-hover-bg-color: #4a2f50;
+    --fc-button-hover-border-color: #4a2f50;
+    --fc-button-active-bg-color: #4a2f50;
+    --fc-button-active-border-color: #4a2f50;
+    
+    --fc-event-bg-color: #F3E8FF; /* Fondo lila claro para eventos */
+    --fc-event-border-color: transparent;
+    --fc-event-text-color: #5B3A63; /* Texto violeta oscuro */
+    
+    --fc-today-bg-color: rgba(91, 58, 99, 0.05);
 }
 
-/* =========================
-   BASE / CONTAINERS
-   ========================= */
-.container-fluid.mt-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-/* Card defaults */
-.card {
-    border-radius: var(--card-radius);
-    overflow: hidden;
-    border: 1px solid var(--border-light);
-}
-
-/* reduce big shadows on small */
-.card.shadow-sm {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.04);
-}
-
-/* =========================
-   NAVBAR
-   ========================= */
-.navbar-purple {
-    background: var(--primary-dark);
-    margin-bottom: 3rem;
-    border-radius: 8px;
-}
-
-.navbar-purple .navbar-brand,
-.navbar-purple .nav-link {
-    color: var(--bg-light);
-}
-
-.navbar-purple .nav-link:hover {
-    color: var(--bg-light);
-}
-
-.navbar-purple .container-fluid {
-    padding-top: 3px;
-    padding-bottom: 3px;
-}
-
-/* =========================
-   BOTONES GLOBALES
-   ========================= */
-.btn-dispo {
-    color: var(--bg-light);
-    background-color: var(--secondary-dark);
-    border: none;
-}
-
-.btn-dispo:hover {
-    color: white;
-    background-color: var(--secondary-hover);
-}
-
-.btn-volver {
-    background-color: var(--dark-hover);
-    color: white;
-}
-
-/* =========================
-   FULLCALENDAR
-   ========================= */
-#calendar {
-    width: 100%;
-    min-height: 400px; /* base */
-}
-
-/* make toolbar responsive */
-.fc .fc-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-}
-
-/* Toolbar title */
-.fc .fc-toolbar-title {
-    font-size: 1.25rem;
-    text-align: center;
-}
-
-/* Buttons general */
-.fc-toolbar-chunk .fc-button {
-    border-radius: 8px;
-    margin: 0 4px;
-    padding: 0.35rem 0.6rem;
-    font-size: 0.85rem;
-    white-space: nowrap;
-}
-
-/* Button groups */
-.fc-toolbar-chunk .fc-button-group {
-    display: flex;
-    gap: 0.3rem;
-}
-
-/* Calendar events */
-.fc .fc-event {
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-}
-
-/* Day numbers */
-.fc-daygrid-day-number {
+/* 1. Botones del calendario (Mes, Semana, Hoy, Flechas) */
+.fc .fc-button-primary {
+    background-color: var(--fc-button-bg-color);
+    border-color: var(--fc-button-border-color);
+    text-transform: capitalize;
     font-weight: 500;
-    color: #0d6efd;
+    box-shadow: none !important;
+    border-radius: 8px;
+    padding: 0.4em 0.65em;
 }
 
-/* =========================
-   TABLA DE TURNOS
-   ========================= */
-.table-responsive {
-    overflow-x: auto;
+.fc .fc-button-primary:hover {
+    background-color: var(--fc-button-hover-bg-color);
+    border-color: var(--fc-button-hover-border-color);
 }
 
-.table.table-hover td,
-.table.table-hover th {
-    white-space: normal;
-    word-break: break-word;
+.fc .fc-button-primary:not(:disabled).fc-button-active, 
+.fc .fc-button-primary:not(:disabled):active {
+    background-color: var(--fc-button-active-bg-color);
+    border-color: var(--fc-button-active-border-color);
 }
 
-.table .btn-sm {
-    padding: 0.25rem 0.45rem;
+/* 2. Estilo de los Eventos (Los turnos) */
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 4px;
     font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border-left: 3px solid #5B3A63 !important; /* Borde izquierdo sólido */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2px;
 }
 
-.table .badge {
-    color: #fff;
-    padding: 0.45rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
+.fc-event:hover {
+    transform: scale(1.02);
+    filter: brightness(0.95);
 }
 
-.table td .action-btn {
-    display: inline-block;
-    margin-right: 0.4rem;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+.fc-event-title {
+    font-weight: 600;
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
-@media (max-width: 992px) {
-    /* Calendar min-height */
-    #calendar {
-        min-height: 420px;
-    }
-
-    /* Toolbar: botones crecen y se envuelven */
-    .fc-toolbar-chunk .fc-button {
-        flex: 1 1 auto;
-        min-width: 80px;
-        margin: 0.2rem;
-        text-align: center;
-    }
-
-    .fc-toolbar-chunk .fc-button-group {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
+.fc-daygrid-event-dot {
+    border-color: #5B3A63;
 }
 
-@media (max-width: 768px) {
-    #calendar {
-        min-height: 360px;
-    }
-
-    .fc .fc-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-
-    .fc .fc-toolbar .fc-toolbar-chunk {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.5rem;
-        width: 100%;
-    }
-
-    .fc .fc-event {
-        font-size: 0.8rem;
-        padding: 0.2rem 0.4rem;
-    }
+/* 3. Encabezados de días */
+.fc-col-header-cell-cushion {
+    color: #5B3A63;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-@media (max-width: 576px) {
-    .container-fluid.mt-4 {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-
-    /* Header actions stack */
-    .d-flex.justify-content-between.align-items-center.mb-4 {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-    }
-
-    /* Buttons full width */
-    .d-flex.justify-content-between.align-items-center.mb-4 a.btn {
-        width: 100%;
-        display: block;
-    }
-
-    /* Calendar toolbar centered */
-    .fc .fc-toolbar .fc-center,
-    .fc .fc-toolbar .fc-left,
-    .fc .fc-toolbar .fc-right {
-        justify-content: center;
-    }
-
-    /* Calendar events smaller */
-    .fc .fc-event {
-        font-size: 0.8rem;
-        padding: 0.2rem 0.4rem;
-    }
-
-    /* Final: subtle responsive shadow for touch */
-    .card {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
+/* 4. Celda de "Hoy" */
+.fc-day-today {
+    background-color: var(--fc-today-bg-color) !important;
 }
 
-/* =========================
-   SMALL FIXES
-   ========================= */
-* {
-    box-sizing: border-box;
+/* 5. Título del Calendario (Mes y Año) */
+.fc-toolbar-title {
+    font-size: 1.5rem !important;
+    color: #1F2937;
+    font-weight: 700;
 }
 
-td, th {
-    word-break: break-word;
+/* =========================================
+   ESTILOS ADICIONALES
+   ========================================= */
+.btn-purple {
+    background-color: #6B46C1;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s;
 }
 
-.fc .fc-button {
-    padding: 0.35rem 0.6rem;
-    font-size: 0.85rem;
-}
-
-.bi {
-    vertical-align: -.125em;
-}
-
-.fc-scroller {
-    overflow: visible !important;
-}
-
-/* ---------------- BOTONES VOLVER / CREAR TURNO ---------------- */
-@media (max-width: 576px) {
-    .d-flex.justify-content-between.align-items-center.mb-4 > div {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem; /* espacio entre los botones */
-    }
+.btn-purple:hover {
+    background-color: #553C9A;
+    color: white;
+    transform: translateY(-1px);
 }

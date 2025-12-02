@@ -7,132 +7,132 @@
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 <link rel="stylesheet" href="{% static 'css/agenda.css' %}">
 {% endblock %}
+
 {% block content %}
-<div class='m-5'>
-<div class="container-fluid mt-4">
+<div class="p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-calendar"></i> Mi Agenda</h2>
         <div>
-            <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-dispo">
-                <i class="bi bi-plus-circle"></i> Nueva Disponibilidad
+            <h2 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-calendar-days me-2 text-primary"></i>Mi Agenda</h2>
+            <p class="text-muted mb-0">Gestiona tus turnos y disponibilidad</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-light border shadow-sm text-muted">
+                <i class="bi bi-list-ul me-2"></i> Mis Horarios
             </a>
-            <a href="{% url 'turnos:disponibilidades' %}" class="btn btn-outline-secondary btn-sec">
-                <i class="bi bi-list"></i> Ver Disponibilidades
+            <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-purple shadow-sm">
+                <i class="bi bi-plus-lg me-2"></i> Nueva Disponibilidad
             </a>
         </div>
     </div>
+
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center border-info">
-                <div class="card-body">
-                    <h3 class="text-info">{{ total_turnos_hoy|default:0 }}</h3>
-                    <p class="mb-0 text-muted">Turnos Hoy</p>
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="stats-card info h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="stats-number">{{ total_turnos_hoy|default:0 }}</h3>
+                        <p class="stats-label mb-0">Pacientes para Hoy</p>
+                    </div>
+                    <div class="stats-icon"><i class="fa-solid fa-calendar-day"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="stats-card success h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="stats-number">{{ turnos.count }}</h3>
+                        <p class="stats-label mb-0">Total Reservas Futuras</p>
+                    </div>
+                    <div class="stats-icon"><i class="fa-solid fa-users"></i></div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-center border-success">
-                <div class="card-body">
-                    <h3 class="text-success">{{ turnos.count }}</h3>
-                    <p class="mb-0 text-muted">Total Próximos Turnos</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-center border-primary">
-                <div class="card-body">
-                    <h3 class="text-primary">
-                        {% now "l" %}
-                    </h3>
-                    <p class="mb-0 text-muted">{% now "d/m/Y" %}</p>
+            <div class="card bg-purple text-white h-100 border-0 shadow-sm" style="border-radius: 12px; background: linear-gradient(135deg, #6B46C1, #805AD5);">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-1 opacity-75">FECHA ACTUAL</h6>
+                        <h3 class="mb-0 fw-bold">{% now "l" %}</h3>
+                        <p class="mb-0 opacity-75">{% now "d F Y" %}</p>
+                    </div>
+                    <i class="fa-regular fa-clock fa-3x opacity-25"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">
-                <i class="bi bi-calendar3"></i> Calendario de Turnos Reservados
-            </h5>
-            <small class="text-muted">Solo se muestran turnos confirmados por clientes</small>
+
+    <div class="content-section mb-4">
+        <div class="section-header py-3">
+            <h6 class="section-title"><i class="bi bi-calendar3 me-2"></i> Calendario de Reservas</h6>
         </div>
-        <div class="card-body">
+        <div class="p-3">
             <div id="calendar"></div>
         </div>
     </div>
 
-    <div class="card mt-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Próximos Turnos</h5>
+    <div class="content-section">
+        <div class="section-header py-3">
+            <h6 class="section-title"><i class="bi bi-table me-2"></i> Detalle de Próximos Turnos</h6>
         </div>
-        <div class="card-body">
-            {% if turnos %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Mascota</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for turno in turnos|slice:":10" %}
-                            <tr>
-                                <td>{{ turno.fecha|date:"d/m/Y" }}</td>
-                                <td>{{ turno.hora_inicio|time:"H:i" }}</td>
-                                <td>
-                                    <strong>{{ turno.mascota.nombre }}</strong><br>
-                                    <small class="text-muted">{{ turno.mascota.especie }}</small>
-                                </td>
-                                <td>{{ turno.cliente.get_full_name }}</td>
-                                <td>
-                                    <span class="badge" style="background-color: {{ turno.estado.color }}">
-                                        {{ turno.estado.nombre }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" 
-                                       class="btn btn-sm btn-outline-secondary btn-ver">
-                                        <i class="bi bi-eye"></i> Ver
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
-                    <p class="text-muted mt-3">No tienes turnos reservados próximamente</p>
-                    <a href="{% url 'turnos:crear_disponibilidad' %}" class="btn btn-success">
-                        Crear Disponibilidad
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- ver detalle del turno -->
-    <div class="modal fade" id="turnoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detalle del Turno</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="turnoModalBody">
-                </div>
+        
+        {% if turnos %}
+            <div class="table-responsive">
+                <table class="table custom-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Paciente</th>
+                            <th>Cliente</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turno in turnos|slice:":10" %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ turno.fecha|date:"d/m/Y" }}</div>
+                                <div class="text-muted small">{{ turno.hora_inicio|time:"H:i" }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-primary">{{ turno.mascota.nombre }}</div>
+                                <div class="text-muted small">{{ turno.mascota.especie }}</div>
+                            </td>
+                            <td>
+                                <div class="text-dark">{{ turno.cliente.get_full_name }}</div>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: {{ turno.estado.color }};">
+                                    {{ turno.estado.nombre }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye me-1"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
+            {% if turnos.count > 10 %}
+            <div class="p-3 text-center border-top">
+                <small class="text-muted">Mostrando los primeros 10 turnos.</small>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 text-muted opacity-50"><i class="bi bi-calendar-x fa-3x"></i></div>
+                <h6>No hay turnos próximos</h6>
+                <p class="text-muted">Tu agenda está libre por ahora.</p>
+            </div>
+        {% endif %}
     </div>
-</div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
     const TURNOS_JSON_URL = "{% url 'turnos:turnos_json' %}";

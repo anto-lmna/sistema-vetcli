@@ -150,3 +150,28 @@
     color: var(--primary-dark);
     margin-bottom: 1rem;
 }
+
+/* Asegura que la sección de la agenda siempre tenga altura, tenga o no datos */
+.min-h-400 {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo para cuando no hay datos */
+.empty-state-container {
+    flex-grow: 1; /* Ocupa todo el espacio sobrante */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    color: #9CA3AF;
+}
+
+.empty-state-icon-large {
+    font-size: 4rem;
+    color: #E5E7EB;
+    margin-bottom: 1rem;
+}
