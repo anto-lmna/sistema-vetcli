@@ -175,3 +175,18 @@
     color: #E5E7EB;
     margin-bottom: 1rem;
 }
+
+/* Botón Violeta Bordeado (Outline) */
+.btn-outline-purple {
+    color: #6B46C1;           
+    border: 1px solid #6B46C1;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-purple:hover {
+    background-color: #6B46C1;
+    color: white;
+    box-shadow: 0 4px 6px rgba(107, 70, 193, 0.2);
+    transform: translateY(-1px);
+}

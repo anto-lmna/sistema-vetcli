@@ -9,10 +9,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="p-4">
+
+<div class="container p-3 mb-2">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1 fw-bold text-dark"><i class="fa-regular fa-calendar"></i><span class='m-2'>Mi Agenda</span></h2>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fa-regular fa-calendar" style="color: #B197FC;"></i><span class='m-2'>Mi Agenda</span></h2>
             <p class="text-muted mb-0">Gestiona tus turnos y disponibilidad</p>
         </div>
         <div class="d-flex gap-2">
@@ -89,7 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for turno in turnos|slice:":10" %}
+                        {% for turno in turnos|slice:":5" %}
                         <tr>
                             <td>
                                 <div class="fw-bold text-dark">{{ turno.fecha|date:"d/m/Y" }}</div>
@@ -108,7 +109,7 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" class="btn btn-sm btn-outline-purple"
                                     <i class="bi bi-eye me-1"></i> Ver
                                 </a>
                             </td>
@@ -117,9 +118,9 @@
                     </tbody>
                 </table>
             </div>
-            {% if turnos.count > 10 %}
+            {% if turnos.count > 5 %}
             <div class="p-3 text-center border-top">
-                <small class="text-muted">Mostrando los primeros 10 turnos.</small>
+                <small class="text-muted">Mostrando los primeros 5 turnos.</small>
             </div>
             {% endif %}
         {% else %}

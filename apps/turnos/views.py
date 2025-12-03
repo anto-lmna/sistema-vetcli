@@ -365,6 +365,45 @@ class TurnoNoAsistioView(BaseTurnoAccionView):
         return redirect("turnos:agenda_vet")
 
 
+# class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
+#     """Endpoint JSON para calendario del veterinario"""
+
+#     def get(self, request, *args, **kwargs):
+#         # Filtrar solo turnos reservados
+#         turnos = Turno.objects.filter(
+#             veterinario=request.user,
+#             reservado=True,
+#             cliente__isnull=False,
+#         ).select_related("estado", "mascota", "cliente")
+
+#         eventos = []
+
+#         for turno in turnos:
+#             start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
+#             end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
+#             titulo = f"{turno.mascota.nombre} - {turno.cliente.get_full_name()}"
+
+#             eventos.append(
+#                 {
+#                     "id": turno.id,
+#                     "title": titulo,
+#                     "start": start.isoformat(),
+#                     "end": end.isoformat(),
+#                     "color": turno.estado.color if turno.estado else "#6c757d",
+#                     "extendedProps": {
+#                         "estado": turno.estado.nombre if turno.estado else "Sin estado",
+#                         "reservado": turno.reservado,
+#                         "mascota": turno.mascota.nombre if turno.mascota else "",
+#                         "cliente": (
+#                             turno.cliente.get_full_name() if turno.cliente else ""
+#                         ),
+#                     },
+#                 }
+#             )
+
+#         return JsonResponse(eventos, safe=False)
+
+
 class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
     """Endpoint JSON para calendario del veterinario"""
 
@@ -377,7 +416,6 @@ class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
         ).select_related("estado", "mascota", "cliente")
 
         eventos = []
-
         for turno in turnos:
             start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
             end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
@@ -390,6 +428,8 @@ class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
                     "start": start.isoformat(),
                     "end": end.isoformat(),
                     "color": turno.estado.color if turno.estado else "#6c757d",
+                    # ⬇️ AGREGA ESTA LÍNEA ⬇️
+                    "url": reverse("turnos:turno_detalle_vet", kwargs={"pk": turno.pk}),
                     "extendedProps": {
                         "estado": turno.estado.nombre if turno.estado else "Sin estado",
                         "reservado": turno.reservado,
@@ -739,14 +779,14 @@ class TurnosClinicaJSONView(LoginRequiredMixin, AdminVeterinariaRequiredMixin, V
 
         # Colores por veterinario
         colores = [
-            "#007bff",
+            "#87bef8",
             "#28a745",
             "#ffc107",
             "#dc3545",
             "#6f42c1",
             "#20c997",
             "#e83e8c",
-            "#17a2b8",
+            "#539aa5",
             "#6610f2",
             "#fd7e14",
         ]

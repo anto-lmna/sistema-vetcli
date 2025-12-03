@@ -11,6 +11,8 @@ from .forms import (
     CrearVeterinarioForm,
     VeterinarioFiltroForm,
     ClienteFiltroForm,
+    PerfilVeterinario,
+    PerfilVeterinarioForm,
 )
 from apps.turnos.models import Turno
 from apps.clinicas.models import Clinica
@@ -173,9 +175,9 @@ class DashboardVeterinarioView(
         hoy = timezone.localdate()  # Mejor que timezone.now().date()
 
         # ---------------------------------------------------------
-        # 1. DATOS DE TURNOS (QUERYSETS)
+        #  DATOS DE TURNOS (QUERYSETS)
         # ---------------------------------------------------------
-        # Esta es la LISTA completa para la tabla de "Agenda Hoy"
+
         turnos_hoy_qs = (
             Turno.objects.filter(veterinario=user, fecha=hoy, reservado=True)
             .select_related("mascota", "estado", "cliente")
@@ -183,24 +185,23 @@ class DashboardVeterinarioView(
         )
 
         # ---------------------------------------------------------
-        # 2. MÉTRICAS (CONTADORES)
+        # MÉTRICAS (CONTADORES)
         # ---------------------------------------------------------
-        # Total citas hoy
+        # Total turnos hoy
         count_turnos_hoy = turnos_hoy_qs.count()
 
         # Completados hoy (Éxito)
         count_completados = turnos_hoy_qs.filter(estado__codigo="completado").count()
 
         # Pendientes hoy (Sala de Espera: Confirmados + En Curso)
-        # ESTO ES LO QUE PREGUNTABAS DE LA LISTA DE ESPERA
         count_pendientes = turnos_hoy_qs.filter(
             estado__codigo__in=["confirmado", "en_curso"]
         ).count()
 
         # ---------------------------------------------------------
-        # 3. MASCOTAS RECIENTES (LOGICA MIXTA)
+        #  MASCOTAS RECIENTES (LOGICA MIXTA)
         # ---------------------------------------------------------
-        # Preferimos mostrar mascotas que el vet atendió recientemente (completados)
+        # Mostrar mascotas que el vet atendió recientemente
         ultimos_turnos = (
             Turno.objects.filter(veterinario=user, estado__codigo="completado")
             .select_related("mascota__dueno")
@@ -209,14 +210,14 @@ class DashboardVeterinarioView(
 
         mascotas_vistas_recientemente = [t.mascota for t in ultimos_turnos]
 
-        # Si no ha atendido a nadie, mostramos las últimas registradas en la clínica como fallback
+        # Si no se atendio a nadie, mostramos las últimas registradas en la clínica como fallback
         if not mascotas_vistas_recientemente:
             mascotas_vistas_recientemente = Mascota.objects.filter(
                 dueno__clinica=clinica, activo=True
             ).order_by("-fecha_registro")[:5]
 
         # ---------------------------------------------------------
-        # 4. ARMADO DEL CONTEXTO
+        # ARMADO DEL CONTEXTO
         # ---------------------------------------------------------
         context.update(
             {
@@ -548,3 +549,27 @@ class ListaVeterinariosView(AdminRequiredMixin, ListView):
         context["inactivos"] = all_veterinarios.filter(is_active=False).count()
 
         return context
+
+
+class ConfiguracionVeterinarioView(LoginRequiredMixin, UpdateView):
+    model = PerfilVeterinario
+    form_class = PerfilVeterinarioForm
+    template_name = "core/configuracion_veterinario.html"
+    success_url = reverse_lazy("core:configuracion_veterinario")
+
+    def get_object(self):
+        # Esto asegura que edites TU propio perfil, no el de otro
+        return self.request.user.perfilveterinario
+
+    def form_valid(self, form):
+        # 1. Guardar los datos del Perfil (Matrícula, Firma, etc.)
+        response = super().form_valid(form)
+
+        # 2. Guardar los datos del Usuario (Nombre y Apellido) manualmente
+        user = self.request.user
+        user.first_name = self.request.POST.get("first_name")
+        user.last_name = self.request.POST.get("last_name")
+        user.save()
+
+        messages.success(self.request, "¡Configuración actualizada correctamente!")
+        return response

@@ -8,36 +8,36 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Cargando estados de turno...")
 
-        estados = [
+        estados = estados = [
             {
                 "nombre": "Pendiente",
                 "codigo": EstadoTurno.PENDIENTE,
-                "color": "#ffc107",  # Amarillo
+                "color": "#CBD5E0",  # Gris Hielo (Neutral/En espera)
             },
             {
                 "nombre": "Confirmado",
                 "codigo": EstadoTurno.CONFIRMADO,
-                "color": "#0dcaf0",  # Cyan
+                "color": "#38B2AC",  # Verde Agua / Teal (Tu color de acento)
             },
             {
                 "nombre": "En curso",
                 "codigo": EstadoTurno.EN_CURSO,
-                "color": "#0d6efd",  # Azul
+                "color": "#805AD5",  # Violeta Vibrante (Tu color principal)
             },
             {
                 "nombre": "Completado",
                 "codigo": EstadoTurno.COMPLETADO,
-                "color": "#198754",  # Verde
+                "color": "#48BB78",  # Verde Esmeralda Suave (Éxito)
             },
             {
                 "nombre": "Cancelado",
                 "codigo": EstadoTurno.CANCELADO,
-                "color": "#dc3545",  # Rojo
+                "color": "#FC8181",  # Rojo Rosado Suave (No agresivo)
             },
             {
                 "nombre": "No asistió",
                 "codigo": EstadoTurno.NO_ASISTIO,
-                "color": "#6c757d",  # Gris
+                "color": "#718096",  # Gris Pizarra (Estado final neutral)
             },
         ]
 

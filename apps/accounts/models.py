@@ -87,6 +87,18 @@ class PerfilVeterinario(models.Model):
     especialidad = models.CharField(max_length=100, blank=True)
     experiencia_anos = models.PositiveIntegerField(default=0)
 
+    # NUEVOS CAMPOS DE CONFIGURACIÓN
+    duracion_turno_default = models.IntegerField(
+        default=30, help_text="Duración en minutos"
+    )
+    telefono_profesional = models.CharField(max_length=20, blank=True)
+
+    # Para el PDF
+    firma_digital = models.ImageField(upload_to="firmas/", blank=True, null=True)
+
+    # Preferencias
+    recibir_emails_reservas = models.BooleanField(default=True)
+
     def __str__(self):
         return f"Dr/a. {self.user.get_full_name()} - {self.matricula}"
 

@@ -259,3 +259,25 @@ class VeterinarioFiltroForm(forms.Form):
         choices=[("", "Todos"), ("activo", "Activos"), ("inactivo", "Inactivos")],
         widget=forms.Select(attrs={"class": "form-select"}),
     )
+
+
+class PerfilVeterinarioForm(forms.ModelForm):
+    class Meta:
+        model = PerfilVeterinario
+        fields = [
+            "matricula",
+            "especialidad",
+            "telefono_profesional",
+            "duracion_turno_default",
+            "recibir_emails_reservas",
+            "firma_digital",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs["class"] = "form-check-input"
+            else:
+                field.widget.attrs["class"] = "form-control"

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         height: 'auto',
         contentHeight: 'auto',
-        aspectRatio: 1.8, // Hace las celdas más apaisadas (menos altas)
+        aspectRatio: 1.8, 
         
         headerToolbar: {
             left: 'prev,next today',
@@ -20,15 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
         events: TURNOS_JSON_URL,
     
         eventClick: function(info) {
-            info.jsEvent.preventDefault(); // Evita comportamiento por defecto
+            info.jsEvent.preventDefault();
             
             if (info.event.url) {
-                // Navega a la URL correcta generada por Django
                 window.location.href = info.event.url;
             } else if (info.event.id) {
-                // Fallback por si acaso (tu método anterior)
-                // Asegúrate que esta ruta exista en tu urls.py si falla la anterior
-                // window.location.href = '/turnos/veterinario/detalle/' + info.event.id + '/';
+                window.location.href = '/turnos/veterinario/detalle/' + info.event.id + '/';
             }
         },
         

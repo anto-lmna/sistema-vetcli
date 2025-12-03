@@ -1,10 +1,5 @@
 {% extends 'base_dashboard.html' %}
 {% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-{% endblock %}
-
 {% block title %}Panel Principal - {{ clinica.nombre }}{% endblock %}
 
 {% block content %}
@@ -53,14 +48,65 @@
         <div class="content-section mb-4 min-h-400">
             <div class="section-header">
                 <h6 class="section-title"><i class="fa-solid fa-list-check me-2"></i> Próximos Turnos</h6>
-                <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-sm btn-outline-primary">Ver Agenda</a>
+                <a href="{% url 'turnos:agenda_vet' %}" class="btn btn-sm btn-outline-purple">Ver Agenda</a>
             </div>
             
             {% if turnos_hoy %}
                 <div class="table-responsive">
                     <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Paciente</th>
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {% for turno in turnos_hoy|slice:":5" %}
+                            <tr>
+                                <td class="fw-bold text-primary">
+                                    {{ turno.hora_inicio|time:"H:i" }}
+                                </td>
+                                
+                                <td>
+                                    <div class="fw-bold">{{ turno.mascota.nombre }}</div>
+                                    <small class="text-muted">{{ turno.mascota.especie }}</small>
+                                </td>
+                                
+                                <td>
+                                    {{ turno.motivo|default:"Consulta General" }}
+                                </td>
+                                
+                                <td>
+                                    <span class="badge" style="background-color: {{ turno.estado.color }}">
+                                        {{ turno.estado.nombre }}
+                                    </span>
+                                </td>
+                                
+                                <td>
+                                    {% if turno.estado.codigo == 'confirmado' %}
+                                        <form method="post" action="{% url 'turnos:turno_iniciar' turno.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Iniciar Atención">
+                                                <i class="fa-solid fa-play me-1"></i> Atender
+                                            </button>
+                                        </form>
+                                    
+                                    {% elif turno.estado.codigo == 'en_curso' %}
+                                        <a href="{% url 'historias:crear_historia' turno.mascota.id %}?turno_id={{ turno.pk }}" 
+                                        class="btn btn-sm btn-warning text-dark shadow-sm" title="Retomar Historia">
+                                            <i class="fa-solid fa-pencil me-1"></i> Continuar
+                                        </a>
+                                    
+                                    {% else %}
+                                        <a href="{% url 'turnos:turno_detalle_vet' turno.pk %}" class="btn btn-sm btn-light border" title="Ver Detalle">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -88,7 +134,7 @@
                              <i class="fa-solid fa-user-doctor fa-2x text-primary"></i>
                         </div>
                     </div>
-                    <h5 class="mb-1">Dr. {{ user.get_full_name }}</h5>
+                    <h5 class="mb-1">Dr(a). {{ user.get_full_name }}</h5>
                     <p class="text-muted small mb-3">{{ perfil.matricula }} | {{ clinica.nombre }}</p>
                     
                 </div>

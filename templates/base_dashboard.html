@@ -79,8 +79,8 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="#" class="nav-link nav-link-item">
-                            <i class="fas fa-cog"></i> <span>Configuración</span>
+                      <a href="{% url 'core:configuracion_veterinario' %}" class="nav-link nav-link-item {% if request.resolver_match.url_name == 'configuracion_veterinario' %}active{% endif %}">
+                            <i class="fa-solid fa-cog"></i>  <span>Configuracion</span>
                         </a>
                     </div>
 

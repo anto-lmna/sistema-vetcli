@@ -85,7 +85,7 @@
                             {% if turno.estado.codigo == 'en_curso' %}
                             <a href="{% url 'historias:crear_historia' turno.mascota.pk %}?turno_id={{ turno.pk }}" 
                             class="btn btn-warning w-100 btn-lg text-dark shadow-sm">
-                                <i class="bi bi-pencil-square me-2"></i> Continuar Historia Clínica
+                                <i class="bi bi-pencil-square me-2"></i> Continuar Consulta
                             </a>
                             {% endif %}
                     </div>

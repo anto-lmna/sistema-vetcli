@@ -1,0 +1,140 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Configuración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% endblock %}
+{% block content %}
+<div class="container p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-cog" style="color: #B197FC;" ></i><span class='m-3'>Configuración</span></h2>
+            <p class="text-muted mb-0">Gestiona tu perfil profesional y preferencias</p>
+        </div>
+        <button type="submit" form="configForm" class="btn btn-purple btn-lg shadow-sm">
+            <i class="fa-solid fa-save me-2"></i> Guardar Cambios
+        </button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="configForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="content-section text-center p-4 h-100">
+                    
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if user.perfilveterinario.firma_digital %}
+                            <img src="{{ user.perfilveterinario.firma_digital.url }}" class="img-fluid border rounded" style="max-height: 100px; background: #fff;" alt="Firma">
+                        {% else %}
+                            <div class="bg-light border rounded d-flex align-items-center justify-content-center text-muted" style="width: 200px; height: 100px;">
+                                <div class="text-center">
+                                    <i class="fa-solid fa-signature mb-2"></i><br>
+                                    <small>Sin Firma Digital</small>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <label for="{{ form.firma_digital.id_for_label }}" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" style="width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-camera"></i>
+                            <div class="d-none">
+                                {{ form.firma_digital }}
+                            </div>
+                        </label>
+                    </div>
+                    <p class="small text-muted mb-4">
+                        Sube tu firma o sello para los recetarios PDF.<br>
+                        <span class="text-danger">{{ form.firma_digital.errors }}</span>
+                    </p>
+
+                    <hr>
+
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Nombre</label>
+                            <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Apellido</label>
+                            <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Email (Usuario)</label>
+                            <input type="email" value="{{ user.email }}" class="form-control bg-light" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                
+                <div class="content-section mb-4">
+                    <div class="section-header py-3">
+                        <h6 class="section-title"><i class="fa-solid fa-user-doctor me-2"></i> Datos Profesionales</h6>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Matrícula / Licencia</label>
+                                {{ form.matricula }}
+                                {% if form.matricula.errors %}
+                                    <small class="text-danger">{{ form.matricula.errors.0 }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Especialidad</label>
+                                {{ form.especialidad }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Teléfono Profesional</label>
+                                {{ form.telefono_profesional }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section mb-4">
+                    <div class="section-header py-3">
+                        <h6 class="section-title"><i class="fa-solid fa-calendar-check me-2"></i> Preferencias de Atención</h6>
+                    </div>
+                    <div class="p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <label class="fw-bold text-dark">Duración estándar del turno</label>
+                                <p class="small text-muted mb-0">Tiempo por defecto para nuevas disponibilidades.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    {{ form.duracion_turno_default }}
+                                    <span class="input-group-text">min</span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div class="form-check form-switch">
+                            {{ form.recibir_emails_reservas }}
+                            <label class="form-check-label fw-bold ms-2" for="{{ form.recibir_emails_reservas.id_for_label }}">
+                                Recibir notificaciones por email
+                            </label>
+                        </div>
+                    </div>
+                </div>
+<hr class="my-3">
+                <div class="content-section border-danger" style="border: 1px solid #fee2e2;">
+                    <div class="p-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold text-danger mb-1"><i class="fa-solid fa-shield-halved me-2"></i> Seguridad</h6>
+                            <p class="small text-muted mb-0">Gestiona tu contraseña y acceso.</p>
+                        </div>
+                        <a href="#" class="btn btn-outline-danger btn-sm">
+                            Cambiar Contraseña
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

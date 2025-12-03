@@ -12,6 +12,7 @@ from .views import (
     VeterinarioCreateView,
     ListaClientesView,
     ListaVeterinariosView,
+    ConfiguracionVeterinarioView,
 )
 
 app_name = "core"
@@ -51,5 +52,10 @@ urlpatterns = [
     # Crear Veterinario
     path(
         "veterinarios/crear/", VeterinarioCreateView.as_view(), name="crear_veterinario"
+    ),
+    path(
+        "veterinario/configuracion/",
+        ConfiguracionVeterinarioView.as_view(),
+        name="configuracion_veterinario",
     ),
 ]

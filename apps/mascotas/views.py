@@ -13,7 +13,7 @@ from django.views.generic import (
     View,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from apps.turnos.models import Turno, EstadoTurno
 from .models import Mascota, Raza
 from .forms import (
     MascotaClienteForm,
@@ -253,10 +253,23 @@ class DetalleMascotaView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Mascota.objects.select_related("especie", "raza", "dueno")
 
-    def dispatch(self, request, *args, **kwargs):
-        mascota = self.get_object()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.rol == "veterinario":
+            turno_activo = Turno.objects.filter(
+                mascota=self.object,
+                veterinario=self.request.user,
+                estado__codigo=EstadoTurno.EN_CURSO,
+            ).first()
+            context["turno_activo"] = turno_activo
 
-        # Verificar permisos según rol
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            mascota = self.get_object()
+        except Mascota.DoesNotExist:
+            return super().dispatch(request, *args, **kwargs)
         if request.user.rol == "cliente":
             if mascota.dueno != request.user:
                 messages.error(request, "No tienes permiso para ver esta mascota.")

@@ -163,3 +163,65 @@ border-width: 1px;
     font-size: 1rem;
     color: #212529;
 }
+/* Badges pastel */
+.bg-blue-light { background-color: #EBF8FF; color: #3182CE; }
+.bg-pink-light { background-color: #FFF5F7; color: #D53F8C; }
+.bg-purple { background-color: #6B46C1; color: white; }
+.border-purple { border-color: #6B46C1 !important; }
+.text-purple { color: #6B46C1 !important; }
+
+/* Paginación Violeta */
+.page-link.text-purple:hover {
+    background-color: #F3E8FF;
+    color: #553C9A;
+}
+
+    /* Estilos específicos para esta tabla */
+    .table-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+    
+    .table thead th {
+        background-color: #F3F4F6;
+        color: #4B5563;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #E5E7EB;
+        padding: 1rem;
+    }
+    
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .avatar-placeholder {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #E9D8FD; /* Lila claro */
+        color: #6B46C1; /* Violeta */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
