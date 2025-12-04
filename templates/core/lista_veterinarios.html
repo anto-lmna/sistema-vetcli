@@ -2,146 +2,267 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/modal_aprobacion.css' %}">
+<style>
+    /* Estilos específicos para la tabla */
+    .table-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+    
+    .table thead th {
+        background-color: #F3F4F6;
+        color: #4B5563;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #E5E7EB;
+        padding: 1rem;
+    }
+    
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #E9D8FD; /* Lila claro */
+        color: #6B46C1; /* Violeta */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        margin-right: 12px;
+    }
+</style>
 {% endblock %}
 
-{% block title %}Veterinarios Registrados{% endblock %}
+{% block title %}Veterinarios - {{ user.clinica.nombre }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-person-badge"></i> Veterinarios Registrados  (En desarrollo)</h2>
-        <a href="{% url 'core:crear_veterinario' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Nuevo Veterinario
-        </a>
-    </div>
-
-    <!-- FILTRO -->
-    <form method="get" class="card p-3 mb-4 shadow-sm">
-        <div class="row g-2">
-            <div class="col-md-8">
-                {{ form_filtro.buscar.label_tag }}
-                {{ form_filtro.buscar }}
-            </div>
-            <div class="col-md-2">
-                {{ form_filtro.estado.label_tag }}
-                {{ form_filtro.estado }}
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-search"></i> Buscar
-                </button>
-            </div>
-        </div>
-    </form>
-
-    <!-- RESUMEN -->
-    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
         <div>
-            <strong>Total:</strong> {{ total_veterinarios }} |
-            <span class="text-success"><strong>Activos:</strong> {{ activos }}</span> |
-            <span class="text-danger"><strong>Inactivos:</strong> {{ inactivos }}</span>
+            <h2 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-user-doctor me-2" style="color: #B197FC;"></i>Veterinarios</h2>
+            <p class="text-muted mb-0">Gestión del staff profesional</p>
+        </div>
+        <div>
+            <a href="{% url 'core:crear_veterinario' %}" class="btn btn-purple shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Veterinario
+            </a>
         </div>
     </div>
 
-    <!-- LISTA DE VETERINARIOS -->
-    <div class="table-responsive shadow-sm">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre Completo</th>
-                    <th>Email</th>
-                    <th>Matrícula</th>
-                    <th>Teléfono</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for veterinario in page_obj %}
-                <tr>
-                    <td>
-                        <a href="#" class="text-decoration-none fw-bold">
-                            {{ veterinario.get_full_name|default:veterinario.username }}
-                        </a>
-                    </td>
-                    <td>{{ veterinario.email }}</td>
-                    <td>
-                        <span class="badge bg-secondary">{{ veterinario.matricula }}</span>
-                    </td>
-                    <td>{{ veterinario.telefono|default:"—" }}</td>
-                    <td>
-                        {% if veterinario.is_active %}
-                            <span class="badge bg-success">Activo</span>
-                        {% else %}
-                            <span class="badge bg-danger">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <a href="#" class="btn btn-sm btn-outline-primary" title="Ver detalles">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            {% comment %} <a href="{% url 'accounts:editar_veterinario' veterinario.pk %}" class="btn btn-sm btn-outline-warning" title="Editar"> {% endcomment %}
-                                {% comment %} <i class="bi bi-pencil"></i>
-                            </a> {% endcomment %}
-                            {% if veterinario.is_active %}
-                                {% comment %} <a href="{% url 'accounts:inactivar_veterinario' veterinario.pk %}" class="btn btn-sm btn-outline-danger" title="Inactivar">
-                                    <i class="bi bi-x-circle"></i>
-                                </a> {% endcomment %}
-                            {% else %}
-                                {% comment %} <a href="{% url 'accounts:activar_veterinario' veterinario.pk %}" class="btn btn-sm btn-outline-success" title="Activar">
-                                    <i class="bi bi-check-circle"></i>
-                                </a> {% endcomment %}
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
-                        <i class="bi bi-info-circle"></i> No hay veterinarios registrados.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card info h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon me-3"><i class="fa-solid fa-user-doctor"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ total_veterinarios }}</h4>
+                        <small class="text-muted">Total Registrados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card success h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success me-3"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ activos }}</h4>
+                        <small class="text-muted">Activos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card danger h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-danger me-3"><i class="fa-solid fa-user-slash"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ inactivos }}</h4>
+                        <small class="text-muted">Inactivos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- PAGINACIÓN -->
-    {% if page_obj.has_other_pages %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">&laquo;</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-            {% endif %}
+    <div class="content-section mb-4">
+        <div class="p-3 bg-light border-bottom">
+            <h6 class="mb-0 text-muted"><i class="bi bi-funnel me-1"></i> Buscar Profesional</h6>
+        </div>
+        <div class="p-3">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted">Nombre o Matrícula</label>
+                    {{ form_filtro.buscar }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Estado</label>
+                    {{ form_filtro.estado }}
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-success w-100 shadow-sm">
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            {% for num in page_obj.paginator.page_range %}
-                {% if num == page_obj.number %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a></li>
-                {% endif %}
-            {% endfor %}
+    <div class="content-section table-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Profesional</th>
+                        <th>Contacto</th>
+                        <th>Matrícula</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for veterinario in page_obj %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-placeholder shadow-sm">
+                                    {{ veterinario.first_name|first|upper|default:veterinario.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">
+                                        {{ veterinario.get_full_name|default:veterinario.username }}
+                                    </div>
+                                    <div class="small text-muted">
+                                        Alta: {{ veterinario.date_joined|date:"d/m/Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-dark mb-1"><i class="bi bi-envelope me-2 text-muted"></i>{{ veterinario.email }}</span>
+                                {% if veterinario.telefono %}
+                                <span class="text-muted small"><i class="bi bi-phone me-2"></i>{{ veterinario.telefono }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td>
+                            {% if veterinario.perfilveterinario.matricula %}
+                                <span class="badge bg-light text-dark border font-monospace">
+                                    {{ veterinario.perfilveterinario.matricula }}
+                                </span>
+                            {% elif veterinario.matricula %}
+                                <span class="badge bg-light text-dark border font-monospace">
+                                    {{ veterinario.matricula }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small italic">No registrada</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            {% if veterinario.is_active %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                    <i class="bi bi-check-circle me-1"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                                    <i class="bi bi-ban me-1"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" title="Ver Perfil">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                {% if veterinario.is_active %}
+                                    <button class="btn btn-sm btn-outline-danger" title="Dar de baja">
+                                        <i class="bi bi-person-dash"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-success" title="Reactivar">
+                                        <i class="bi bi-person-check"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted opacity-50 mb-3">
+                                <i class="fa-solid fa-user-doctor fa-3x"></i>
+                            </div>
+                            <h6 class="text-dark">No se encontraron veterinarios</h6>
+                            <p class="text-muted small mb-0">No hay profesionales que coincidan con la búsqueda.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">&raquo;</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-    
-    <a href="{% url 'core:dashboard_admin' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Volver al Panel
-    </a>
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center flex-column flex-md-row">
+            <small class="text-muted mb-2 mb-md-0">
+                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} resultados
+            </small>
+            
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link text-purple" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active"><span class="page-link bg-purple border-purple">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link text-purple" href="?page={{ num }}&{{ request.GET.urlencode|cut:'page=' }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link text-purple" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

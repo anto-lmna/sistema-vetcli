@@ -2,150 +2,270 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/modal_aprobacion.css' %}">
+<style>
+    /* Estilos específicos para la tabla de clientes */
+    .table-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+    
+    .table thead th {
+        background-color: #F3F4F6;
+        color: #4B5563;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #E5E7EB;
+        padding: 1rem;
+    }
+    
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #E9D8FD; /* Lila claro */
+        color: #6B46C1; /* Violeta */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        margin-right: 12px;
+    }
+</style>
 {% endblock %}
-{% block title %}Clientes Registrados {% endblock %}
+
+{% block title %}Clientes Registrados - {{ user.clinica.nombre }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-people"></i> Clientes Registrados(En desarrollo)</h2>
         <div>
-            {% comment %} <a href="{% url 'core:aprobar_clientes' %}" class="btn btn-warning me-2">
-                <i class="bi bi-clock-history"></i> Pendientes ({{ pendientes }})
-            </a> {% endcomment %}
+            <h2 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-users me-2" style="color: #B197FC;"></i>Clientes</h2>
+            <p class="text-muted mb-0">Directorio de clientes y estados de cuenta</p>
         </div>
     </div>
 
-    <!-- FILTRO -->
-    <form method="get" class="card p-3 mb-4 shadow-sm">
-        <div class="row g-2">
-            <div class="col-md-8">
-                {{ form_filtro.buscar.label_tag }}
-                {{ form_filtro.buscar }}
-            </div>
-            <div class="col-md-2">
-                {{ form_filtro.estado.label_tag }}
-                {{ form_filtro.estado }}
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-search"></i> Buscar
-                </button>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card info h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon me-3"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ total_clientes }}</h4>
+                        <small class="text-muted">Total Clientes</small>
+                    </div>
+                </div>
             </div>
         </div>
-    </form>
-
-    <!-- RESUMEN -->
-    <div class="alert alert-secondary d-flex justify-content-between align-items-center">
-        <div>
-            <strong>Total:</strong> {{ total_clientes }} |
-            <span class="text-success"><strong>Activos:</strong> {{ activos }}</span> |
-            <span class="text-danger"><strong>Inactivos:</strong> {{ inactivos }}</span> |
-            <span class="text-warning"><strong>Pendientes:</strong> {{ pendientes }}</span>
+        <div class="col-md-3">
+            <div class="stats-card success h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success me-3"><i class="fa-solid fa-user-check"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ activos }}</h4>
+                        <small class="text-muted">Activos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card warning h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning text-dark me-3"><i class="fa-solid fa-clock"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ pendientes }}</h4>
+                        <small class="text-muted">Pendientes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card danger h-100 py-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-danger me-3"><i class="fa-solid fa-user-slash"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ inactivos }}</h4>
+                        <small class="text-muted">Inactivos</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- LISTA DE CLIENTES -->
-    <div class="table-responsive shadow-sm">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre Completo</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Mascotas</th>
-                    <th>Estado</th>
-                    <th class="text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cliente in page_obj %}
-                <tr>
-                    <td>
-                        <a href="#" class="text-decoration-none fw-bold">
-                            {{ cliente.get_full_name|default:cliente.username }}
-                        </a>
-                    </td>
-                    <td>{{ cliente.email }}</td>
-                    <td>{{ cliente.telefono|default:"—" }}</td>
-                    <td>
-                        <span class="badge bg-info">{{ cliente.mascotas.count }}</span>
-                    </td>
-                    <td>
-                        {% if not cliente.aprobado_por %}
-                            <span class="badge bg-warning text-dark">Pendiente</span>
-                        {% elif cliente.is_active %}
-                            <span class="badge bg-success">Activo</span>
-                        {% else %}
-                            <span class="badge bg-danger">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            {% comment %} <a href="{% url 'accounts:detalle_cliente' cliente.pk %}" class="btn btn-sm btn-outline-primary" title="Ver detalles"> {% endcomment %}
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            {% comment %} <a href="{% url 'accounts:editar_cliente' cliente.pk %}" class="btn btn-sm btn-outline-warning" title="Editar"> {% endcomment %}
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            {% if cliente.is_active %}
-                                {% comment %} <a href="{% url 'accounts:inactivar_cliente' cliente.pk %}" class="btn btn-sm btn-outline-danger" title="Inactivar"> {% endcomment %}
-                                    <i class="bi bi-x-circle"></i>
-                                </a>
+    <div class="content-section mb-4">
+        <div class="p-3 bg-light border-bottom">
+            <h6 class="mb-0 text-muted"><i class="bi bi-funnel me-1"></i> Filtrar Clientes</h6>
+        </div>
+        <div class="p-3">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted">Buscar por nombre o email</label>
+                    {{ form_filtro.buscar }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">Estado</label>
+                    {{ form_filtro.estado }}
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-success w-100 shadow-sm">
+                     Buscar
+                    </button>
+                    {% if request.GET.buscar or request.GET.estado %}
+                    <a href="{% url 'core:lista_clientes' %}" class="btn btn-light border text-muted w-auto" title="Limpiar Filtros">
+                        <i class="fa-solid fa-broom"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-section table-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Nombre Completo</th>
+                        <th>Contacto</th>
+                        <th class="text-center">Mascotas</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in page_obj %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-placeholder shadow-sm">
+                                    {{ cliente.first_name|first|upper|default:cliente.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ cliente.get_full_name|default:cliente.username }}</div>
+                                    <div class="small text-muted">Registro: {{ cliente.date_joined|date:"d/m/Y" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-dark mb-1"><i class="bi bi-envelope me-2 text-muted"></i>{{ cliente.email }}</span>
+                                <span class="text-muted small"><i class="bi bi-phone me-2"></i>{{ cliente.telefono|default:"Sin teléfono" }}</span>
+                            </div>
+                        </td>
+                        
+                        <td class="text-center">
+                            {% if cliente.mascotas.count > 0 %}
+                                <span class="badge bg-purple rounded-pill px-3">{{ cliente.mascotas.count }}</span>
                             {% else %}
-                                {% comment %} <a href="{% url 'accounts:activar_cliente' cliente.pk %}" class="btn btn-sm btn-outline-success" title="Activar"> {% endcomment %}
-                                    <i class="bi bi-check-circle"></i>
-                                </a>
+                                <span class="text-muted small">—</span>
                             {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
-                        <i class="bi bi-info-circle"></i> No hay clientes registrados.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        
+                        <td>
+                            {% if not cliente.aprobado_por %}
+                                <span class="badge bg-warning text-dark border border-warning">
+                                    <i class="bi bi-clock me-1"></i> Pendiente
+                                </span>
+                            {% elif cliente.is_active %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                    <i class="bi bi-check-circle me-1"></i> Activo
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">
+                                    <i class="bi bi-ban me-1"></i> Inactivo
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" title="Ver Detalles">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                
+                                {% if cliente.is_active %}
+                                    <button class="btn btn-sm btn-outline-danger" title="Desactivar">
+                                        <i class="bi bi-person-x"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-success" title="Reactivar">
+                                        <i class="bi bi-person-check"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted opacity-50 mb-3">
+                                <i class="fa-solid fa-users-slash fa-3x"></i>
+                            </div>
+                            <h6 class="text-dark">No se encontraron clientes</h6>
+                            <p class="text-muted small mb-0">Intenta cambiar los filtros de búsqueda.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center flex-column flex-md-row">
+            <small class="text-muted mb-2 mb-md-0">
+                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} resultados
+            </small>
+            
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link text-purple" href="?page={{ page_obj.previous_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active"><span class="page-link bg-purple border-purple">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link text-purple" href="?page={{ num }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link text-purple" href="?page={{ page_obj.next_page_number }}{% if request.GET.buscar %}&buscar={{ request.GET.buscar }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
-
-    <!-- PAGINACIÓN -->
-    {% if page_obj.has_other_pages %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">&laquo;</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if num == page_obj.number %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a></li>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">&raquo;</a>
-                </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-    
-    <a href="{% url 'core:dashboard_admin' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Volver al Panel
-    </a>
 </div>
 {% endblock %}

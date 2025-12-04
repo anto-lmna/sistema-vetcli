@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(error => failureCallback(error));
         },
         eventClick: function(info) {
-            window.location.href = `/mascotas/admin/turno/${info.event.id}/`;
+            window.location.href = `/turnos/admin/turno/${info.event.id}/`;
         },
         eventTimeFormat: {
             hour: '2-digit',
