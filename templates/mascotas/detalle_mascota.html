@@ -44,9 +44,6 @@
                     <a href="{% url 'mascotas:editar_mascota_admin' mascota.pk %}" class="btn btn-warning">
                         <i class="fas fa-pencil-alt"></i> Editar
                     </a>
-                    <a href="{% url 'historias:crear_historia' mascota.pk %}" class="btn btn-outline-success">
-                        <i class="fas fa-file-medical"></i> Registrar Consulta
-                    </a>
 
                     {% if mascota.activo %}
                         <a href="{% url 'mascotas:inactivar_mascota' mascota.pk %}" class="btn btn-danger">
