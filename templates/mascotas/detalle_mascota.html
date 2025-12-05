@@ -35,11 +35,8 @@
             
             {% if user.rol == 'cliente' and user == mascota.dueno %}
                 <div class="d-grid gap-2">
-                    <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-outline-primary">
+                    <a href="{% url 'mascotas:editar_mascota' mascota.pk %}" class="btn btn-outline-purple">
                         <i class="fas fa-pencil-alt"></i> Editar Información
-                    </a>
-                    <a href="{% url 'mascotas:mis_mascotas' %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver a Mis Mascotas
                     </a>
                 </div>
             {% elif user.rol == 'admin_veterinaria' %}

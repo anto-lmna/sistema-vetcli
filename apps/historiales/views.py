@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, ListView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -104,3 +104,22 @@ class HistoriaDetailView(LoginRequiredMixin, DetailView):
         # Añadimos datos extra si los necesitas
         context["titulo"] = f"Historia Clínica - {self.object.mascota.nombre}"
         return context
+
+
+class MisHistoriasListView(LoginRequiredMixin, ListView):
+    """Vista para que el cliente vea el historial de TODAS sus mascotas"""
+
+    model = HistoriaClinica
+    template_name = "historias/historial_cliente_list.html"
+    context_object_name = "historias"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return (
+            HistoriaClinica.objects.filter(
+                mascota__dueno=self.request.user,
+                es_borrador=False,
+            )
+            .select_related("mascota", "veterinario")
+            .order_by("-fecha")
+        )

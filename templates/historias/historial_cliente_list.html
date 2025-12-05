@@ -1,0 +1,87 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Historial Médico{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">
+                <i class="fa-solid fa-file-medical me-2" ></i>Historial Médico
+            </h2>
+            <p class="text-muted mb-0">Registro completo de atenciones de tus mascotas</p>
+        </div>
+    </div>
+
+    <div class="content-section shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase">Fecha</th>
+                        <th class="py-3 text-muted small text-uppercase">Mascota</th>
+                        <th class="py-3 text-muted small text-uppercase">Motivo</th>
+                        <th class="py-3 text-muted small text-uppercase">Atendido por</th>
+                        <th class="text-end pe-4 py-3 text-muted small text-uppercase">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for historia in historias %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">{{ historia.fecha|date:"d/m/Y" }}</div>
+                            <div class="small text-muted">{{ historia.fecha|time:"H:i" }}</div>
+                        </td>
+                        
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold text-dark">{{ historia.mascota.nombre }}</span>
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <span class="text-dark">{{ historia.motivo_consulta }}</span>
+                            {% if historia.vacunas_aplicadas.exists %}
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info ms-2" style="font-size: 0.65rem;">Vacuna</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            <div class="small text-muted">Dr(a). {{ historia.veterinario.last_name }}</div>
+                        </td>
+                        
+                        <td class="text-end pe-4">
+                            <div class="btn-group">
+                                <a href="{% url 'historias:historia_detalle' historia.pk %}" class="btn btn-sm btn-light border text-muted" title="Ver en pantalla">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="mb-3 text-muted opacity-25">
+                                <i class="fa-solid fa-folder-open fa-3x"></i>
+                            </div>
+                            <h6 class="text-dark">Sin registros médicos</h6>
+                            <p class="text-muted small mb-0">Aún no hay historias clínicas finalizadas para tus mascotas.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="p-3 border-top bg-light">
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

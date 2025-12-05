@@ -7,12 +7,14 @@
 
     {% load django_bootstrap5 %}
     {% load static %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/logo2.png' %}">
 
     {% bootstrap_css %}
     {% bootstrap_javascript %}
 
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/base_dashboard.css' %}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {% block extra_css %}{% endblock %}
@@ -102,7 +104,7 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="#" class="nav-link nav-link-item">
+                        <a href="{% url 'historias:mis_historias' %}" class="nav-link nav-link-item {% if 'historias' in request.resolver_match.namespace %}active{% endif %}"">
                             <i class="fas fa-file-alt"></i> <span>Historiales</span>
                         </a>
                     </div>

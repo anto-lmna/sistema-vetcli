@@ -365,45 +365,6 @@ class TurnoNoAsistioView(BaseTurnoAccionView):
         return redirect("turnos:agenda_vet")
 
 
-# class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
-#     """Endpoint JSON para calendario del veterinario"""
-
-#     def get(self, request, *args, **kwargs):
-#         # Filtrar solo turnos reservados
-#         turnos = Turno.objects.filter(
-#             veterinario=request.user,
-#             reservado=True,
-#             cliente__isnull=False,
-#         ).select_related("estado", "mascota", "cliente")
-
-#         eventos = []
-
-#         for turno in turnos:
-#             start = timezone.datetime.combine(turno.fecha, turno.hora_inicio)
-#             end = timezone.datetime.combine(turno.fecha, turno.hora_fin)
-#             titulo = f"{turno.mascota.nombre} - {turno.cliente.get_full_name()}"
-
-#             eventos.append(
-#                 {
-#                     "id": turno.id,
-#                     "title": titulo,
-#                     "start": start.isoformat(),
-#                     "end": end.isoformat(),
-#                     "color": turno.estado.color if turno.estado else "#6c757d",
-#                     "extendedProps": {
-#                         "estado": turno.estado.nombre if turno.estado else "Sin estado",
-#                         "reservado": turno.reservado,
-#                         "mascota": turno.mascota.nombre if turno.mascota else "",
-#                         "cliente": (
-#                             turno.cliente.get_full_name() if turno.cliente else ""
-#                         ),
-#                     },
-#                 }
-#             )
-
-#         return JsonResponse(eventos, safe=False)
-
-
 class TurnosJSONView(LoginRequiredMixin, VeterinarioRequiredMixin, View):
     """Endpoint JSON para calendario del veterinario"""
 
@@ -453,6 +414,7 @@ class TurnosDisponiblesListView(LoginRequiredMixin, ClienteRequiredMixin, ListVi
     model = Turno
     template_name = "turnos/disponibles.html"
     context_object_name = "turnos"
+    paginate_by = 6
 
     def get_queryset(self):
         queryset = (
